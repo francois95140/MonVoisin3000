@@ -130,18 +130,19 @@ body, #root {
 }
 
 .navigation ul li:nth-child(1).active ~ .indicator {
-  left: calc( ( 100vw - ( 70px * 4 ) ) / 8 * 1 + 70px * 0);
+  left: calc( ( 100vw - ( 70px * 5 ) ) / 10 * 1 + 70px * 0);
 }
-
 .navigation ul li:nth-child(2).active ~ .indicator {
-  left: calc( ( 100vw - ( 70px * 4 ) ) / 8 * 3 + 70px * 1);
+  left: calc( ( 100vw - ( 70px * 5 ) ) / 10 * 3 + 70px * 1);
 }
-
 .navigation ul li:nth-child(3).active ~ .indicator {
-  left: calc( ( 100vw - ( 70px * 4 ) ) / 8 * 5 + 70px * 2);
+  left: calc( ( 100vw - ( 70px * 5 ) ) / 10 * 5 + 70px * 2);
 }
 .navigation ul li:nth-child(4).active ~ .indicator {
-  left: calc( ( 100vw - ( 70px * 4 ) ) / 8 * 7 + 70px * 3);
+  left: calc( ( 100vw - ( 70px * 5 ) ) / 10 * 7 + 70px * 3);
+}
+.navigation ul li:nth-child(5).active ~ .indicator {
+  left: calc( ( 100vw - ( 70px * 5 ) ) / 10 * 9 + 70px * 4);
 }
 
 .navbar {

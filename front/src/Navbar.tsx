@@ -1,5 +1,7 @@
 //import { useState } from 'react'
-import "./App.css";
+import "./Navbar.css";
+import { NavLink } from "react-router"
+
 
 function App() {
   //const [count, setCount] = useState(0)
@@ -9,35 +11,44 @@ function App() {
     <div className="navbar">
        <div className="navigation">
         <ul>
-            <li className={`list${window.location.pathname.includes('/test') ? ' active' : ''}`}>
-                <a href="#">
+        <li className="list" onClick={(e) => { e.preventDefault(); const list = e.currentTarget.parentNode.children; Array.from(list).forEach(el => el.classList.remove('active')); e.currentTarget.classList.add('active');}}>
+        <NavLink to="/testa">
                     <span className="icon">
                         <ion-icon name="american-football-outline"></ion-icon>                </span>
                     <span className="text">Accueil</span>
-                </a>
+                </NavLink>
             </li>
-            <li className="list">
-                <a href="#">
+            <li className="list" onClick={(e) => { e.preventDefault(); const list = e.currentTarget.parentNode.children; Array.from(list).forEach(el => el.classList.remove('active')); e.currentTarget.classList.add('active');}}>
+                <NavLink to="/testb">
                     <span className="icon">
-                        <ion-icon name="american-football-outline"></ion-icon>                </span>
+                        <ion-icon name="american-football-outline"></ion-icon>
+                        </span>
                     <span className="text">Accueil</span>
-                </a>
+                </NavLink>
             </li>
-            <li className="list">
-                <a href="#">
+            <li className="list" onClick={(e) => {e.preventDefault(); const list = e.currentTarget.parentNode.children; Array.from(list).forEach(el => el.classList.remove('active')); e.currentTarget.classList.add('active');}}>
+                <NavLink to="/">
                     <span className="icon">
                         <ion-icon name="home-outline"></ion-icon>
                     </span>
                     <span className="text">Accueil</span>
-                </a>
+                </NavLink>
             </li>
-            <li className="list">
-                <a href="#" onClick={(e) => {e.preventDefault(); window.history.pushState({}, '', '/test'); window.dispatchEvent(new PopStateEvent('popstate'));}}>
+            <li className="list" onClick={(e) => { e.preventDefault(); const list = e.currentTarget.parentNode.children; Array.from(list).forEach(el => el.classList.remove('active')); e.currentTarget.classList.add('active');}}>
+                <NavLink to="/test">
                     <span className="icon">
                         <ion-icon name="home-outline"></ion-icon>
                     </span>
                     <span className="text">Accueil</span>
-                </a>
+                </NavLink>
+            </li>
+            <li className="list" onClick={(e) => { e.preventDefault(); const list = e.currentTarget.parentNode.children; Array.from(list).forEach(el => el.classList.remove('active')); e.currentTarget.classList.add('active');}}>
+                <NavLink to="/test">
+                    <span className="icon">
+                        <ion-icon name="home-outline"></ion-icon>
+                    </span>
+                    <span className="text">Accueil</span>
+                </NavLink>
             </li>
             <div className="indicator">
 
