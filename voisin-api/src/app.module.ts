@@ -1,10 +1,33 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { MongooseModule } from '@nestjs/mongoose';
+import { getMongoConfig } from './config/mongo.config';
+import neo4jConfig from './config/neo4j.config';
+import { TypeOrmConfigService } from './config/posgres.config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Neo4jModule } from './config/neo4j.module';
+import { UserModule } from './user/user.module';
 
 @Module({
-  imports: [],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+      load: [neo4jConfig],
+    }),
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: getMongoConfig,
+      inject: [ConfigService],
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useClass: TypeOrmConfigService,
+    }),
+    Neo4jModule,
+    UserModule
+  ],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}
