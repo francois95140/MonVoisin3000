@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, DeleteDateColumn,  } from 'typeorm';
 
 @Entity('users')
 export class User {
@@ -12,7 +12,6 @@ export class User {
   email: string;
 
   @Column()
-  //@Exclude({ toPlainOnly: true }) // Exclure des réponses API
   password: string; // Stockez toujours un hash, jamais en clair
 
   @Column({ length: 100, nullable: true })
@@ -51,24 +50,18 @@ export class User {
   @Column({ nullable: true })
   language: string;
 
+  @Column({ default: 0 })
+  conversationCount: number;
+  
+  @Column({ default: 0 })
+  friendCount: number;
+  
   @CreateDateColumn()
   createdAt: Date;
-
+  
   @UpdateDateColumn()
   updatedAt: Date;
 
-  // Identifiants pour les autres bases de données
-  // Ces champs simplifient la liaison entre les BDD
-  @Column({ nullable: true })
-  mongoUserId: string; // ID dans MongoDB (optionnel si vous utilisez le même UUID)
-
-  @Column({ nullable: true })
-  neo4jUserId: string; // ID dans Neo4j (optionnel si vous utilisez le même UUID)
-
-  // Métadonnées statistiques (optionnelles)
-  @Column({ default: 0 })
-  conversationCount: number;
-
-  @Column({ default: 0 })
-  friendCount: number;
+  @DeleteDateColumn()
+  deletedAt: Date;
 }
