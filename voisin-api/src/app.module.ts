@@ -7,6 +7,8 @@ import { TypeOrmConfigService } from './config/posgres.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Neo4jModule } from './config/neo4j.module';
 import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
+import { AuthService } from './auth/auth.service';
 
 @Module({
   imports: [
@@ -25,9 +27,10 @@ import { UserModule } from './user/user.module';
       useClass: TypeOrmConfigService,
     }),
     Neo4jModule,
-    UserModule
+    UserModule,
+    AuthModule
   ],
   controllers: [],
-  providers: [],
+  providers: [AuthService],
 })
 export class AppModule {}
