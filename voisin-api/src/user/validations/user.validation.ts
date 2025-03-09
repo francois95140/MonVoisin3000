@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { UserRole } from '../entities/user.entity';
 
 export const createUserSchema = z.object({
   username: z.string()
@@ -29,6 +30,14 @@ export const loginUserSchema = z.object({
   password: z.string().min(1, 'Le mot de passe est requis'),
 });
 
+export const resetPasswordUserSchema = z.object({
+  passwordResetCode: z.string(),
+  newPassword: z.string()
+    .min(8, 'Le mot de passe doit contenir au moins 8 caractères')
+    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 'Le mot de passe doit contenir au moins une majuscule, une minuscule et un chiffre'),
+
+});
+
 export const paginationSchema = z.object({
   page: z.number().int().positive().default(1),
   limit: z.number().int().positive().max(100).default(10),
@@ -47,7 +56,7 @@ export const toggleStatusSchema = z.object({
 });
 
 export const updateRoleSchema = z.object({
-  role: z.enum(['user', 'admin'], {
+  role: z.enum([UserRole.USER, UserRole.ADMIN], {
     required_error: 'Le rôle est requis',
     invalid_type_error: 'Rôle invalide',
   }),
@@ -65,6 +74,7 @@ export const updatePreferencesSchema = z.object({
 export type CreateUserInput = z.infer<typeof createUserSchema>;
 export type UpdateUserInput = z.infer<typeof updateUserSchema>;
 export type LoginUserInput = z.infer<typeof loginUserSchema>;
+export type ResetPasswordUserInput = z.infer<typeof resetPasswordUserSchema>;
 export type PaginationInput = z.infer<typeof paginationSchema>;
 export type SearchQueryInput = z.infer<typeof searchQuerySchema>;
 export type ToggleStatusInput = z.infer<typeof toggleStatusSchema>;

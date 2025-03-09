@@ -27,7 +27,7 @@ import {
   updateRoleSchema,
   updatePreferencesSchema,
 } from './validations/user.validation';
-import { User } from './entities/user.entity';
+import { User, UserRole } from './entities/user.entity';
 
 @ApiTags('users')
 @Controller('users')
@@ -129,7 +129,7 @@ export class UserController {
   @ApiResponse({ status: 200, description: 'Rôle utilisateur mis à jour.' })
   async updateRole(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body(new ZodValidationPipe(updateRoleSchema)) { role }: { role: string },
+    @Body(new ZodValidationPipe(updateRoleSchema)) { role }: { role: UserRole },
   ) {
     return await this.userService.updateRole(id, role);
   }

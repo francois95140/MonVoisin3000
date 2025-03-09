@@ -1,5 +1,10 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, DeleteDateColumn,  } from 'typeorm';
 
+export enum UserRole {
+  ADMIN = 'admin',
+  USER= 'user',
+}
+
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn('uuid')
@@ -29,11 +34,14 @@ export class User {
   @Column({ default: true })
   isActive: boolean;
 
-  @Column({ default: 'user' })
-  role: string; // 'user', 'admin', etc.
+  @Column({ type: 'simple-enum', enum: UserRole, default: UserRole.USER })
+  role: UserRole; // 'user', 'admin', etc.
 
   @Column({ nullable: true })
   lastLogin: Date;
+
+  @Column({ nullable: true })
+  passwordResetCode?: string;
 
   @Column({ type: 'jsonb', nullable: true })
   preferences: object; // Préférences utilisateur (thème, notifications, etc.)

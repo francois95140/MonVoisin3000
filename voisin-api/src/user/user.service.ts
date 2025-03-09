@@ -1,8 +1,19 @@
-import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+  BadRequestException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from './entities/user.entity';
-import { CreateUserInput, UpdateUserInput, LoginUserInput } from './validations/user.validation';
+import { User, UserRole } from './entities/user.entity';
+import {
+  CreateUserInput,
+  UpdateUserInput,
+  LoginUserInput,
+  ResetPasswordUserInput,
+} from './validations/user.validation';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -34,10 +45,29 @@ export class UserService {
       password: hashedPassword,
       isActive: true,
       isVerified: false,
-      role: 'user',
     });
 
     return await this.userRepository.save(user);
+  }
+
+  async resetPassword(input: ResetPasswordUserInput): Promise<User> {
+    const user = await this.userRepository.findOne({
+      where: { passwordResetCode: input.passwordResetCode },
+    });
+
+    if (!user || !user.passwordResetCode || user.passwordResetCode === '') {
+      throw new UnauthorizedException('Wrong reset password code');
+    }
+
+    // Hasher le mot de passe
+    const hashedPassword = await bcrypt.hash(input.newPassword, 10);
+
+    user.password = hashedPassword;
+    user.passwordResetCode = '';
+
+    await this.userRepository.save(user);
+
+    return user;
   }
 
   async findAll(page = 1, limit = 10): Promise<{ users: User[]; total: number }> {
@@ -151,7 +181,7 @@ export class UserService {
     return await this.userRepository.save(user);
   }
 
-  async updateRole(id: string, role: string): Promise<User> {
+  async updateRole(id: string, role: UserRole): Promise<User> {
     const user = await this.findById(id);
 
     user.role = role;
