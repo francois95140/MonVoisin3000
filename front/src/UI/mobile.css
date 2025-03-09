@@ -1,0 +1,151 @@
+
+
+  body, #root {
+    min-height: 100vh;
+  }
+  .navigation {
+    width: 100vw;
+    height: calc(4.2rem + 0.4rem);
+    background: var(--color-indigo-200);
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    border-top: 0.4rem solid var(--background);
+  }
+  
+  .navigation ul {
+    display: flex;
+    width: 100vw;
+    justify-content: space-around;
+    align-items: center;
+  }
+  
+  .navigation ul li {
+    position: relative;
+    list-style: none;
+    width: 4.2rem;
+    height: 4.2rem;
+    z-index: 1;
+  }
+  
+  .navigation ul li a {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 100%;
+    text-align: center;
+    font-weight: 500;
+  }
+  
+  .navigation ul li a .icon {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 100%;
+    text-align: center;
+    font-weight: 500;
+  }
+  
+  .navigation ul li a .icon {
+    position: relative;
+    display: block;
+    line-height: 4.2rem;
+    font-size: 1.5rem;
+    text-align: center;
+    transition: 0.5s;
+    color: var(--color-gray-900);
+  }
+  
+  
+  
+  .navigation ul li.active a .icon {
+    transform: translateY(-1.8rem);
+  }
+  
+  .navigation ul li a .text {
+    position: absolute;
+    color: var(--color-gray-900);
+    font-weight: 400;
+    font-size: 0.75rem;
+    letter-spacing: 0.05rem;
+    transition: 0.5s;
+    opacity: 0;
+    transform: translateY(2rem);
+  }
+  
+  .navigation ul li.active a .text {
+    opacity: 1;
+    transform: translateY(0.8rem);
+    font-weight: bold;
+    font-size: 0.8rem;
+  }
+  
+  .indicator {
+    position: absolute;
+    top: -2.1rem;
+    width: 4.2rem;
+    height: 4.2rem;
+    background: var(--chart-2);
+    border-radius: 50%;
+    border: 0.4rem solid var(--background);
+    transition: 0.5s;
+  }
+  
+  .indicator::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: -1.2rem;
+    width: 20px;
+    height: 20px;
+    background: transparent;
+    border-top-right-radius: 20px;
+    box-shadow: 1px -0.3rem 0 0 var(--background);
+  }
+  
+  .indicator::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: -1.2rem;
+    width: 20px;
+    height: 20px;
+    background: transparent;
+    border-top-left-radius: 20px;
+    box-shadow: -1px -0.3rem 0 0 var(--background);
+  }
+  
+  .navigation ul li:nth-child(1).active ~ .indicator {
+    left: calc( ( 100vw - ( 4.2rem * 5 ) ) / 10 * 1 + 4.2rem * 0);
+  }
+  .navigation ul li:nth-child(2).active ~ .indicator {
+    left: calc( ( 100vw - ( 4.2rem * 5 ) ) / 10 * 3 + 4.2rem * 1);
+  }
+  .navigation ul li:nth-child(3).active ~ .indicator {
+    left: calc( ( 100vw - ( 4.2rem * 5 ) ) / 10 * 5 + 4.2rem * 2);
+  }
+  .navigation ul li:nth-child(4).active ~ .indicator {
+    left: calc( ( 100vw - ( 4.2rem * 5 ) ) / 10 * 7 + 4.2rem * 3);
+  }
+  .navigation ul li:nth-child(5).active ~ .indicator {
+    left: calc( ( 100vw - ( 4.2rem * 5 ) ) / 10 * 9 + 4.2rem * 4);
+  }
+  
+  .navbar {
+    display: flex;
+    align-items: flex-end;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+  }
+  .navheight {
+    height: 6.6rem;
+  }
