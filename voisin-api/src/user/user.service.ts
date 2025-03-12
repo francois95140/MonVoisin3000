@@ -2,25 +2,29 @@ import {
   Injectable,
   NotFoundException,
   ConflictException,
-  BadRequestException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { User, UserRole } from './entities/user.entity';
+import { Neo4jService } from 'nest-neo4j';
+
 import {
   CreateUserInput,
   UpdateUserInput,
-  LoginUserInput,
   ResetPasswordUserInput,
 } from './validations/user.validation';
 import * as bcrypt from 'bcrypt';
+import { UserCreatedEvent } from './events/user-created.event';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    private eventEmitter: EventEmitter2,
+    private readonly neo4jService: Neo4jService,
   ) {}
 
   async create(input: CreateUserInput): Promise<User> {
@@ -46,6 +50,20 @@ export class UserService {
       isActive: true,
       isVerified: false,
     });
+
+    const query = `
+      CREATE (u:User { username: $username, email: $email})
+      RETURN u
+    `;
+
+    const params = { username : user.username, email : user.email };
+
+    await this.neo4jService.write(query, params);
+
+    /* this.eventEmitter.emit(
+      'user.created',
+      new UserCreatedEvent(user.id, user.email, user.createdAt, user.username)
+    );*/
 
     return await this.userRepository.save(user);
   }
@@ -137,34 +155,7 @@ export class UserService {
   async delete(id: string): Promise<void> {
     const user = await this.findById(id);
 
-    await this.userRepository.softDelete(user);
-  }
-
-  async validateCredentials(input: LoginUserInput): Promise<User> {
-    const user = await this.userRepository.findOne({
-      where: { email: input.email },
-      select: ['id', 'email', 'password', 'isActive', 'isVerified'],
-    });
-
-    if (!user) {
-      throw new BadRequestException('Identifiants invalides');
-    }
-
-    const isPasswordValid = await bcrypt.compare(input.password, user.password);
-
-    if (!isPasswordValid) {
-      throw new BadRequestException('Identifiants invalides');
-    }
-
-    if (!user.isActive) {
-      throw new BadRequestException('Compte désactivé');
-    }
-
-    // Mettre à jour la dernière connexion
-    user.lastLogin = new Date();
-    await this.userRepository.save(user);
-
-    return user;
+    await this.userRepository.softRemove(user);
   }
 
   async updateLastLogin(id: string): Promise<void> {
@@ -197,12 +188,12 @@ export class UserService {
     return await this.userRepository.save(user);
   }
 
-  /* async searchUsers(query: string, page = 1, limit = 10): Promise<{ users: User[]; total: number }> {
+  async searchUsers(query: string, page = 1, limit = 10): Promise<{ users: User[]; total: number }> {
     const [users, total] = await this.userRepository.findAndCount({
       where: [
-        { username: { $regex: query, $options: 'i' } },
-        { email: { $regex: query, $options: 'i' } },
-        { fullName: { $regex: query, $options: 'i' } },
+        { username: ILike(`%${query}%`) },
+        { email: ILike(`%${query}%`) },
+        { fullName: ILike(`%${query}%`) },
       ],
       select: ['id', 'username', 'email', 'fullName', 'avatar', 'bio', 'isVerified', 'isActive', 'role'],
       skip: (page - 1) * limit,
@@ -210,5 +201,5 @@ export class UserService {
     });
 
     return { users, total };
-  }*/
+  }
 }

@@ -40,7 +40,7 @@ export class AuthService {
     const user = await this.userService.findByEmail(dto.email);
 
     // No matching email
-    if (!user) {
+    if (!user || user.deletedAt !== null) {
       throw new UnauthorizedException("Email doesn't exist");
     }
 

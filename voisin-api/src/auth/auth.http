@@ -9,5 +9,12 @@ Content-Type: application/json
 
 ###
 
-GET http://localhost:3000/users
+POST http://localhost:3000/auth/register #
 Content-Type: application/json
+
+{
+  "username": "bisho",
+  "email": "bisho@gmail.com",
+  "password": "ybb7@hbbbUH"
+}
+
