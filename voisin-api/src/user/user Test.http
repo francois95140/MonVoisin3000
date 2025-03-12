@@ -1,0 +1,49 @@
+@auth_token =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjM2M2Q3MjkxLWI0YTktNDkxZS1hZjMwLWM1ZmJlNTQ1MWQxNiIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzQxNzMzNDgxLCJleHAiOjE3NDE4MTk4ODF9.z-qUhEVp8L18GOvv_A9WoKnWw8sF9dBzK-JtcfKrX7s
+
+GET localhost:3000/users
+Authorization: Bearer {{auth_token}}
+Content-Type: application/json
+
+### get all
+
+GET localhost:3000/users
+Authorization: Bearer {{auth_token}}
+Content-Type: application/json
+
+### search
+GET http://localhost:3000/users/search?query=bi
+Authorization: Bearer {{auth_token}}
+Content-Type: application/json
+
+### get by id
+
+GET http://localhost:3000/users/885148d8-868b-4f92-b3b7-22fa21663b0a
+Authorization: Bearer {{auth_token}}
+Content-Type: application/json
+
+### update one
+
+PATCH http://localhost:3000/users
+Authorization: Bearer {{auth_token}}
+Content-Type: application/json
+
+{
+  "bio": "Namequ suprématie",
+  "fullName": "diki darko"
+}
+
+### delete one
+
+DELETE http://localhost:3000/users
+Authorization: Bearer {{auth_token}}
+Content-Type: application/json
+
+### delete one
+
+PATCH http://localhost:3000/users/preferences
+Authorization: Bearer {{auth_token}}
+Content-Type: application/json
+
+{
+  "theme":  "dark"
+}
