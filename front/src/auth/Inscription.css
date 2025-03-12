@@ -1,0 +1,4 @@
+.photo:hover .photoicon {
+    transition: opacity 0.5s;
+    opacity: 1;
+}

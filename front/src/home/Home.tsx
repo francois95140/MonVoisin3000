@@ -5,7 +5,7 @@ function HomePage() {
     <>
       <section className="h-screen text-gray-600 body-font">
         <div className="h-full container mx-auto flex items-center justify-center px-5 py-6 md:flex-row flex-col">
-          <div className="lg:max-w-lg lg:w-full md:w-1/2 w-5/6 mb-10 md:mb-0">
+          <div className="justify-center items-center flex lg:max-w-lg lg:w-full md:w-1/2 w-5/6 mb-10 md:mb-0">
             <img
               className="object-cover object-center rounded"
               alt="hero"
