@@ -32,7 +32,7 @@ export class UserService {
     const existingUser = await this.userRepository.findOne({
       where: [
         { email: input.email },
-        { username: input.username },
+        { pseudo: input.pseudo },
       ],
     });
 
@@ -44,19 +44,21 @@ export class UserService {
     const hashedPassword = await bcrypt.hash(input.password, 10);
 
     // Créer le nouvel utilisateur
-    const user = this.userRepository.create({
+    const creatingUser = this.userRepository.create({
       ...input,
       password: hashedPassword,
       isActive: true,
       isVerified: false,
     });
 
+    const user = await this.userRepository.save(creatingUser);
+
     const query = `
-      CREATE (u:User { username: $username, email: $email})
+      CREATE (u:User {pseudo: $pseudo, tag: $tag, userPgId: $userId})
       RETURN u
     `;
 
-    const params = { username : user.username, email : user.email };
+    const params = {pseudo : user.pseudo, tag : user.tag, userId : user.id};
 
     await this.neo4jService.write(query, params);
 
@@ -65,7 +67,7 @@ export class UserService {
       new UserCreatedEvent(user.id, user.email, user.createdAt, user.username)
     );*/
 
-    return await this.userRepository.save(user);
+    return user;
   }
 
   async resetPassword(input: ResetPasswordUserInput): Promise<User> {
@@ -90,7 +92,7 @@ export class UserService {
 
   async findAll(page = 1, limit = 10): Promise<{ users: User[]; total: number }> {
     const [users, total] = await this.userRepository.findAndCount({
-      select: ['id', 'username', 'email', 'fullName', 'avatar', 'bio', 'isVerified', 'isActive', 'role', 'lastLogin', 'createdAt'],
+      select: ['id', 'pseudo', 'email', 'tag', 'avatar', 'bio', 'isVerified', 'isActive', 'role', 'lastLogin', 'createdAt'],
       skip: (page - 1) * limit,
       take: limit,
       order: { createdAt: 'DESC' },
@@ -102,7 +104,7 @@ export class UserService {
   async findById(id: string): Promise<User> {
     const user = await this.userRepository.findOne({
       where: { id },
-      select: ['id', 'username', 'email', 'fullName', 'avatar', 'bio', 'isVerified', 'isActive', 'role', 'lastLogin', 'createdAt'],
+      select: ['id', 'pseudo', 'email', 'tag', 'avatar', 'bio', 'isVerified', 'isActive', 'role', 'lastLogin', 'createdAt'],
     });
 
     if (!user) {
@@ -128,16 +130,16 @@ export class UserService {
     const user = await this.findById(id);
 
     // Si le mot de passe est mis à jour, le hasher
-    if (input.password) {
+    /* if (input.password) {
       input.password = await bcrypt.hash(input.password, 10);
-    }
+    }*/
 
     // Vérifier si le nouvel email/username n'est pas déjà utilisé
-    if (input.email || input.username) {
+    if (input.email || input.pseudo) {
       const existingUser = await this.userRepository.findOne({
         where: [
           { email: input.email, id:  id  },
-          { username: input.username, id:  id  },
+          { pseudo: input.pseudo, id:  id  },
         ],
       });
 
@@ -191,11 +193,11 @@ export class UserService {
   async searchUsers(query: string, page = 1, limit = 10): Promise<{ users: User[]; total: number }> {
     const [users, total] = await this.userRepository.findAndCount({
       where: [
-        { username: ILike(`%${query}%`) },
+        { pseudo: ILike(`%${query}%`) },
         { email: ILike(`%${query}%`) },
-        { fullName: ILike(`%${query}%`) },
+        { tag: ILike(`%${query}%`) },
       ],
-      select: ['id', 'username', 'email', 'fullName', 'avatar', 'bio', 'isVerified', 'isActive', 'role'],
+      select: ['id', 'pseudo', 'email', 'tag', 'avatar', 'bio', 'isVerified', 'isActive', 'role'],
       skip: (page - 1) * limit,
       take: limit,
     });

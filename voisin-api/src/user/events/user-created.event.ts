@@ -4,6 +4,6 @@ export class UserCreatedEvent {
       public readonly id: string,
       public readonly email: string,
       public readonly createdAt: Date,
-      public readonly fullname: string
+      public readonly pseudo: string
     ) {}
   }

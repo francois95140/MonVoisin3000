@@ -11,7 +11,7 @@ export class User {
   id: string;
 
   @Column({ length: 50, unique: true })
-  username: string;
+  tag: string;
 
   @Column({ unique: true })
   email: string;
@@ -20,7 +20,7 @@ export class User {
   password: string; // Stockez toujours un hash, jamais en clair
 
   @Column({ length: 100, nullable: true })
-  fullName: string;
+  pseudo: string;
 
   @Column({ nullable: true })
   avatar: string; // URL vers l'avatar

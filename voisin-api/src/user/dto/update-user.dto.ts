@@ -1,10 +1,10 @@
 import { UpdateUserInput } from '../validations/user.validation';
 
 export class UpdateUserDto implements UpdateUserInput {
-  username?: string;
+  tag?: string;
   email?: string;
   password?: string;
-  fullName?: string ;
+  pseudo?: string ;
   avatar?: string ;
   bio?: string ;
   phoneNumber?: string ;

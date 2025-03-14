@@ -1,4 +1,4 @@
-@auth_token =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjM2M2Q3MjkxLWI0YTktNDkxZS1hZjMwLWM1ZmJlNTQ1MWQxNiIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzQxNzMzNDgxLCJleHAiOjE3NDE4MTk4ODF9.z-qUhEVp8L18GOvv_A9WoKnWw8sF9dBzK-JtcfKrX7s
+@auth_token =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjFhZmJlZjM5LTE4NzctNGE1NC04ODk2LWRlMmZiNGU5NjRjMSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzQxOTQ3NDY2LCJleHAiOjE3NDIwMzM4NjZ9.PsxvXHBQloPHeye_2rUuHSc3JMTJGX-H6dswL6HbPy8
 
 GET localhost:3000/users
 Authorization: Bearer {{auth_token}}
@@ -21,7 +21,7 @@ GET http://localhost:3000/users/885148d8-868b-4f92-b3b7-22fa21663b0a
 Authorization: Bearer {{auth_token}}
 Content-Type: application/json
 
-### update one
+### update one (to fix)
 
 PATCH http://localhost:3000/users
 Authorization: Bearer {{auth_token}}
@@ -29,7 +29,8 @@ Content-Type: application/json
 
 {
   "bio": "Namequ suprématie",
-  "fullName": "diki darko"
+  "pseudo": "diki darko",
+  "avatar": "http:/fvfvvf/"
 }
 
 ### delete one
@@ -38,7 +39,7 @@ DELETE http://localhost:3000/users
 Authorization: Bearer {{auth_token}}
 Content-Type: application/json
 
-### delete one
+### udate user preference
 
 PATCH http://localhost:3000/users/preferences
 Authorization: Bearer {{auth_token}}
