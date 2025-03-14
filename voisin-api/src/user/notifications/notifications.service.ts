@@ -14,7 +14,7 @@ export class NotificationsService {
     console.log('Nouvel utilisateur créé:', event);
     await this.emailService.sendWelcomeEmail({
       email: event.email,
-      fullName: event.fullname,
+      fullName: event.pseudo,
     });
   }
 }
