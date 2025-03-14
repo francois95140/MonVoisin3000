@@ -12,6 +12,7 @@ import { NotificationsService } from './user/notifications/notifications.service
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { MessageModule } from './message/message.module';
 import { Neo4jModule } from 'nest-neo4j'
+import { FriendModule } from './friend/friend.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { Neo4jModule } from 'nest-neo4j'
     UserModule,
     EmailModule,
     AuthModule,
+    FriendModule,
     MessageModule
   ],
   controllers: [],
