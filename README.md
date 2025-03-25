@@ -1,5 +1,7 @@
 # MonVoisin3000
 
+![](icone.svg)
+
 ## Description du Projet
 **MonVoisin3000** est une plateforme destinée à faciliter les interactions entre voisins et à améliorer l'accès aux informations locales. L'objectif est de proposer un ensemble de fonctionnalités favorisant l'entraide, le partage et la communication entre habitants d'un même quartier.
 
