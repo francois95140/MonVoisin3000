@@ -48,7 +48,11 @@ export class AuthGuard implements CanActivate {
       }
 
       request['user'] = user;
-    } catch {
+    } catch (error) {
+
+      if (error.name === 'TokenExpiredError') {
+        return this.handleRefreshToken(request, context);
+      }
       throw new UnauthorizedException();
     }
 
@@ -59,5 +63,52 @@ export class AuthGuard implements CanActivate {
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
 
     return type === 'Bearer' ? token : undefined;
+  }
+
+  private async handleRefreshToken(request: Request, context: ExecutionContext): Promise<boolean> {
+  
+    const refreshToken = this.extractRefreshTokenFromCookie(request);
+    
+    if (!refreshToken) {
+      throw new UnauthorizedException('Session expired');
+    }
+    
+    try {
+      // Vérifier le refresh token
+      const payload = await this.jwtService.verifyAsync(refreshToken, {
+        secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+      });
+      
+      const user = await this.usersService.findById(payload.id);
+      
+      if (!user || !user.refreshToken || user.refreshToken !== refreshToken) {
+        throw new UnauthorizedException('Invalid refresh token');
+      }
+      
+      // Générer un nouveau token d'accès
+      const newAccessToken = await this.jwtService.signAsync(
+        { id: user.id, email: user.email },
+        {
+          secret: this.configService.get<string>('JWT_SECRET'),
+          expiresIn: this.configService.get<string>('JWT_EXPIRATION'),
+        },
+      );
+      
+      // Attacher le nouveau token à la réponse
+      const response = context.switchToHttp().getResponse();
+
+      response.setHeader('Authorization', `Bearer ${newAccessToken}`);
+      
+      // Attacher l'utilisateur à la requête
+      request['user'] = user;
+      
+      return true;
+    } catch {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+  }
+
+  private extractRefreshTokenFromCookie(request: Request): string | undefined {
+    return request.cookies?.refresh_token;
   }
 }

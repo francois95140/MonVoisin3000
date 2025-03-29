@@ -1,7 +1,7 @@
 import {
   Body,
   Controller,
-  Post, UsePipes,
+  Post, Req, Res, UsePipes,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Public } from './decorators/public.decorator';
@@ -22,20 +22,20 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Public()
-  @Post('reset-password')
-  @UsePipes(new ZodValidationPipe(resetPasswordUserSchema))
+  @Post('register')
+  @UsePipes(new ZodValidationPipe(createUserSchema))
   @ApiCreatedResponse({
-    description: 'Jeton d\'autantification',
-    type: AuthResponse
+    description: 'Utilisateur créé avec succès et authentifié.',
+    type: AuthResponse,
   })
-  @ApiOperation({ summary: 'Reset de mot de passe' })
-  @ApiResponse({ status: 201, description: 'Utilisateur Reset avec succès.' })
+  @ApiOperation({ summary: 'Créer un nouvel utilisateur' })
+  @ApiResponse({ status: 201, description: 'Utilisateur créé avec succès et authentifié.' })
   @ApiResponse({ status: 400, description: 'Données invalides.' })
-  async resetPassword(
-    @Body() resetUserPassword:ResetPasswordDto,
+  async register(
+    @Body() createUserDto: CreateUserDto,
   ): Promise<AuthResponse> {
-    const token = await this.authService.resetPassword(resetUserPassword);
-
+    const token = await this.authService.register(createUserDto);
+    
     return { token };
   }
 
@@ -58,21 +58,32 @@ export class AuthController {
     return { token };
   }
 
+
   @Public()
-  @Post('register')
-  @UsePipes(new ZodValidationPipe(createUserSchema))
+  @Post('refresh')
+  async refresh(@Req() req: Request, @Res({ passthrough: true }) response: Response) {
+    const refreshToken = (req as any).cookies?.refresh_token;
+    if (!refreshToken) {
+      return { statusCode: 401, message: 'Refresh token not found' };
+    }
+    return this.authService.refresh(refreshToken, response);
+  }
+
+  @Public()
+  @Post('reset-password')
+  @UsePipes(new ZodValidationPipe(resetPasswordUserSchema))
   @ApiCreatedResponse({
-    description: 'Utilisateur créé avec succès.',
-    type: User,
+    description: 'Jeton d\'autantification',
+    type: AuthResponse
   })
-  @ApiOperation({ summary: 'Créer un nouvel utilisateur' })
-  @ApiResponse({ status: 201, description: 'Utilisateur créé avec succès.' })
+  @ApiOperation({ summary: 'Reset de mot de passe' })
+  @ApiResponse({ status: 201, description: 'Utilisateur Reset avec succès.' })
   @ApiResponse({ status: 400, description: 'Données invalides.' })
-  async register(
-    @Body() createUserDto: CreateUserDto,
-  ): Promise<User | null> {
+  async resetPassword(
+    @Body() resetUserPassword:ResetPasswordDto,
+  ): Promise<AuthResponse> {
+    const token = await this.authService.resetPassword(resetUserPassword);
 
-    return await this.authService.register(createUserDto);;
-
+    return { token };
   }
 }

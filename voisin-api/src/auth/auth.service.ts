@@ -68,15 +68,63 @@ export class AuthService {
     }
     const payload = this.userToPayload(user);
     const token = await this.jwtService.signAsync(payload, {
-      expiresIn: '24h',
+      expiresIn: this.configService.get<string>('JWT_EXPIRATION'),
       secret: this.configService.get<string>('JWT_SECRET'),
     });
+
+    const refreshToken = await this.jwtService.signAsync(payload, {
+      secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+      expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRATION'),
+    });
+
+    await this.userService.setRefreshToken(user.id, refreshToken);
+
 
     return token;
   }
 
-  async register(dto: CreateUserDto): Promise<User | null> {
-    return this.userService.create(dto);
+  async refresh(refreshToken: string, response: Response) {
+    try {
+      // Vérifier le refresh token
+      const payload = await this.jwtService.verifyAsync(refreshToken, {
+        secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+      });
+      
+      const user = await this.userService.findById(payload.id);
+      
+      if (!user || !user.refreshToken || user.refreshToken !== refreshToken) {
+        throw new UnauthorizedException('Invalid refresh token');
+      }
+      
+      // Générer un nouveau token d'accès
+      const newAccessToken = await this.jwtService.signAsync(
+        { id: user.id, email: user.email },
+        {
+          secret: this.configService.get<string>('JWT_SECRET'),
+          expiresIn: this.configService.get<string>('JWT_EXPIRATION'),
+        },
+      );
+      
+      return {
+        access_token: newAccessToken,
+      };
+    } catch {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+  }
+
+  async register(createUserDto: CreateUserDto): Promise<string> {
+    // Create the user (your existing code)
+    const user = await this.userService.create(createUserDto);
+    
+    // Generate a token for the newly registered user
+    const payload = this.userToPayload(user);
+    const token = await this.jwtService.signAsync(payload, {
+      secret: this.configService.get<string>('JWT_SECRET'),
+      expiresIn: '1d', // or whatever expiration time you prefer
+    });
+    
+    return token;
   }
 
   private userToPayload(user: User): UserPayload {
