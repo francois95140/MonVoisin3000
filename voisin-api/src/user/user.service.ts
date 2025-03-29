@@ -70,6 +70,14 @@ export class UserService {
     return user;
   }
 
+  async setRefreshToken(userId: string, refreshToken: string): Promise<void> {
+    await this.userRepository.update(userId, { refreshToken });
+  }
+
+  async removeRefreshToken(userId: string): Promise<void> {
+    await this.userRepository.update(userId, { refreshToken: undefined });
+  }
+
   async resetPassword(input: ResetPasswordUserInput): Promise<User> {
     const user = await this.userRepository.findOne({
       where: { passwordResetCode: input.passwordResetCode },

@@ -63,6 +63,9 @@ export class User {
   
   @Column({ default: 0 })
   friendCount: number;
+
+  @Column({nullable:true})
+  refreshToken: string;
   
   @CreateDateColumn()
   createdAt: Date;

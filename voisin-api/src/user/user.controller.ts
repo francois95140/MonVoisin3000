@@ -1,7 +1,6 @@
 import {
   Controller,
   Get,
-  Post,
   Body,
   Patch,
   Param,
@@ -50,16 +49,16 @@ export class UserController {
     return await this.userService.searchUsers(query, page, limit);
   }
 
-  @Get(':id')
+  @Get('me')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Récupérer un utilisateur par ID' })
   @ApiResponse({ status: 200, description: 'Utilisateur trouvé.' })
   @ApiResponse({ status: 404, description: 'Utilisateur non trouvé.' })
-  async findOne(@Param('id', ParseUUIDPipe) id: string) {
-    return await this.userService.findById(id);
+  async findOne( @GetUser() user: User) {
+    return await this.userService.findById(user.id);
   }
 
-  @Patch()
+  @Patch('me')
   @UsePipes(new ZodValidationPipe(updateUserSchema))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Mettre à jour un utilisateur' })
@@ -74,7 +73,7 @@ export class UserController {
     return await this.userService.update(user.id, updateUserDto);
   }
 
-  @Delete()
+  @Delete('me')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Supprimer un utilisateur' })
   @ApiResponse({ status: 200, description: 'Utilisateur supprimé.' })
@@ -107,7 +106,7 @@ export class UserController {
     return await this.userService.updateRole(id, role);
   }
 
-  @Patch('preferences')
+  @Patch('/me/preferences')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Mettre à jour les préférences d\'un utilisateur' })
   @ApiResponse({ status: 200, description: 'Préférences mises à jour.' })
