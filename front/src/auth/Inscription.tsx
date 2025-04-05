@@ -3,16 +3,51 @@ import "./Inscription.css";
 function handleInscription(event: React.FormEvent<HTMLFormElement>) {
   event.preventDefault();
   const formData = new FormData(event.currentTarget);
-  const formValues = Object.fromEntries(formData.entries());
+  const formValues = Object.fromEntries(formData.entries()) as {
+    tag: string;
+    email: string;
+    password: string;
+    pseudo: string;
+    avatar: string | Blob;
+    bio: string;
+    phoneNumber: string;
+    location: string;
+    timezone: string;
+    language: string;
+  };
 
   console.log("Form values:", formValues);
 
-  fetch("http://localhost:3001/inscription", {
+  const avatarInput = event.currentTarget.elements.namedItem("photo") as HTMLInputElement;
+
+  console.log("Avatar input:", avatarInput);
+  const avatarFile = avatarInput?.files?.[0];
+  if (avatarFile) {
+    const formData = new FormData();
+    formData.append("avatar", avatarFile);
+    fetch(`${process.env.PUBLIC_URL}/avatars/${avatarFile.name}`, {
+      method: "POST",
+      body: formData,
+    });
+  }
+
+  fetch(`${process.env.REACT_APP_API_URL}/auth/register`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(formValues),
+    body: JSON.stringify({
+      tag: formValues.tag,
+      email: formValues.email,
+      password: formValues.password,
+      pseudo: formValues.pseudo,
+      avatar: typeof formValues.avatar === "string" ? formValues.avatar : "",
+      bio: formValues.bio,
+      phoneNumber: formValues.phoneNumber,
+      location: formValues.location,
+      timezone: formValues.timezone,
+      language: formValues.language,
+    }),
   })
     .then((response) => response.json())
     .then((data) => {
@@ -64,6 +99,7 @@ function Inscription() {
                   id="photo"
                   name="photo"
                   className="opacity-0 h-full w-full"
+                  accept="image/*"
                   onChange={(e) => {
                     const reader = new FileReader();
                     reader.onload = (event) => {
