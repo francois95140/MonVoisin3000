@@ -18,9 +18,10 @@ public class Main extends Application {
         Main.stage = stage;
         changeScene("Accueil", new AccueilController(), "Bienvenue");
     }
+
     public static void changeScene(String fxml, Object controller, String title){
         try {
-            FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource(fxml+".fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/fxml/" + fxml + ".fxml"));
             fxmlLoader.setController(controller);
             fxmlLoader.setCharset(StandardCharsets.UTF_8);
             Scene scene = new Scene(fxmlLoader.load());

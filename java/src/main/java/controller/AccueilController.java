@@ -29,12 +29,12 @@ public class AccueilController {
 
     @FXML
     void connexion(ActionEvent event) {
-        //Main.changeScene("Connexion", new ConnexionController(), "Connectez vous ;)");
+        Main.changeScene("Connexion", new ConnexionController(), "Connectez vous ;)");
     }
 
     @FXML
     void inscription(ActionEvent event) {
-        //Main.changeScene("Inscription", new InscriptionController(), "Inscription");
+        Main.changeScene("Inscription", new InscriptionController(), "Inscription");
     }
 
     @FXML
