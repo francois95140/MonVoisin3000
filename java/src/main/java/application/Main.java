@@ -25,6 +25,7 @@ public class Main extends Application {
             fxmlLoader.setController(controller);
             fxmlLoader.setCharset(StandardCharsets.UTF_8);
             Scene scene = new Scene(fxmlLoader.load());
+            scene.getStylesheets().add(Main.class.getResource("/style/main.css").toExternalForm());
             stage.setTitle(title);
             stage.setScene(scene);
             stage.show();

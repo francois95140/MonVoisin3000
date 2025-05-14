@@ -3,33 +3,112 @@
     -fx-font-size: 14px;
 }
 
-AnchorPane {
-    -fx-background-color: #f4f4f4;
-    -fx-padding: 20px;
+.root {
+    -fx-padding: 5%;
+    -fx-background-color: #0A2540;
+    -fx-color: #f4f6f9;
+    -fx-height: 100%;
+    -fx-margin: 0px;
+    -fx-display: flex;
+    -fx-justify-content: center;
+    -fx-align-items: center;
+    -fx-position: relative;
 }
 
-TextField, PasswordField {
-    -fx-background-color: #fff;
-    -fx-border-radius: 5px;
-    -fx-border-color: #ccc;
-    -fx-padding: 10px;
-    -fx-font-size: 14px;
+/* Root pane */
+.root::after {
+    -fx-width: 300px;
+    -fx-height: 300px;
+    -fx-opacity: 0.4;
 }
 
-Button {
+/* Boutons */
+.button {
     -fx-background-color: #4CAF50;
     -fx-text-fill: white;
     -fx-font-size: 14px;
-    -fx-border-radius: 5px;
     -fx-padding: 10px 20px;
+    -fx-border-radius: 5px;
     -fx-cursor: hand;
+    -fx-effect: innershadow( gaussian , rgba(0,0,0,0.2) , 5, 0, 0, 0 );
 }
 
-Button:hover {
+.button:hover {
     -fx-background-color: #45a049;
 }
 
-TextField, PasswordField, Button {
-    -fx-spacing: 10px;
-    -fx-margin-bottom: 15px;
+/* Input */
+.text-field, .password-field {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #ccc;
+    -fx-border-radius: 5px;
+    -fx-font-size: 14px;
+    -fx-padding: 10px;
+    -fx-prompt-text-fill: #aaa;
 }
+
+.text-field:focused, .password-field:focused {
+    -fx-border-color: #4CAF50;
+}
+
+/* Labels */
+.label {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333;
+    -fx-padding: 5px 0px;
+}
+
+/* Form */
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Cards */
+.card {
+    background-color: #ffffff;
+    border-radius: 10px;
+    /* box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1); */
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.card h2 {
+    font-size: 20px;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+/* Navigation */
+.navbar {
+    background-color: #4CAF50;
+    color: white;
+    padding: 15px;
+    text-align: center;
+    border-radius: 5px;
+}
+
+.navbar a {
+    color: white;
+    text-decoration: none;
+    margin: 0px 15px;
+    font-size: 16px;
+}
+
+.navbar a:hover {
+    text-decoration: underline;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+    .form {
+        padding: 10px;
+    }
+
+    .card {
+        padding: 15px;
+    }
+}
+
