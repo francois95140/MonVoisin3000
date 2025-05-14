@@ -33,11 +33,6 @@ public class AccueilController {
     }
 
     @FXML
-    void inscription(ActionEvent event) {
-        Main.changeScene("Inscription", new InscriptionController(), "Inscription");
-    }
-
-    @FXML
     void initialize() {
 
     }
