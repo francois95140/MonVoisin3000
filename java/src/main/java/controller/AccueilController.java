@@ -28,7 +28,7 @@ public class AccueilController {
 
 
     @FXML
-    void connexion(ActionEvent event) {
+    void connexion(MouseEvent event) {
         Main.changeScene("Connexion", new ConnexionController(), "Connectez vous ;)");
     }
 
