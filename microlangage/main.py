@@ -1,3 +1,5 @@
+import sys
+sys.path.insert(0, './libs')
 import uvicorn
 from SQLUnificationAPI import app  # Remplacez 'votre_module' par le nom du fichier contenant votre code
 

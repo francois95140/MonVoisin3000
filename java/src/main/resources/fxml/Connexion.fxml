@@ -1,11 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane xmlns:fx="http://javafx.com/fxml" stylesheets="@../style/main.css">
-    <TextField fx:id="emailField" promptText="Email" layoutX="100" layoutY="100" prefWidth="200"/>
-    <PasswordField fx:id="passwordField" promptText="Mot de passe" layoutX="100" layoutY="150" prefWidth="200"/>
-    <Button fx:id="loginButton" text="Se connecter" layoutX="100" layoutY="200" onAction="#handleLogin"/>
-    <Button fx:id="forgotPasswordButton" text="Mot de passe oublié" layoutX="200" layoutY="200" onAction="#motdepasseoublie"/>
-</AnchorPane>
+<Pane prefHeight="400.0" prefWidth="500.0" style="-fx-background-color: #eeeeff;" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <Pane prefHeight="60.0" prefWidth="500.0" style="-fx-background-color: #ddddee;">
+            <children>
+                <ImageView fitHeight="40.0" fitWidth="40.0" layoutX="446.0" layoutY="10.0" onMouseClicked="#connexion" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="@../assets/login.png" />
+                    </image>
+                </ImageView>
+                <Label layoutX="71.0" layoutY="12.0" text="My city news">
+                    <font>
+                        <Font name="Cantarell Regular" size="28.0" />
+                    </font>
+                </Label>
+                <ImageView fitHeight="50.0" fitWidth="50.0" layoutX="10.0" layoutY="5.0" onMouseClicked="#connexion" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="@../assets/icone.png" />
+                    </image>
+                </ImageView>
+            </children>
+        </Pane>
+        <Button layoutX="180.0" layoutY="270.0" onMouseClicked="#connexion" style="-fx-background-color: #6699cc;" styleClass="login-btn" text="Se connecter" textFill="WHITE">
+            <font>
+                <Font name="Cantarell Regular" size="20.0" />
+            </font>
+        </Button>
+          <PasswordField fx:id="mdp" layoutX="152.0" layoutY="187.0" prefHeight="35.0" prefWidth="196.0" promptText="Mot de passe" style="-fx-background-color: transparent; -fx-border-color: transparent transparent #0000FF transparent; -fx-border-width: 2px; -fx-padding: 20px 10px 0px 10px;">
+              <cursor>
+                  <Cursor fx:constant="DEFAULT" />
+              </cursor>
+              <font>
+                  <Font name="Calibri" size="20.0" />
+              </font>
+          </PasswordField>
+          <TextField fx:id="email" layoutX="152.0" layoutY="125.0" prefHeight="35.0" prefWidth="196.0" promptText="E-mail" style="-fx-background-color: transparent; -fx-border-color: transparent transparent #0000FF transparent; -fx-border-width: 2px; -fx-padding: 20px 10px 0px 10px;">
+              <cursor>
+                  <Cursor fx:constant="DEFAULT" />
+              </cursor>
+              <font>
+                  <Font name="Calibri" size="20.0" />
+              </font>
+          </TextField>
+          <Label alignment="CENTER" contentDisplay="CENTER" layoutX="150.0" layoutY="84.0" prefHeight="30.0" prefWidth="200.0" text="Connexion" textFill="#012970">
+              <font>
+                  <Font name="Calibri Bold" size="30.0" />
+              </font>
+          </Label>
+      <Button layoutX="164.0" layoutY="323.0" onAction="#forgotpass" onMouseClicked="#connexion" style="-fx-background-color: #ccccff;" styleClass="login-btn" text="Mot de passe oublié" textFill="#513e3e">
+         <font>
+            <Font name="Cantarell Regular" size="17.0" />
+         </font>
+      </Button>
+    </children>
+</Pane>

@@ -6,31 +6,25 @@ import javafx.fxml.FXML;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.event.ActionEvent;
+import javafx.scene.input.MouseEvent;
 
 public class ConnexionController {
 
     @FXML
-    private TextField emailField;
+    private TextField email;
 
     @FXML
-    private PasswordField passwordField;
+    private PasswordField mdp;
 
     @FXML
-    public void handleLogin() {
-        String email = emailField.getText();
-        String password = passwordField.getText();
+    void connexion(MouseEvent event) {
 
-        // for test
-        if (email.equals("test@example.com") && password.equals("password123")) {
-            System.out.println("Connexion réussie !");
-        } else {
-            System.out.println("Email ou mot de passe incorrect.");
-        }
     }
 
-    
     @FXML
-    void motdepasseoublie(ActionEvent event) {
+    void forgotpass(ActionEvent event) {
         Main.changeScene("MotDePasseOublie", new MotDePasseOublieController(), "MotDePasseOublie");
+
     }
+
 }

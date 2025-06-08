@@ -1,4 +1,0 @@
-digraph {
-	node [shape=circle]
-	"77bd655c-d7e9-4fc6-9b71-1c3d8606f803" [label="{'type': 'SELECT', 'columns': ['*'], 'table': 'conversations_db', 'where': None}"]
-}
