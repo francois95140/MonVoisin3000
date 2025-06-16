@@ -6,7 +6,7 @@ import py2neo
 import psycopg2
 import os
 import dotenv
-from genereTreeGraphviz2 import printTreeGraph
+# from libs.genereTreeGraphviz2 import printTreeGraph
 
 # Chargement des variables d'environnement
 dotenv.load_dotenv()
@@ -17,7 +17,7 @@ reserved = {
     'FROM': 'FROM',
     'WHERE': 'WHERE',
     'INSERT': 'INSERT',
-    'INCERT': 'INSERT',  # Ajout de la variante d'orthographe courante
+    'INCERT': 'INSERT',
     'INTO': 'INTO',
     'VALUES': 'VALUES',
     'UPDATE': 'UPDATE',
@@ -110,7 +110,7 @@ def p_commande(p):
                 | create_commande
                 | drop_commande"""
     p[0] = p[1]
-    printTreeGraph(p[0])  # Affiche l'arbre syntaxique comme dans le second exemple
+    # printTreeGraph(p[0])  # Affiche l'arbre syntaxique comme dans le second exemple
 
 def p_select_commande(p):
     """select_commande : SELECT column_list FROM table_name

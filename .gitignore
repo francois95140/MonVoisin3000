@@ -33,3 +33,8 @@ Thumbs.db
 *.class
 *.swp
 *.bak
+
+# microlangage
+/venv/
+parser.out
+parsetab.py

@@ -1,0 +1,8 @@
+# uvicorn
+ply
+pymongo
+py2neo
+python-dotenv
+# graphviz
+psycopg2-binary
+dotenv
