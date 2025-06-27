@@ -291,8 +291,8 @@ def connect_mongodb():
         uri = f"mongodb://{os.environ.get('MONGO_USER', '')}:{os.environ.get('MONGO_PASSWORD', '')}@{os.environ.get('MONGO_HOST', 'localhost')}:{os.environ.get('MONGO_PORT', 27017)}/{os.environ.get('MONGO_DB', 'conversations_db')}?authSource=admin"
         client = MongoClient(uri)
         client.admin.command('ping')
-        if debug:
-            print("Connexion MongoDB réussie ! 😈")
+        # Suppression de la ligne qui pose problème
+        print("Connexion MongoDB réussie ! 😈")
         return client
     except Exception as e:
         print(f"Erreur de connexion MongoDB: {e}")
