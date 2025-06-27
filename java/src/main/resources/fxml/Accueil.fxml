@@ -2,40 +2,111 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.effect.DropShadow?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.Pane?>
+<?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
-<Pane prefHeight="400.0" prefWidth="500.0" style="-fx-background-color: #eeeeff;" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1">
+<Pane prefHeight="600.0" prefWidth="800.0" style="-fx-background-color: linear-gradient(to bottom, #667eea 0%, #764ba2 100%);" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <Pane prefHeight="60.0" prefWidth="500.0" style="-fx-background-color: #ddddee;">
+      <!-- Background decorative elements -->
+      <Rectangle arcHeight="50.0" arcWidth="50.0" fill="#ffffff20" height="120.0" layoutX="650.0" layoutY="504.0" rotate="15.0" width="120.0" />
+      <Rectangle arcHeight="30.0" arcWidth="30.0" fill="#ffffff15" height="80.0" layoutX="50.0" layoutY="534.0" rotate="-20.0" width="80.0" />
+      <Rectangle arcHeight="40.0" arcWidth="40.0" fill="#ffffff10" height="100.0" layoutX="700.0" layoutY="100.0" rotate="25.0" width="100.0" />
+
+      <!-- Header with glassmorphism effect -->
+      <Pane layoutY="0.0" prefHeight="80.0" prefWidth="800.0" style="-fx-background-color: #ffffffaa; -fx-border-color: #ffffff33; -fx-border-width: 0 0 1 0;">
          <children>
-            <ImageView fitHeight="40.0" fitWidth="40.0" layoutX="446.0" layoutY="10.0" onMouseClicked="#connexion" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@../assets/login.png" />
-               </image>
-            </ImageView>
-            <Label layoutX="71.0" layoutY="12.0" text="My city news">
-               <font>
-                  <Font name="Cantarell Regular" size="28.0" />
-               </font>
+            <!-- Logo container with hover effect -->
+            <Pane layoutX="20.0" layoutY="15.0" onMouseClicked="#connexion" style="-fx-cursor: hand; -fx-background-color: #ffffff1a; -fx-background-radius: 25; -fx-padding: 10;">
+               <children>
+                  <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../assets/icone.png" />
+                     </image>
+                  </ImageView>
+               </children>
+               <effect>
+                  <DropShadow color="#00000030" radius="10.0" />
+               </effect>
+            </Pane>
+
+            <!-- Title with modern typography -->
+            <Label layoutX="90.0" layoutY="20.0" text="Actualités Ma Ville" style="-fx-text-fill: #333333; -fx-font-weight: bold; -fx-font-size: 32px;">
+               <effect>
+                  <DropShadow color="#00000020" radius="3.0" />
+               </effect>
             </Label>
-            <ImageView fitHeight="50.0" fitWidth="50.0" layoutX="10.0" layoutY="5.0" onMouseClicked="#connexion" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@../assets/icone.png" />
-               </image>
-            </ImageView>
+
+            <!-- Subtitle -->
+            <Label layoutX="90.0" layoutY="50.0" opacity="0.8" text="Restez connecté avec votre communauté" style="-fx-text-fill: #555555; -fx-font-size: 14px;">
+            </Label>
+
+            <!-- Login icon with modern styling -->
+            <Pane layoutX="720.0" layoutY="15.0" onMouseClicked="#connexion" style="-fx-cursor: hand; -fx-background-color: #ffffff26; -fx-background-radius: 25; -fx-padding: 10;">
+               <children>
+                  <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../assets/login.png" />
+                     </image>
+                  </ImageView>
+               </children>
+               <effect>
+                  <DropShadow color="#00000030" radius="10.0" />
+               </effect>
+            </Pane>
          </children>
       </Pane>
-      <ImageView fitHeight="305.0" fitWidth="445.0" layoutX="28.0" layoutY="61.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@../assets/banner.png" />
-         </image>
-      </ImageView>
-      <Button layoutX="212.0" layoutY="338.0" onMouseClicked="#connexion" style="-fx-background-color: #6699cc;" styleClass="login-btn" text="Login" textFill="WHITE">
-         <font>
-            <Font name="Cantarell Regular" size="20.0" />
-         </font></Button>
+
+      <!-- Main content area -->
+      <Pane layoutX="75.0" layoutY="91.0" prefHeight="440.0" prefWidth="650.0" style="-fx-background-color: #fffffff2; -fx-background-radius: 20; -fx-padding: 40;">
+         <children>
+            <!-- Banner image with modern frame - adapted to image ratio -->
+            <Pane layoutX="90.0" layoutY="22.0" prefHeight="330.0" prefWidth="480.0" style="-fx-background-color: #0000000d; -fx-background-radius: 15;">
+               <children>
+                  <ImageView fitHeight="300.0" fitWidth="449.0" layoutX="15.0" layoutY="15.0" pickOnBounds="true" preserveRatio="true" style="-fx-background-radius: 10;">
+                     <image>
+                        <Image url="@../assets/banner.png" />
+                     </image>
+                  </ImageView>
+               </children>
+               <effect>
+                  <DropShadow color="#00000015" radius="15.0" />
+               </effect>
+            </Pane>
+
+            <!-- Welcome text -->
+            <Label layoutX="30.0" layoutY="383.0" text="Bienvenue sur votre portail d'actualités locales" style="-fx-text-fill: #333333; -fx-font-size: 18px;">
+            </Label>
+
+            <!-- Modern login button -->
+            <Button layoutX="488.0" layoutY="367.0" onMouseClicked="#connexion" prefHeight="50.0" prefWidth="140.0"
+                    style="-fx-background-color: linear-gradient(to right, #667eea, #764ba2);
+                           -fx-background-radius: 25;
+                           -fx-border-radius: 25;
+                           -fx-cursor: hand;
+                           -fx-font-weight: bold;
+                           -fx-text-fill: white;
+                           -fx-font-size: 16px;"
+                    text="Commencer">
+               <effect>
+                  <DropShadow color="#667eea60" radius="15.0" />
+               </effect>
+            </Button>
+         </children>
+         <effect>
+            <DropShadow color="#00000020" radius="25.0" />
+         </effect>
+      </Pane>
+
+      <!-- Bottom decorative wave -->
+      <Pane layoutY="549.0" prefHeight="50.0" prefWidth="800.0" style="-fx-background-color: #ffffff1a;">
+         <children>
+            <Label layoutX="320.0" layoutY="15.0" opacity="0.7" text="© 2025 Actualités Ma Ville" style="-fx-text-fill: white; -fx-font-size: 12px;">
+            </Label>
+         </children>
+      </Pane>
    </children>
 </Pane>

@@ -6,6 +6,7 @@ import py2neo
 import psycopg2
 import os
 import dotenv
+import json
 # from libs.genereTreeGraphviz2 import printTreeGraph
 
 # Chargement des variables d'environnement
@@ -16,6 +17,11 @@ reserved = {
     'SELECT': 'SELECT',
     'FROM': 'FROM',
     'WHERE': 'WHERE',
+    'AND': 'AND',
+    'OR': 'OR',
+    'IS': 'IS',
+    'NULL': 'NULL',
+    'NOT': 'NOT',
     'INSERT': 'INSERT',
     'INCERT': 'INSERT',
     'INTO': 'INTO',
@@ -27,6 +33,8 @@ reserved = {
     'DROP': 'DROP',
     'TABLE': 'TABLE',
     'DATABASE': 'DATABASE',
+    'TRUE': 'TRUE',
+    'FALSE': 'FALSE',
 }
 
 # Les tokens
@@ -87,17 +95,22 @@ def t_error(t):
 # Créer le lexer
 lexer = lex.lex()
 
-# Fonctions d'évaluation pour les requêtes SQL
-def execute_sql_statement(stmt, db_type):
+# Précédence des opérateurs pour éviter les conflits
+precedence = (
+    ('left', 'OR'),
+    ('left', 'AND'),
+)
+def execute_sql_statement(stmt, db_type, debug=False):
     """Exécute une requête SQL selon le type de base de données"""
-    print('Exécution de la requête:', stmt)
+    if debug:
+        print('Exécution de la requête:', stmt)
     
     if db_type.lower() == 'postgres' or db_type.lower() == 'sql':
-        return execute_postgresql(stmt)
+        return execute_postgresql(stmt, debug)
     elif db_type.lower() == 'mongo':
-        return execute_mongodb(stmt)
+        return execute_mongodb(stmt, debug)
     elif db_type.lower() == 'neo' or db_type.lower() == 'neo4j':
-        return execute_neo4j(stmt)
+        return execute_neo4j(stmt, debug)
     else:
         return f"Type de base de données non supporté: {db_type}"
 
@@ -114,7 +127,7 @@ def p_commande(p):
 
 def p_select_commande(p):
     """select_commande : SELECT column_list FROM table_name
-                       | SELECT column_list FROM table_name WHERE condition"""
+                       | SELECT column_list FROM table_name WHERE condition_expr"""
     if len(p) == 5:
         p[0] = {'type': 'SELECT', 'columns': p[2], 'table': p[4], 'where': None}
     else:
@@ -135,9 +148,28 @@ def p_table_name(p):
     """table_name : NAME"""
     p[0] = p[1]
 
+def p_condition_expr(p):
+    """condition_expr : condition
+                      | condition_expr AND condition_expr
+                      | condition_expr OR condition_expr
+                      | LPAREN condition_expr RPAREN"""
+    if len(p) == 2:
+        p[0] = p[1]
+    elif len(p) == 4 and p[1] == '(':
+        p[0] = p[2]  # Parenthèses
+    else:
+        p[0] = {'type': 'logical', 'operator': p[2], 'left': p[1], 'right': p[3]}
+
 def p_condition(p):
-    """condition : NAME comp_op value"""
-    p[0] = {'field': p[1], 'operator': p[2], 'value': p[3]}
+    """condition : NAME comp_op value
+                 | NAME IS NULL
+                 | NAME IS NOT NULL"""
+    if len(p) == 4 and p[2] != 'IS':
+        p[0] = {'type': 'comparison', 'field': p[1], 'operator': p[2], 'value': p[3]}
+    elif len(p) == 4 and p[2] == 'IS':  # IS NULL
+        p[0] = {'type': 'null_check', 'field': p[1], 'operator': 'IS NULL'}
+    else:  # IS NOT NULL
+        p[0] = {'type': 'null_check', 'field': p[1], 'operator': 'IS NOT NULL'}
 
 def p_comp_op(p):
     """comp_op : EQ
@@ -150,8 +182,18 @@ def p_comp_op(p):
 
 def p_value(p):
     """value : STRING
-             | NUMBER"""
-    p[0] = p[1]
+             | NUMBER
+             | TRUE
+             | FALSE
+             | NULL"""
+    if p[1] == 'TRUE':
+        p[0] = True
+    elif p[1] == 'FALSE':
+        p[0] = False
+    elif p[1] == 'NULL':
+        p[0] = None
+    else:
+        p[0] = p[1]
 
 def p_insert_commande(p):
     """insert_commande : INSERT INTO table_name VALUES LPAREN value_list RPAREN
@@ -171,7 +213,7 @@ def p_value_list(p):
 
 def p_update_commande(p):
     """update_commande : UPDATE table_name SET assignment_list
-                       | UPDATE table_name SET assignment_list WHERE condition"""
+                       | UPDATE table_name SET assignment_list WHERE condition_expr"""
     if len(p) == 5:
         p[0] = {'type': 'UPDATE', 'table': p[2], 'assignments': p[4], 'where': None}
     else:
@@ -191,7 +233,7 @@ def p_assignment(p):
 
 def p_delete_commande(p):
     """delete_commande : DELETE FROM table_name
-                       | DELETE FROM table_name WHERE condition"""
+                       | DELETE FROM table_name WHERE condition_expr"""
     if len(p) == 4:
         p[0] = {'type': 'DELETE', 'table': p[3], 'where': None}
     else:
@@ -249,7 +291,8 @@ def connect_mongodb():
         uri = f"mongodb://{os.environ.get('MONGO_USER', '')}:{os.environ.get('MONGO_PASSWORD', '')}@{os.environ.get('MONGO_HOST', 'localhost')}:{os.environ.get('MONGO_PORT', 27017)}/{os.environ.get('MONGO_DB', 'conversations_db')}?authSource=admin"
         client = MongoClient(uri)
         client.admin.command('ping')
-        print("Connexion MongoDB réussie ! 😈")
+        if debug:
+            print("Connexion MongoDB réussie ! 😈")
         return client
     except Exception as e:
         print(f"Erreur de connexion MongoDB: {e}")
@@ -268,8 +311,43 @@ def connect_neo4j():
         print(f"Erreur de connexion Neo4j: {e}")
         return None
 
+def build_where_clause_postgres(condition, params):
+    """Construit une clause WHERE pour PostgreSQL à partir d'une condition"""
+    if condition['type'] == 'comparison':
+        params.append(condition['value'])
+        # Préserver la casse avec des guillemets doubles
+        field_name = f'"{condition["field"]}"'
+        return f"{field_name} {condition['operator']} %s"
+    elif condition['type'] == 'null_check':
+        # Préserver la casse avec des guillemets doubles
+        field_name = f'"{condition["field"]}"'
+        return f"{field_name} {condition['operator']}"
+    elif condition['type'] == 'logical':
+        left_clause = build_where_clause_postgres(condition['left'], params)
+        right_clause = build_where_clause_postgres(condition['right'], params)
+        return f"({left_clause} {condition['operator']} {right_clause})"
+    
+def build_mongo_query(condition):
+    """Construit une requête MongoDB à partir d'une condition"""
+    if condition['type'] == 'comparison':
+        op_map = {'=': '$eq', '<>': '$ne', '<': '$lt', '>': '$gt', '<=': '$lte', '>=': '$gte'}
+        mongo_op = op_map.get(condition['operator'], '$eq')
+        return {condition['field']: {mongo_op: condition['value']}}
+    elif condition['type'] == 'null_check':
+        if condition['operator'] == 'IS NULL':
+            return {condition['field']: None}
+        else:  # IS NOT NULL
+            return {condition['field']: {'$ne': None}}
+    elif condition['type'] == 'logical':
+        left_query = build_mongo_query(condition['left'])
+        right_query = build_mongo_query(condition['right'])
+        if condition['operator'] == 'AND':
+            return {'$and': [left_query, right_query]}
+        else:  # OR
+            return {'$or': [left_query, right_query]}
+
 # Fonctions d'exécution pour chaque type de base de données
-def execute_postgresql(stmt):
+def execute_postgresql(stmt, debug=False):
     conn = connect_postgres()
     if not conn:
         return "Erreur de connexion à PostgreSQL"
@@ -278,17 +356,40 @@ def execute_postgresql(stmt):
         cur = conn.cursor()
         
         if stmt['type'] == 'SELECT':
-            columns = '*' if stmt['columns'] == ['*'] else ', '.join(stmt['columns'])
-            query = f"SELECT {columns} FROM {stmt['table']}"
+            # Préserver la casse pour PostgreSQL avec guillemets doubles
+            if stmt['columns'] == ['*']:
+                columns = '*'
+            else:
+                columns = ', '.join([f'"{col}"' for col in stmt['columns']])
+            
+            # Nom de table avec guillemets pour préserver la casse
+            table_name = f'"{stmt["table"]}"'
+            query = f"SELECT {columns} FROM {table_name}"
             
             params = []
             if stmt['where']:
-                query += f" WHERE {stmt['where']['field']} {stmt['where']['operator']} %s"
-                params.append(stmt['where']['value'])
+                where_clause = build_where_clause_postgres(stmt['where'], params)
+                query += f" WHERE {where_clause}"
+            
+            if debug:
+                print(f"Requête SQL générée: {query}")
+                print(f"Paramètres: {params}")
             
             cur.execute(query, params)
             result = cur.fetchall()
-            return result
+            
+            # Récupérer les noms des colonnes
+            col_names = [desc[0] for desc in cur.description]
+            
+            # Convertir en liste de dictionnaires pour un format JSON
+            json_result = []
+            for row in result:
+                row_dict = {}
+                for i, value in enumerate(row):
+                    row_dict[col_names[i]] = value
+                json_result.append(row_dict)
+            
+            return json.dumps(json_result, default=str, indent=2)
             
         elif stmt['type'] == 'INSERT':
             if stmt['columns']:
@@ -309,8 +410,8 @@ def execute_postgresql(stmt):
             
             query = f"UPDATE {stmt['table']} SET {set_clause}"
             if stmt['where']:
-                query += f" WHERE {stmt['where']['field']} {stmt['where']['operator']} %s"
-                params.append(stmt['where']['value'])
+                where_clause = build_where_clause_postgres(stmt['where'], params)
+                query += f" WHERE {where_clause}"
             
             cur.execute(query, params)
             conn.commit()
@@ -321,8 +422,8 @@ def execute_postgresql(stmt):
             params = []
             
             if stmt['where']:
-                query += f" WHERE {stmt['where']['field']} {stmt['where']['operator']} %s"
-                params.append(stmt['where']['value'])
+                where_clause = build_where_clause_postgres(stmt['where'], params)
+                query += f" WHERE {where_clause}"
             
             cur.execute(query, params)
             conn.commit()
@@ -363,7 +464,7 @@ def execute_postgresql(stmt):
             cur.close()
         conn.close()
 
-def execute_mongodb(stmt):
+def execute_mongodb(stmt, debug=False):
     client = connect_mongodb()
     if not client:
         return "Erreur de connexion à MongoDB"
@@ -376,10 +477,7 @@ def execute_mongodb(stmt):
             query = {}
             
             if stmt['where']:
-                # Construction de la condition MongoDB
-                op_map = {'=': '$eq', '<>': '$ne', '<': '$lt', '>': '$gt', '<=': '$lte', '>=': '$gte'}
-                mongo_op = op_map.get(stmt['where']['operator'], '$eq')
-                query = {stmt['where']['field']: {mongo_op: stmt['where']['value']}}
+                query = build_mongo_query(stmt['where'])
             
             projection = None
             if stmt['columns'] != ['*']:
@@ -388,7 +486,7 @@ def execute_mongodb(stmt):
                     projection['_id'] = 0
             
             result = list(collection.find(query, projection))
-            return result
+            return json.dumps(result, default=str, indent=2)
             
         elif stmt['type'] == 'INSERT':
             collection = db[stmt['table']]
@@ -410,9 +508,7 @@ def execute_mongodb(stmt):
             # Filtre pour la mise à jour
             filter_query = {}
             if stmt['where']:
-                op_map = {'=': '$eq', '<>': '$ne', '<': '$lt', '>': '$gt', '<=': '$lte', '>=': '$gte'}
-                mongo_op = op_map.get(stmt['where']['operator'], '$eq')
-                filter_query = {stmt['where']['field']: {mongo_op: stmt['where']['value']}}
+                filter_query = build_mongo_query(stmt['where'])
             
             # Document de mise à jour
             update_doc = {'$set': {}}
@@ -427,9 +523,7 @@ def execute_mongodb(stmt):
             
             filter_query = {}
             if stmt['where']:
-                op_map = {'=': '$eq', '<>': '$ne', '<': '$lt', '>': '$gt', '<=': '$lte', '>=': '$gte'}
-                mongo_op = op_map.get(stmt['where']['operator'], '$eq')
-                filter_query = {stmt['where']['field']: {mongo_op: stmt['where']['value']}}
+                filter_query = build_mongo_query(stmt['where'])
             
             result = collection.delete_many(filter_query)
             return f"Suppression réussie. Documents supprimés: {result.deleted_count}"
@@ -457,7 +551,7 @@ def execute_mongodb(stmt):
     finally:
         client.close()
 
-def execute_neo4j(stmt):
+def execute_neo4j(stmt, debug=False):
     graph = connect_neo4j()
     if not graph:
         return "Erreur de connexion à Neo4j"
@@ -469,11 +563,17 @@ def execute_neo4j(stmt):
             
             where_clause = ""
             if stmt['where']:
-                # Construction de la condition
-                value = stmt['where']['value']
-                if isinstance(value, str):
-                    value = f"'{value}'"  # Guillemets pour les chaînes
-                where_clause = f" WHERE n.{stmt['where']['field']} {stmt['where']['operator']} {value}"
+                # Construction de la condition (simplifiée pour Neo4j)
+                if stmt['where']['type'] == 'comparison':
+                    value = stmt['where']['value']
+                    if isinstance(value, str):
+                        value = f"'{value}'"  # Guillemets pour les chaînes
+                    where_clause = f" WHERE n.{stmt['where']['field']} {stmt['where']['operator']} {value}"
+                elif stmt['where']['type'] == 'null_check':
+                    if stmt['where']['operator'] == 'IS NULL':
+                        where_clause = f" WHERE n.{stmt['where']['field']} IS NULL"
+                    else:
+                        where_clause = f" WHERE n.{stmt['where']['field']} IS NOT NULL"
             
             return_clause = " RETURN n"
             if stmt['columns'] != ['*']:
@@ -482,7 +582,7 @@ def execute_neo4j(stmt):
             
             query = match_clause + where_clause + return_clause
             result = list(graph.run(query))
-            return result
+            return json.dumps([dict(record) for record in result], default=str, indent=2)
             
         elif stmt['type'] == 'INSERT':
             # Pour Neo4j, création d'un nœud
@@ -508,11 +608,11 @@ def execute_neo4j(stmt):
             return f"Nœud créé avec succès"
             
         elif stmt['type'] == 'UPDATE':
-            # Mise à jour des nœuds
+            # Mise à jour des nœuds (simplifiée)
             match_clause = f"MATCH (n:{stmt['table']})"
             
             where_clause = ""
-            if stmt['where']:
+            if stmt['where'] and stmt['where']['type'] == 'comparison':
                 value = stmt['where']['value']
                 if isinstance(value, str):
                     value = f"'{value}'"
@@ -532,11 +632,11 @@ def execute_neo4j(stmt):
             return f"Mise à jour réussie"
             
         elif stmt['type'] == 'DELETE':
-            # Suppression de nœuds
+            # Suppression de nœuds (simplifiée)
             match_clause = f"MATCH (n:{stmt['table']})"
             
             where_clause = ""
-            if stmt['where']:
+            if stmt['where'] and stmt['where']['type'] == 'comparison':
                 value = stmt['where']['value']
                 if isinstance(value, str):
                     value = f"'{value}'"
@@ -565,17 +665,18 @@ def execute_neo4j(stmt):
     except Exception as e:
         return f"Erreur Neo4j: {e}"
 
-# Construire le parser
-parser = yacc.yacc()
+# Construire le parser avec gestion des conflits
+parser = yacc.yacc(debug=True)
 
 # Fonction principale d'exécution avec correction orthographique
-def execute(db_type, sql_command):
+def execute(db_type, sql_command, debug=False):
     # Analyse lexicale et syntaxique
     try:
         # Correction des erreurs d'orthographe courantes
         sql_command_corrected = sql_command.lower()
         if "incert" in sql_command_corrected:
-            print("Correction de 'incert' en 'insert'")
+            if debug:
+                print("Correction de 'incert' en 'insert'")
             sql_command = sql_command.lower().replace("incert", "insert")
         
         lexer.input(sql_command)
@@ -585,7 +686,7 @@ def execute(db_type, sql_command):
             return "Erreur d'analyse: impossible de parser la commande"
         
         # Exécution de la commande
-        return execute_sql_statement(result, db_type)
+        return execute_sql_statement(result, db_type, debug)
     
     except Exception as e:
         return f"Erreur d'exécution: {e}"
@@ -605,11 +706,15 @@ def run_tests():
     print(execute("mongo", "SELECT name, age FROM users WHERE age > 25"))
 
 if __name__ == '__main__':
+    debug_mode = '--debug' in sys.argv
+    if debug_mode:
+        sys.argv.remove('--debug')
+    
     if len(sys.argv) == 3:
         # Mode avec type de base de données et commande SQL
         db_type = sys.argv[1]
         sql_command = sys.argv[2]
-        result = execute(db_type, sql_command)
+        result = execute(db_type, sql_command, debug_mode)
         print(result)
     elif len(sys.argv) == 2:
         # Mode avec fichier contenant les commandes SQL
@@ -628,7 +733,7 @@ if __name__ == '__main__':
                     continue
                 
                 db_type, sql_command = parts
-                result = execute(db_type, sql_command)
+                result = execute(db_type, sql_command, debug_mode)
                 print(f"Ligne {i+1}:")
                 print(result)
                 print("-" * 50)
@@ -639,7 +744,8 @@ if __name__ == '__main__':
             print(f"Erreur lors de la lecture du fichier: {e}")
     else:
         print("Erreur: arguments incorrects")
-        print("Usage 1: python SQLUnification.py <type_bdd> \"<commande_sql>\"")
-        print("Usage 2: python SQLUnification.py <fichier>")
+        print("Usage 1: python SQLUnification.py [--debug] <type_bdd> \"<commande_sql>\"")
+        print("Usage 2: python SQLUnification.py [--debug] <fichier>")
         print("Où <fichier> est le nom du fichier contenant les requêtes SQL")
+        print("Le flag --debug affiche les informations de débogage")
         sys.exit(1)

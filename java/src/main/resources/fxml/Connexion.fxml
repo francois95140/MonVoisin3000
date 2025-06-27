@@ -1,66 +1,178 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.effect.DropShadow?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Rectangle?>
 
-<Pane prefHeight="400.0" prefWidth="500.0" style="-fx-background-color: #eeeeff;" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1">
+<Pane prefHeight="600.0" prefWidth="800.0" style="-fx-background-color: linear-gradient(to bottom, #667eea 0%, #764ba2 100%);" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1">
     <children>
-        <Pane prefHeight="60.0" prefWidth="500.0" style="-fx-background-color: #ddddee;">
+        <!-- Background decorative elements -->
+        <Rectangle arcHeight="50.0" arcWidth="50.0" fill="#ffffff20" height="120.0" layoutX="650.0" layoutY="450.0" rotate="15.0" width="120.0" />
+        <Rectangle arcHeight="30.0" arcWidth="30.0" fill="#ffffff15" height="80.0" layoutX="50.0" layoutY="480.0" rotate="-20.0" width="80.0" />
+        <Rectangle arcHeight="40.0" arcWidth="40.0" fill="#ffffff10" height="100.0" layoutX="700.0" layoutY="100.0" rotate="25.0" width="100.0" />
+
+        <!-- Header with glassmorphism effect -->
+        <Pane layoutY="0.0" prefHeight="80.0" prefWidth="800.0" style="-fx-background-color: #ffffffaa; -fx-border-color: #ffffff33; -fx-border-width: 0 0 1 0;">
             <children>
-                <ImageView fitHeight="40.0" fitWidth="40.0" layoutX="446.0" layoutY="10.0" onMouseClicked="#connexion" pickOnBounds="true" preserveRatio="true">
-                    <image>
-                        <Image url="@../assets/login.png" />
-                    </image>
-                </ImageView>
-                <Label layoutX="71.0" layoutY="12.0" text="My city news">
-                    <font>
-                        <Font name="Cantarell Regular" size="28.0" />
-                    </font>
+                <!-- Logo container with hover effect -->
+                <Pane layoutX="20.0" layoutY="15.0" onMouseClicked="#retourAccueil" style="-fx-cursor: hand; -fx-background-color: #ffffff1a; -fx-background-radius: 25; -fx-padding: 10;">
+                    <children>
+                        <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="@../assets/icone.png" />
+                            </image>
+                        </ImageView>
+                    </children>
+                    <effect>
+                        <DropShadow color="#00000030" radius="10.0" />
+                    </effect>
+                </Pane>
+
+                <!-- Title with modern typography -->
+                <Label layoutX="90.0" layoutY="20.0" text="Actualités Ma Ville" style="-fx-text-fill: #333333; -fx-font-weight: bold; -fx-font-size: 32px;">
+                    <effect>
+                        <DropShadow color="#00000020" radius="3.0" />
+                    </effect>
                 </Label>
-                <ImageView fitHeight="50.0" fitWidth="50.0" layoutX="10.0" layoutY="5.0" onMouseClicked="#connexion" pickOnBounds="true" preserveRatio="true">
-                    <image>
-                        <Image url="@../assets/icone.png" />
-                    </image>
-                </ImageView>
+
+                <!-- Subtitle -->
+                <Label layoutX="90.0" layoutY="50.0" opacity="0.8" text="Portail de connexion" style="-fx-text-fill: #555555; -fx-font-size: 14px;">
+                </Label>
+
+                <!-- Login icon with modern styling -->
+                <Pane layoutX="720.0" layoutY="15.0" style="-fx-background-color: #6699cc4d; -fx-background-radius: 25; -fx-padding: 10;">
+                    <children>
+                        <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="@../assets/login.png" />
+                            </image>
+                        </ImageView>
+                    </children>
+                    <effect>
+                        <DropShadow color="#00000030" radius="10.0" />
+                    </effect>
+                </Pane>
             </children>
         </Pane>
-        <Button layoutX="180.0" layoutY="270.0" onMouseClicked="#connexion" style="-fx-background-color: #6699cc;" styleClass="login-btn" text="Se connecter" textFill="WHITE">
-            <font>
-                <Font name="Cantarell Regular" size="20.0" />
-            </font>
-        </Button>
-          <PasswordField fx:id="mdp" layoutX="152.0" layoutY="187.0" prefHeight="35.0" prefWidth="196.0" promptText="Mot de passe" style="-fx-background-color: transparent; -fx-border-color: transparent transparent #0000FF transparent; -fx-border-width: 2px; -fx-padding: 20px 10px 0px 10px;">
-              <cursor>
-                  <Cursor fx:constant="DEFAULT" />
-              </cursor>
-              <font>
-                  <Font name="Calibri" size="20.0" />
-              </font>
-          </PasswordField>
-          <TextField fx:id="email" layoutX="152.0" layoutY="125.0" prefHeight="35.0" prefWidth="196.0" promptText="E-mail" style="-fx-background-color: transparent; -fx-border-color: transparent transparent #0000FF transparent; -fx-border-width: 2px; -fx-padding: 20px 10px 0px 10px;">
-              <cursor>
-                  <Cursor fx:constant="DEFAULT" />
-              </cursor>
-              <font>
-                  <Font name="Calibri" size="20.0" />
-              </font>
-          </TextField>
-          <Label alignment="CENTER" contentDisplay="CENTER" layoutX="150.0" layoutY="84.0" prefHeight="30.0" prefWidth="200.0" text="Connexion" textFill="#012970">
-              <font>
-                  <Font name="Calibri Bold" size="30.0" />
-              </font>
-          </Label>
-      <Button layoutX="164.0" layoutY="323.0" onAction="#forgotpass" onMouseClicked="#connexion" style="-fx-background-color: #ccccff;" styleClass="login-btn" text="Mot de passe oublié" textFill="#513e3e">
-         <font>
-            <Font name="Cantarell Regular" size="17.0" />
-         </font>
-      </Button>
+        <HBox alignment="CENTER" fillHeight="false" layoutY="80.0" prefHeight="520.0" prefWidth="800.0" spacing="40.0">
+            <children>
+
+                <!-- Side illustration/info panel -->
+                <Pane prefHeight="450.0" prefWidth="330.0" style="-fx-background-color: #0000002a; -fx-background-radius: 20;">
+                    <children>
+                        <VBox alignment="CENTER" fillWidth="false" prefHeight="450.0" prefWidth="330.0" spacing="20.0">
+                            <children>
+                                <Label alignment="CENTER" prefHeight="30.0" prefWidth="240.0" text="Bienvenue !" style="-fx-text-fill: #fefefe; -fx-font-weight: bold; -fx-font-size: 26px;">
+                                </Label>
+                                <Label alignment="CENTER" prefHeight="100.0" prefWidth="240.0" text="Connectez-vous pour accéder aux dernières actualités de votre ville et rester informé des événements locaux." textAlignment="CENTER" wrapText="true" style="-fx-text-fill: #fefefe; -fx-font-size: 16px;">
+                                </Label>
+                                <ImageView fitHeight="102.0" fitWidth="127.0" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                        <Image url="@../assets/icone.png" />
+                                    </image>
+                                </ImageView>
+
+                                <Label alignment="CENTER" prefHeight="80.0" prefWidth="240.0" text="• Actualités en temps réel&#10;• Événements communautaires&#10;• Alertes importantes" textAlignment="CENTER" wrapText="true" style="-fx-text-fill: #fefefe; -fx-font-size: 14px;">
+                                </Label>
+                            </children>
+                        </VBox>
+                    </children>
+                    <effect>
+                        <DropShadow color="#00000015" radius="15.0" />
+                    </effect>
+                </Pane>
+
+                <!-- Login form container -->
+                <Pane prefHeight="450.0" prefWidth="330.0" style="-fx-background-color: #fffffff2; -fx-background-radius: 20; -fx-padding: 40;">
+                    <children>
+                        <VBox alignment="CENTER" fillWidth="false" prefHeight="450.0" prefWidth="330.0" spacing="15.0">
+                            <children>
+                                <!-- Login title -->
+                                <Label alignment="CENTER" prefHeight="40.0" prefWidth="330.0" text="Connexion" style="-fx-text-fill: #333333; -fx-font-weight: bold; -fx-font-size: 28px;">
+                                </Label>
+
+                                <!-- Welcome subtitle -->
+                                <Label alignment="CENTER" opacity="0.7" prefHeight="20.0" prefWidth="330.0" text="Accédez à votre compte" style="-fx-text-fill: #666666; -fx-font-size: 14px;">
+                                </Label>
+
+                                <!-- Email field with modern styling -->
+                                <Pane prefHeight="60.0" prefWidth="240.0" style="-fx-background-color: #f8f9fa; -fx-background-radius: 10; -fx-border-color: #e9ecef; -fx-border-radius: 10; -fx-border-width: 1;">
+                                    <effect>
+                                        <DropShadow color="#00000010" radius="5.0" />
+                                    </effect>
+                                    <children>
+                                        <Label layoutX="15.0" layoutY="5.0" text="E-mail" style="-fx-text-fill: #6c757d; -fx-font-size: 12px;">
+                                        </Label>
+                                        <TextField fx:id="email" layoutX="10.0" layoutY="20.0" prefHeight="30.0" prefWidth="220.0" promptText="votre.email@exemple.com" style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 5px; -fx-font-size: 14px;">
+                                        </TextField>
+                                    </children>
+                                </Pane>
+
+                                <!-- Password field with modern styling -->
+                                <Pane prefHeight="60.0" prefWidth="240.0" style="-fx-background-color: #f8f9fa; -fx-background-radius: 10; -fx-border-color: #e9ecef; -fx-border-radius: 10; -fx-border-width: 1;">
+                                    <children>
+                                        <Label layoutX="15.0" layoutY="5.0" text="Mot de passe" style="-fx-text-fill: #6c757d; -fx-font-size: 12px;">
+                                        </Label>
+                                        <PasswordField fx:id="mdp" layoutX="10.0" layoutY="20.0" prefHeight="30.0" prefWidth="220.0" promptText="Votre mot de passe" style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 5px; -fx-font-size: 14px;">
+                                        </PasswordField>
+                                    </children>
+                                    <effect>
+                                        <DropShadow color="#00000010" radius="5.0" />
+                                    </effect>
+                                </Pane>
+
+                                <!-- Login button -->
+                                <Button onMouseClicked="#connexion" prefHeight="50.0" prefWidth="240.0" text="Se connecter"
+                                        style="-fx-background-color: linear-gradient(to right, #667eea, #764ba2);
+                                           -fx-background-radius: 25;
+                                           -fx-border-radius: 25;
+                                           -fx-cursor: hand;
+                                           -fx-font-weight: bold;
+                                           -fx-text-fill: white;
+                                           -fx-font-size: 16px;">
+                                    <effect>
+                                        <DropShadow color="#667eea60" radius="15.0" />
+                                    </effect>
+                                </Button>
+
+                                <!-- Register button -->
+                                <Button prefHeight="40.0" prefWidth="240.0" text="Créer un compte"
+                                        style="-fx-background-color: transparent;
+                                           -fx-border-color: #667eea;
+                                           -fx-border-width: 2;
+                                           -fx-border-radius: 20;
+                                           -fx-background-radius: 20;
+                                           -fx-cursor: hand;
+                                           -fx-text-fill: #667eea;
+                                           -fx-font-weight: bold;
+                                           -fx-font-size: 14px;">
+                                </Button>
+
+                                <!-- Forgot password button -->
+                                <Button onAction="#forgotpass" prefHeight="35.0" prefWidth="200.0" text="Mot de passe oublié ?"
+                                        style="-fx-background-color: transparent;
+                                           -fx-cursor: hand;
+                                           -fx-underline: true;
+                                           -fx-text-fill: #667eea;
+                                           -fx-font-size: 12px;">
+                                </Button>
+                            </children>
+                        </VBox>
+                    </children>
+                    <effect>
+                        <DropShadow color="#00000020" radius="25.0" />
+                    </effect>
+                </Pane>
+            </children>
+        </HBox>
+
     </children>
 </Pane>

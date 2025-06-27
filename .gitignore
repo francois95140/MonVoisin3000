@@ -35,6 +35,8 @@ Thumbs.db
 *.bak
 
 # microlangage
-/venv/
+venv/
 parser.out
 parsetab.py
+__pycache__/
+tgpt
