@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Rectangle?>
+
+<Pane prefHeight="700.0" prefWidth="1000.0" style="-fx-background-color: linear-gradient(to bottom, #667eea 0%, #764ba2 100%);" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <!-- Background decorative elements -->
+        <Rectangle arcHeight="50.0" arcWidth="50.0" fill="#ffffff20" height="120.0" layoutX="850.0" layoutY="550.0" rotate="15.0" width="120.0" />
+        <Rectangle arcHeight="30.0" arcWidth="30.0" fill="#ffffff15" height="80.0" layoutX="50.0" layoutY="580.0" rotate="-20.0" width="80.0" />
+        <Rectangle arcHeight="40.0" arcWidth="40.0" fill="#ffffff10" height="100.0" layoutX="900.0" layoutY="100.0" rotate="25.0" width="100.0" />
+        <Rectangle arcHeight="60.0" arcWidth="60.0" fill="#ffffff10" height="140.0" layoutX="100.0" layoutY="150.0" rotate="-10.0" width="140.0" />
+
+        <!-- Header with glassmorphism effect -->
+        <Pane layoutY="0.0" prefHeight="80.0" prefWidth="1000.0" style="-fx-background-color: #ffffffaa; -fx-border-color: #ffffff33; -fx-border-width: 0 0 1 0;">
+            <children>
+                <!-- Logo container with hover effect -->
+                <Pane layoutX="20.0" layoutY="15.0" onMouseClicked="#accueil" style="-fx-cursor: hand; -fx-background-color: #ffffff1a; -fx-background-radius: 25; -fx-padding: 10;">
+                    <children>
+                        <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="@../assets/icone.png" />
+                            </image>
+                        </ImageView>
+                    </children>
+                    <effect>
+                        <DropShadow color="#00000030" radius="10.0" />
+                    </effect>
+                </Pane>
+
+                <!-- Title with modern typography -->
+                <Label layoutX="90.0" layoutY="20.0" style="-fx-font-family: sans-serif; -fx-text-fill: #333333; -fx-font-weight: bold; -fx-font-size: 32px;" text="Actualités Ma Ville">
+                    <effect>
+                        <DropShadow color="#00000020" radius="3.0" />
+                    </effect>
+                </Label>
+
+                <!-- Subtitle -->
+                <Label layoutX="90.0" layoutY="50.0" opacity="0.8" style="-fx-font-family: sans-serif; -fx-text-fill: #555555; -fx-font-size: 14px;" text="Centre de contrôle">
+                </Label>
+            <Pane layoutX="920.0" layoutY="10.0" onMouseClicked="#deconnexion" prefHeight="60.0" prefWidth="60.0" style="-fx-cursor: hand; -fx-background-color: #6699cc4d; -fx-background-radius: 25; -fx-padding: 10;">
+               <children>
+                  <ImageView fitHeight="40.0" fitWidth="40.0" layoutX="10.0" layoutY="10.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../assets/logout.png" />
+                     </image>
+                  </ImageView>
+               </children>
+               <effect>
+                  <DropShadow color="#00000030" radius="10.0" />
+               </effect>
+            </Pane>
+            </children>
+        </Pane>
+
+        <!-- Main content area -->
+        <VBox alignment="CENTER" fillWidth="false" layoutY="100.0" prefHeight="580.0" prefWidth="1000.0" spacing="40.0">
+            <children>
+                <!-- Welcome section -->
+                <VBox alignment="CENTER" fillWidth="false" spacing="10.0">
+                    <children>
+                        <Label alignment="CENTER" style="-fx-font-family: sans-serif; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 36px;" text="Tableau de bord WebScraping">
+                            <effect>
+                                <DropShadow color="#00000040" radius="5.0" />
+                            </effect>
+                        </Label>
+                        <Label alignment="CENTER" opacity="0.9" style="-fx-font-family: sans-serif; -fx-text-fill: white; -fx-font-size: 16px;" text="Gérez vos outils de collecte d'actualités locales">
+                        </Label>
+                    </children>
+                </VBox>
+
+                <!-- Main action cards -->
+                <HBox alignment="CENTER" fillHeight="false" spacing="50.0">
+                    <children>
+                        <!-- Full scraping card -->
+                        <Pane prefHeight="300.0" prefWidth="400.0" style="-fx-background-color: #ffffff95; -fx-background-radius: 20;">
+                            <children>
+                                <VBox alignment="CENTER" fillWidth="false" prefHeight="300.0" prefWidth="400.0" spacing="20.0">
+                                    <children>
+                                        <!-- Icon -->
+                                        <ImageView fitHeight="80.0" fitWidth="80.0" pickOnBounds="true" preserveRatio="true">
+                                            <image>
+                                                <Image url="@../assets/totalscrap.png" />
+                                            </image>
+                                        </ImageView>
+
+                                        <!-- Title -->
+                                        <Label alignment="CENTER" style="-fx-font-family: sans-serif; -fx-text-fill: #333333; -fx-font-weight: bold; -fx-font-size: 24px;" text="Scraping Complet">
+                                        </Label>
+
+                                        <!-- Description -->
+                                        <Label alignment="CENTER" prefWidth="350.0" style="-fx-font-family: sans-serif; -fx-text-fill: #666666; -fx-font-size: 14px;" text="Lance une collecte automatique complète de toutes les sources d'actualités configurées pour votre ville" textAlignment="CENTER" wrapText="true">
+                                        </Label>
+
+                                        <!-- Action button -->
+                                        <Button onMouseClicked="#lancerScrapingComplet" prefHeight="50.0" prefWidth="250.0" style="-fx-font-family: sans-serif;                                                        -fx-background-color: linear-gradient(to right, #667eea, #764ba2);                                                        -fx-background-radius: 25;                                                        -fx-border-radius: 25;                                                        -fx-cursor: hand;                                                        -fx-font-weight: bold;                                                        -fx-text-fill: white;                                                        -fx-font-size: 16px;" text="Lancer le Scraping">
+                                            <effect>
+                                                <DropShadow color="#667eea60" radius="15.0" />
+                                            </effect>
+                                        </Button>
+                                    </children>
+                                </VBox>
+                            </children>
+                            <effect>
+                                <DropShadow color="#00000025" radius="20.0" />
+                            </effect>
+                        </Pane>
+
+                        <!-- Custom scraping tool card -->
+                        <Pane prefHeight="300.0" prefWidth="400.0" style="-fx-background-color: #0000004d; -fx-background-radius: 20;">
+                            <children>
+                                <VBox alignment="CENTER" fillWidth="false" prefHeight="300.0" prefWidth="400.0" spacing="20.0">
+                                    <children>
+                                        <!-- Icon -->
+                                        <ImageView fitHeight="80.0" fitWidth="80.0" pickOnBounds="true" preserveRatio="true">
+                                            <image>
+                                                <Image url="@../assets/scrap.png" />
+                                            </image>
+                                        </ImageView>
+
+                                        <!-- Title -->
+                                        <Label alignment="CENTER" style="-fx-font-family: sans-serif; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 24px;" text="Outil Personnalisé">
+                                        </Label>
+
+                                        <!-- Description -->
+                                        <Label alignment="CENTER" prefWidth="350.0" style="-fx-font-family: sans-serif; -fx-text-fill: #CCCCCC; -fx-font-size: 14px;" text="Accédez à l'outil de webscraping personnalisé pour configurer vos propres sources et paramètres" textAlignment="CENTER" wrapText="true">
+                                        </Label>
+
+                                        <!-- Action button -->
+                                        <Button onMouseClicked="#ouvrirOutilScraping" prefHeight="50.0" prefWidth="250.0" style="-fx-font-family: sans-serif;                                                        -fx-background-color: transparent;                                                        -fx-border-color: #ffffff;                                                        -fx-border-width: 2;                                                        -fx-border-radius: 25;                                                        -fx-background-radius: 25;                                                        -fx-cursor: hand;                                                        -fx-text-fill: white;                                                        -fx-font-weight: bold;                                                        -fx-font-size: 16px;" text="Ouvrir l'Outil">
+                                            <effect>
+                                                <DropShadow color="#ffffff40" radius="10.0" />
+                                            </effect>
+                                        </Button>
+                                    </children>
+                                </VBox>
+                            </children>
+                            <effect>
+                                <DropShadow color="#00000025" radius="20.0" />
+                            </effect>
+                        </Pane>
+                    </children>
+                </HBox>
+
+                <!-- Status and info section -->
+                <HBox alignment="CENTER" fillHeight="false" spacing="40.0">
+                    <children>
+                        <!-- Status info -->
+                        <Pane prefHeight="120.0" prefWidth="300.0" style="-fx-background-color: #ffffff1a; -fx-background-radius: 15;">
+                            <children>
+                                <VBox alignment="CENTER" fillWidth="false" prefHeight="120.0" prefWidth="300.0" spacing="10.0">
+                                    <children>
+                                        <Label alignment="CENTER" style="-fx-font-family: sans-serif; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 16px;" text="📊 Dernière collecte">
+                                        </Label>
+                                        <Label fx:id="derniereCollecte" alignment="CENTER" style="-fx-font-family: sans-serif; -fx-text-fill: #CCCCCC; -fx-font-size: 14px;" text="Il y a 2 heures">
+                                        </Label>
+                                    </children>
+                                </VBox>
+                            </children>
+                            <effect>
+                                <DropShadow color="#00000015" radius="10.0" />
+                            </effect>
+                        </Pane>
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+    </children>
+</Pane>
