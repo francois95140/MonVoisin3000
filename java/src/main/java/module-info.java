@@ -1,5 +1,5 @@
 module com.MonVoisin {
-    requires javafx.controls;  // ✅ Ajout manquant !
+    requires javafx.controls;
     requires javafx.fxml;
     requires org.apache.commons.lang3;
     requires jakarta.mail;
@@ -10,12 +10,16 @@ module com.MonVoisin {
     requires org.jsoup;
     requires javafx.graphics;
     requires com.fasterxml.jackson.databind;
-    requires java.desktop;  // ✅ Pour Desktop.getDesktop() dans ConnexionController
+    requires org.seleniumhq.selenium.support;
+    requires org.seleniumhq.selenium.chrome_driver;
+    requires io.github.bonigarcia.webdrivermanager;
 
     opens application to javafx.fxml;
     exports application;
     opens controller to javafx.fxml;
     exports controller;
+    opens model to javafx.fxml;
+    exports model;
     opens services.webscrapper to javafx.fxml;  // ✅ Si vous l'utilisez dans FXML
     exports services.webscrapper;
 }

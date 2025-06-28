@@ -14,6 +14,8 @@ public class MinimalTgpt {
             while ((line = r.readLine()) != null) total.append(line).append("\n");
             System.out.println(total);
             p.waitFor(30, TimeUnit.SECONDS);
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 }

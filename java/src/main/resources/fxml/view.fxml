@@ -37,14 +37,14 @@
                 </Pane>
 
                 <!-- Title with modern typography -->
-                <Label layoutX="90.0" layoutY="20.0" text="Actualités Ma Ville" style="-fx-font-family: sans-serif; -fx-text-fill: #333333; -fx-font-weight: bold; -fx-font-size: 32px;">
+                <Label layoutX="90.0" layoutY="20.0" style="-fx-font-family: sans-serif; -fx-text-fill: #333333; -fx-font-weight: bold; -fx-font-size: 32px;" text="Actualités Ma Ville">
                     <effect>
                         <DropShadow color="#00000020" radius="3.0" />
                     </effect>
                 </Label>
 
                 <!-- Subtitle -->
-                <Label fx:id="villeSelectionnee" layoutX="90.0" layoutY="50.0" opacity="0.8" text="Articles pour Paris" style="-fx-font-family: sans-serif; -fx-text-fill: #555555; -fx-font-size: 14px;">
+                <Label fx:id="villeSelectionnee" layoutX="90.0" layoutY="50.0" opacity="0.8" style="-fx-font-family: sans-serif; -fx-text-fill: #555555; -fx-font-size: 14px;" text="Articles pour Paris">
                 </Label>
 
                 <!-- Back button -->
@@ -95,13 +95,13 @@
                                         </ImageView>
                                         <VBox alignment="CENTER_LEFT" spacing="5.0">
                                             <children>
-                                                <Label fx:id="nomVilleTitre" text="Actualités de Paris" style="-fx-font-family: sans-serif; -fx-text-fill: #333333; -fx-font-weight: bold; -fx-font-size: 32px;">
+                                                <Label fx:id="nomVilleTitre" style="-fx-font-family: sans-serif; -fx-text-fill: #333333; -fx-font-weight: bold; -fx-font-size: 32px;" text="Actualités de Paris">
                                                 </Label>
                                                 <HBox alignment="CENTER_LEFT" spacing="15.0">
                                                     <children>
-                                                        <Label fx:id="nombreArticles" text="12 articles trouvés" style="-fx-font-family: sans-serif; -fx-text-fill: #333333; -fx-font-size: 14px;">
+                                                        <Label fx:id="nombreArticles" style="-fx-font-family: sans-serif; -fx-text-fill: #333333; -fx-font-size: 14px;" text="12 articles trouvés">
                                                         </Label>
-                                                        <Label fx:id="derniereMAJ" text="Dernière mise à jour : il y a 5 min" style="-fx-font-family: sans-serif; -fx-text-fill: #333333; -fx-font-size: 14px;">
+                                                        <Label fx:id="derniereMAJ" style="-fx-font-family: sans-serif; -fx-text-fill: #333333; -fx-font-size: 14px;" text="Dernière mise à jour : il y a 5 min">
                                                         </Label>
                                                     </children>
                                                 </HBox>
@@ -131,21 +131,21 @@
                                                 <VBox alignment="TOP_LEFT" prefWidth="650.0" spacing="10.0">
                                                     <children>
                                                         <!-- Article title -->
-                                                        <Label text="Nouvelle ligne de métro inaugurée dans le centre-ville" wrapText="true" style="-fx-font-family: sans-serif; -fx-text-fill: #333333; -fx-font-weight: bold; -fx-font-size: 18px;">
+                                                        <Label style="-fx-font-family: sans-serif; -fx-text-fill: #333333; -fx-font-weight: bold; -fx-font-size: 18px;" text="Nouvelle ligne de métro inaugurée dans le centre-ville" wrapText="true">
                                                         </Label>
 
                                                         <!-- Article summary -->
-                                                        <Label prefWidth="630.0" text="La mairie a officiellement inauguré la nouvelle ligne de métro reliant le centre-ville aux quartiers périphériques. Cette infrastructure moderne devrait considérablement améliorer la mobilité urbaine et réduire les embouteillages..." wrapText="true" style="-fx-font-family: sans-serif; -fx-text-fill: #333333; -fx-font-size: 14px;">
+                                                        <Label prefWidth="630.0" style="-fx-font-family: sans-serif; -fx-text-fill: #333333; -fx-font-size: 14px;" text="La mairie a officiellement inauguré la nouvelle ligne de métro reliant le centre-ville aux quartiers périphériques. Cette infrastructure moderne devrait considérablement améliorer la mobilité urbaine et réduire les embouteillages..." wrapText="true">
                                                         </Label>
 
                                                         <!-- Article metadata -->
                                                         <HBox alignment="CENTER_LEFT" spacing="20.0">
                                                             <children>
-                                                                <Label text="📅 21 juin 2025" style="-fx-font-family: sans-serif; -fx-text-fill: #555555; -fx-font-size: 12px;">
+                                                                <Label style="-fx-font-family: sans-serif; -fx-text-fill: #555555; -fx-font-size: 12px;" text="📅 21 juin 2025">
                                                                 </Label>
-                                                                <Label text="📰 Le Parisien" style="-fx-font-family: sans-serif; -fx-text-fill: #555555; -fx-font-size: 12px;">
+                                                                <Label style="-fx-font-family: sans-serif; -fx-text-fill: #555555; -fx-font-size: 12px;" text="📰 Le Parisien">
                                                                 </Label>
-                                                                <Label text="🏷️ Transport" style="-fx-font-family: sans-serif; -fx-text-fill: #667eea; -fx-font-weight: bold; -fx-font-size: 12px;">
+                                                                <Label style="-fx-font-family: sans-serif; -fx-text-fill: #667eea; -fx-font-weight: bold; -fx-font-size: 12px;" text="🏷️ Transport">
                                                                 </Label>
                                                             </children>
                                                         </HBox>
@@ -155,29 +155,12 @@
                                                 <!-- Action button -->
                                                 <VBox alignment="CENTER" spacing="10.0">
                                                     <children>
-                                                        <Button onMouseClicked="#voirArticle1" prefHeight="45.0" prefWidth="180.0" text="📖 En savoir plus"
-                                                                style="-fx-font-family: sans-serif;
-                                                                       -fx-background-color: linear-gradient(to right, #667eea, #764ba2);
-                                                                       -fx-background-radius: 22;
-                                                                       -fx-border-radius: 22;
-                                                                       -fx-cursor: hand;
-                                                                       -fx-text-fill: white;
-                                                                       -fx-font-weight: bold;
-                                                                       -fx-font-size: 14px;">
+                                                        <Button onMouseClicked="#voirArticle1" prefHeight="45.0" prefWidth="180.0" style="-fx-font-family: sans-serif;                                                                        -fx-background-color: linear-gradient(to right, #667eea, #764ba2);                                                                        -fx-background-radius: 22;                                                                        -fx-border-radius: 22;                                                                        -fx-cursor: hand;                                                                        -fx-text-fill: white;                                                                        -fx-font-weight: bold;                                                                        -fx-font-size: 14px;" text="En savoir plus" textAlignment="CENTER">
                                                             <effect>
                                                                 <DropShadow color="#667eea40" radius="8.0" />
                                                             </effect>
                                                         </Button>
-                                                        <Button onMouseClicked="#partagerArticle1" prefHeight="35.0" prefWidth="180.0" text="🔗 Partager"
-                                                                style="-fx-font-family: sans-serif;
-                                                                       -fx-background-color: transparent;
-                                                                       -fx-border-color: #667eea;
-                                                                       -fx-border-width: 1;
-                                                                       -fx-border-radius: 18;
-                                                                       -fx-background-radius: 18;
-                                                                       -fx-cursor: hand;
-                                                                       -fx-text-fill: #667eea;
-                                                                       -fx-font-size: 12px;">
+                                                        <Button onMouseClicked="#partagerArticle1" prefHeight="35.0" prefWidth="180.0" style="-fx-font-family: sans-serif;                                                                        -fx-background-color: transparent;                                                                        -fx-border-color: #667eea;                                                                        -fx-border-width: 1;                                                                        -fx-border-radius: 18;                                                                        -fx-background-radius: 18;                                                                        -fx-cursor: hand;                                                                        -fx-text-fill: #667eea;                                                                        -fx-font-size: 12px;" text="Partager" textAlignment="CENTER">
                                                         </Button>
                                                     </children>
                                                 </VBox>
@@ -196,17 +179,17 @@
                                             <children>
                                                 <VBox alignment="TOP_LEFT" prefWidth="650.0" spacing="10.0">
                                                     <children>
-                                                        <Label text="Festival de musique : programmation dévoilée" wrapText="true" style="-fx-font-family: sans-serif; -fx-text-fill: #333333; -fx-font-weight: bold; -fx-font-size: 18px;">
+                                                        <Label style="-fx-font-family: sans-serif; -fx-text-fill: #333333; -fx-font-weight: bold; -fx-font-size: 18px;" text="Festival de musique : programmation dévoilée" wrapText="true">
                                                         </Label>
-                                                        <Label prefWidth="630.0" text="Le festival annuel de musique de la ville a révélé sa programmation exceptionnelle avec des artistes nationaux et internationaux. L'événement se déroulera du 15 au 18 juillet dans le parc central..." wrapText="true" style="-fx-font-family: sans-serif; -fx-text-fill: #333333; -fx-font-size: 14px;">
+                                                        <Label prefWidth="630.0" style="-fx-font-family: sans-serif; -fx-text-fill: #333333; -fx-font-size: 14px;" text="Le festival annuel de musique de la ville a révélé sa programmation exceptionnelle avec des artistes nationaux et internationaux. L'événement se déroulera du 15 au 18 juillet dans le parc central..." wrapText="true">
                                                         </Label>
                                                         <HBox alignment="CENTER_LEFT" spacing="20.0">
                                                             <children>
-                                                                <Label text="📅 20 juin 2025" style="-fx-font-family: sans-serif; -fx-text-fill: #555555; -fx-font-size: 12px;">
+                                                                <Label style="-fx-font-family: sans-serif; -fx-text-fill: #555555; -fx-font-size: 12px;" text="📅 20 juin 2025">
                                                                 </Label>
-                                                                <Label text="📰 Actu Locale" style="-fx-font-family: sans-serif; -fx-text-fill: #555555; -fx-font-size: 12px;">
+                                                                <Label style="-fx-font-family: sans-serif; -fx-text-fill: #555555; -fx-font-size: 12px;" text="📰 Actu Locale">
                                                                 </Label>
-                                                                <Label text="🏷️ Culture" style="-fx-font-family: sans-serif; -fx-text-fill: #764ba2; -fx-font-weight: bold; -fx-font-size: 12px;">
+                                                                <Label style="-fx-font-family: sans-serif; -fx-text-fill: #764ba2; -fx-font-weight: bold; -fx-font-size: 12px;" text="🏷️ Culture">
                                                                 </Label>
                                                             </children>
                                                         </HBox>
@@ -214,29 +197,12 @@
                                                 </VBox>
                                                 <VBox alignment="CENTER" spacing="10.0">
                                                     <children>
-                                                        <Button onMouseClicked="#voirArticle2" prefHeight="45.0" prefWidth="180.0" text="📖 En savoir plus"
-                                                                style="-fx-font-family: sans-serif;
-                                                                       -fx-background-color: linear-gradient(to right, #667eea, #764ba2);
-                                                                       -fx-background-radius: 22;
-                                                                       -fx-border-radius: 22;
-                                                                       -fx-cursor: hand;
-                                                                       -fx-text-fill: white;
-                                                                       -fx-font-weight: bold;
-                                                                       -fx-font-size: 14px;">
+                                                        <Button onMouseClicked="#voirArticle2" prefHeight="45.0" prefWidth="180.0" style="-fx-font-family: sans-serif;                                                                        -fx-background-color: linear-gradient(to right, #667eea, #764ba2);                                                                        -fx-background-radius: 22;                                                                        -fx-border-radius: 22;                                                                        -fx-cursor: hand;                                                                        -fx-text-fill: white;                                                                        -fx-font-weight: bold;                                                                        -fx-font-size: 14px;" text="En savoir plus" textAlignment="CENTER">
                                                             <effect>
                                                                 <DropShadow color="#667eea40" radius="8.0" />
                                                             </effect>
                                                         </Button>
-                                                        <Button onMouseClicked="#partagerArticle2" prefHeight="35.0" prefWidth="180.0" text="🔗 Partager"
-                                                                style="-fx-font-family: sans-serif;
-                                                                       -fx-background-color: transparent;
-                                                                       -fx-border-color: #667eea;
-                                                                       -fx-border-width: 1;
-                                                                       -fx-border-radius: 18;
-                                                                       -fx-background-radius: 18;
-                                                                       -fx-cursor: hand;
-                                                                       -fx-text-fill: #667eea;
-                                                                       -fx-font-size: 12px;">
+                                                        <Button onMouseClicked="#partagerArticle2" prefHeight="35.0" prefWidth="180.0" style="-fx-font-family: sans-serif;                                                                        -fx-background-color: transparent;                                                                        -fx-border-color: #667eea;                                                                        -fx-border-width: 1;                                                                        -fx-border-radius: 18;                                                                        -fx-background-radius: 18;                                                                        -fx-cursor: hand;                                                                        -fx-text-fill: #667eea;                                                                        -fx-font-size: 12px;" text="Partager" textAlignment="CENTER">
                                                         </Button>
                                                     </children>
                                                 </VBox>
@@ -255,17 +221,17 @@
                                             <children>
                                                 <VBox alignment="TOP_LEFT" prefWidth="650.0" spacing="10.0">
                                                     <children>
-                                                        <Label text="Nouveau parc écologique ouvert au public" wrapText="true" style="-fx-font-family: sans-serif; -fx-text-fill: #333333; -fx-font-weight: bold; -fx-font-size: 18px;">
+                                                        <Label style="-fx-font-family: sans-serif; -fx-text-fill: #333333; -fx-font-weight: bold; -fx-font-size: 18px;" text="Nouveau parc écologique ouvert au public" wrapText="true">
                                                         </Label>
-                                                        <Label prefWidth="630.0" text="Un espace vert de 15 hectares vient d'ouvrir ses portes aux habitants. Ce parc écologique propose des sentiers de randonnée, une aire de jeux pour enfants et un espace dédié à la biodiversité locale..." wrapText="true" style="-fx-font-family: sans-serif; -fx-text-fill: #333333; -fx-font-size: 14px;">
+                                                        <Label prefWidth="630.0" style="-fx-font-family: sans-serif; -fx-text-fill: #333333; -fx-font-size: 14px;" text="Un espace vert de 15 hectares vient d'ouvrir ses portes aux habitants. Ce parc écologique propose des sentiers de randonnée, une aire de jeux pour enfants et un espace dédié à la biodiversité locale..." wrapText="true">
                                                         </Label>
                                                         <HBox alignment="CENTER_LEFT" spacing="20.0">
                                                             <children>
-                                                                <Label text="📅 19 juin 2025" style="-fx-font-family: sans-serif; -fx-text-fill: #555555; -fx-font-size: 12px;">
+                                                                <Label style="-fx-font-family: sans-serif; -fx-text-fill: #555555; -fx-font-size: 12px;" text="📅 19 juin 2025">
                                                                 </Label>
-                                                                <Label text="📰 Échos Municipaux" style="-fx-font-family: sans-serif; -fx-text-fill: #555555; -fx-font-size: 12px;">
+                                                                <Label style="-fx-font-family: sans-serif; -fx-text-fill: #555555; -fx-font-size: 12px;" text="📰 Échos Municipaux">
                                                                 </Label>
-                                                                <Label text="🏷️ Environnement" style="-fx-font-family: sans-serif; -fx-text-fill: #28a745; -fx-font-weight: bold; -fx-font-size: 12px;">
+                                                                <Label style="-fx-font-family: sans-serif; -fx-text-fill: #28a745; -fx-font-weight: bold; -fx-font-size: 12px;" text="🏷️ Environnement">
                                                                 </Label>
                                                             </children>
                                                         </HBox>
@@ -273,29 +239,12 @@
                                                 </VBox>
                                                 <VBox alignment="CENTER" spacing="10.0">
                                                     <children>
-                                                        <Button onMouseClicked="#voirArticle3" prefHeight="45.0" prefWidth="180.0" text="📖 En savoir plus"
-                                                                style="-fx-font-family: sans-serif;
-                                                                       -fx-background-color: linear-gradient(to right, #667eea, #764ba2);
-                                                                       -fx-background-radius: 22;
-                                                                       -fx-border-radius: 22;
-                                                                       -fx-cursor: hand;
-                                                                       -fx-text-fill: white;
-                                                                       -fx-font-weight: bold;
-                                                                       -fx-font-size: 14px;">
+                                                        <Button onMouseClicked="#voirArticle3" prefHeight="45.0" prefWidth="180.0" style="-fx-font-family: sans-serif;                                                                        -fx-background-color: linear-gradient(to right, #667eea, #764ba2);                                                                        -fx-background-radius: 22;                                                                        -fx-border-radius: 22;                                                                        -fx-cursor: hand;                                                                        -fx-text-fill: white;                                                                        -fx-font-weight: bold;                                                                        -fx-font-size: 14px;" text="En savoir plus" textAlignment="CENTER">
                                                             <effect>
                                                                 <DropShadow color="#667eea40" radius="8.0" />
                                                             </effect>
                                                         </Button>
-                                                        <Button onMouseClicked="#partagerArticle3" prefHeight="35.0" prefWidth="180.0" text="🔗 Partager"
-                                                                style="-fx-font-family: sans-serif;
-                                                                       -fx-background-color: transparent;
-                                                                       -fx-border-color: #667eea;
-                                                                       -fx-border-width: 1;
-                                                                       -fx-border-radius: 18;
-                                                                       -fx-background-radius: 18;
-                                                                       -fx-cursor: hand;
-                                                                       -fx-text-fill: #667eea;
-                                                                       -fx-font-size: 12px;">
+                                                        <Button onMouseClicked="#partagerArticle3" prefHeight="35.0" prefWidth="180.0" style="-fx-font-family: sans-serif;                                                                        -fx-background-color: transparent;                                                                        -fx-border-color: #667eea;                                                                        -fx-border-width: 1;                                                                        -fx-border-radius: 18;                                                                        -fx-background-radius: 18;                                                                        -fx-cursor: hand;                                                                        -fx-text-fill: #667eea;                                                                        -fx-font-size: 12px;" text="Partager" textAlignment="CENTER">
                                                         </Button>
                                                     </children>
                                                 </VBox>
