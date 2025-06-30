@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actualités - MonVoisin3000</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .accent-text {
+            color: #ffffff;
+            font-weight: 800;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-1px);
+        }
+
+        .article-card {
+            transition: all 0.3s ease;
+        }
+
+        .article-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .category-tag {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .sentiment-positive {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #00ff5e;
+        }
+
+        .sentiment-negative {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ff3a3a;
+        }
+
+        .sentiment-neutral {
+            background: rgba(156, 163, 175, 0.1);
+            border: 1px solid rgba(156, 163, 175, 0.3);
+            color: #003caa;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <!-- Titre principal -->
+    <div class="px-6 mb-6 pt-6 fade-in">
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-3xl font-bold text-white mb-2">
+                    <span class="accent-text">Actualités</span> de la ville
+                </h2>
+                <p class="text-white/70">
+                    Restez informé de tout ce qui se passe près de chez vous
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste des actualités -->
+    <main class="px-6 pb-8">
+        <div class="space-y-6">
+            <!-- Nouvelle boulangerie - Positif -->
+            <article class="glass-card article-card rounded-2xl p-6 fade-in" style="animation-delay: 0.2s;">
+                <!-- Titre -->
+                <h3 class="text-2xl font-bold text-white mb-3">Ouverture d'une nouvelle boulangerie artisanale</h3>
+                
+                <!-- Sentiment -->
+                <div class="flex items-center space-x-2 mb-4">
+                    <div class="sentiment-positive rounded-full px-3 py-1 flex items-center space-x-2">
+                        <ion-icon name="happy" class="text-lg"></ion-icon>
+                        <span class="text-sm font-medium">Positif</span>
+                    </div>
+                </div>
+                
+                <!-- Tags -->
+                <div class="flex flex-wrap gap-2 mb-4">
+                    <span class="category-tag bg-blue-500/20 text-blue-400 border border-blue-500/30">Commerce</span>
+                    <span class="category-tag bg-green-500/20 text-green-400 border border-green-500/30">Alimentation</span>
+                    <span class="category-tag bg-purple-500/20 text-purple-400 border border-purple-500/30">Artisanat</span>
+                </div>
+                
+                <!-- Date et Source -->
+                <div class="mb-4 space-y-2">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-white/60 text-sm">Publié le:</span>
+                        <span class="text-white/80 text-sm font-medium">30 Juin 2025</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-white/60 text-sm">Source:</span>
+                        <span class="text-white/80 text-sm font-medium">Journal Municipal</span>
+                    </div>
+                </div>
+                
+                <!-- Boutons d'action -->
+                <div class="flex items-center space-x-3">
+                    <button class="btn-secondary px-4 py-2 rounded-xl text-white/80 text-sm flex items-center space-x-2">
+                        <ion-icon name="share-social" class="text-base"></ion-icon>
+                        <span>Partager</span>
+                    </button>
+                    <button class="btn-primary px-4 py-2 rounded-xl text-white text-sm">
+                        En savoir plus
+                    </button>
+                </div>
+            </article>
+
+            <!-- Travaux circulation - Négatif -->
+            <article class="glass-card article-card rounded-2xl p-6 fade-in" style="animation-delay: 0.3s;">
+                <!-- Titre -->
+                <h3 class="text-2xl font-bold text-white mb-3">Importants embouteillages dus aux travaux</h3>
+                
+                <!-- Sentiment -->
+                <div class="flex items-center space-x-2 mb-4">
+                    <div class="sentiment-negative rounded-full px-3 py-1 flex items-center space-x-2">
+                        <ion-icon name="sad" class="text-lg"></ion-icon>
+                        <span class="text-sm font-medium">Négatif</span>
+                    </div>
+                </div>
+                
+                <!-- Tags -->
+                <div class="flex flex-wrap gap-2 mb-4">
+                    <span class="category-tag bg-red-500/20 text-red-400 border border-red-500/30">Travaux</span>
+                    <span class="category-tag bg-orange-500/20 text-orange-400 border border-orange-500/30">Circulation</span>
+                    <span class="category-tag bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">Transport</span>
+                </div>
+                
+                <!-- Date et Source -->
+                <div class="mb-4 space-y-2">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-white/60 text-sm">Publié le:</span>
+                        <span class="text-white/80 text-sm font-medium">29 Juin 2025</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-white/60 text-sm">Source:</span>
+                        <span class="text-white/80 text-sm font-medium">Radio Locale</span>
+                    </div>
+                </div>
+                
+                <!-- Boutons d'action -->
+                <div class="flex items-center space-x-3">
+                    <button class="btn-secondary px-4 py-2 rounded-xl text-white/80 text-sm flex items-center space-x-2">
+                        <ion-icon name="share-social" class="text-base"></ion-icon>
+                        <span>Partager</span>
+                    </button>
+                    <button class="btn-primary px-4 py-2 rounded-xl text-white text-sm">
+                        En savoir plus
+                    </button>
+                </div>
+            </article>
+
+            <!-- Budget municipal - Neutre -->
+            <article class="glass-card article-card rounded-2xl p-6 fade-in" style="animation-delay: 0.4s;">
+                <!-- Titre -->
+                <h3 class="text-2xl font-bold text-white mb-3">Vote du budget municipal 2025</h3>
+                
+                <!-- Sentiment -->
+                <div class="flex items-center space-x-2 mb-4">
+                    <div class="sentiment-neutral rounded-full px-3 py-1 flex items-center space-x-2">
+                        <ion-icon name="remove" class="text-lg"></ion-icon>
+                        <span class="text-sm font-medium">Neutre</span>
+                    </div>
+                </div>
+                
+                <!-- Tags -->
+                <div class="flex flex-wrap gap-2 mb-4">
+                    <span class="category-tag bg-blue-500/20 text-blue-400 border border-blue-500/30">Politique</span>
+                    <span class="category-tag bg-green-500/20 text-green-400 border border-green-500/30">Budget</span>
+                    <span class="category-tag bg-gray-500/20 text-gray-400 border border-gray-500/30">Administration</span>
+                </div>
+                
+                <!-- Date et Source -->
+                <div class="mb-4 space-y-2">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-white/60 text-sm">Publié le:</span>
+                        <span class="text-white/80 text-sm font-medium">28 Juin 2025</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-white/60 text-sm">Source:</span>
+                        <span class="text-white/80 text-sm font-medium">Mairie Officielle</span>
+                    </div>
+                </div>
+                
+                <!-- Boutons d'action -->
+                <div class="flex items-center space-x-3">
+                    <button class="btn-secondary px-4 py-2 rounded-xl text-white/80 text-sm flex items-center space-x-2">
+                        <ion-icon name="share-social" class="text-base"></ion-icon>
+                        <span>Partager</span>
+                    </button>
+                    <button class="btn-primary px-4 py-2 rounded-xl text-white text-sm">
+                        En savoir plus
+                    </button>
+                </div>
+            </article>
+
+            <!-- Festival été - Positif -->
+            <article class="glass-card article-card rounded-2xl p-6 fade-in" style="animation-delay: 0.5s;">
+                <!-- Titre -->
+                <h3 class="text-2xl font-bold text-white mb-3">Festival d'été : programmation exceptionnelle</h3>
+                
+                <!-- Sentiment -->
+                <div class="flex items-center space-x-2 mb-4">
+                    <div class="sentiment-positive rounded-full px-3 py-1 flex items-center space-x-2">
+                        <ion-icon name="happy" class="text-lg"></ion-icon>
+                        <span class="text-sm font-medium">Positif</span>
+                    </div>
+                </div>
+                
+                <!-- Tags -->
+                <div class="flex flex-wrap gap-2 mb-4">
+                    <span class="category-tag bg-purple-500/20 text-purple-400 border border-purple-500/30">Culture</span>
+                    <span class="category-tag bg-pink-500/20 text-pink-400 border border-pink-500/30">Musique</span>
+                    <span class="category-tag bg-blue-500/20 text-blue-400 border border-blue-500/30">Événement</span>
+                </div>
+                
+                <!-- Date et Source -->
+                <div class="mb-4 space-y-2">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-white/60 text-sm">Publié le:</span>
+                        <span class="text-white/80 text-sm font-medium">27 Juin 2025</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-white/60 text-sm">Source:</span>
+                        <span class="text-white/80 text-sm font-medium">Service Culturel</span>
+                    </div>
+                </div>
+                
+                <!-- Boutons d'action -->
+                <div class="flex items-center space-x-3">
+                    <button class="btn-secondary px-4 py-2 rounded-xl text-white/80 text-sm flex items-center space-x-2">
+                        <ion-icon name="share-social" class="text-base"></ion-icon>
+                        <span>Partager</span>
+                    </button>
+                    <button class="btn-primary px-4 py-2 rounded-xl text-white text-sm">
+                        En savoir plus
+                    </button>
+                </div>
+            </article>
+
+            <!-- Sécurité - Négatif -->
+            <article class="glass-card article-card rounded-2xl p-6 fade-in" style="animation-delay: 0.6s;">
+                <!-- Titre -->
+                <h3 class="text-2xl font-bold text-white mb-3">Augmentation des cambriolages en centre-ville</h3>
+                
+                <!-- Sentiment -->
+                <div class="flex items-center space-x-2 mb-4">
+                    <div class="sentiment-negative rounded-full px-3 py-1 flex items-center space-x-2">
+                        <ion-icon name="warning" class="text-lg"></ion-icon>
+                        <span class="text-sm font-medium">Négatif</span>
+                    </div>
+                </div>
+                
+                <!-- Tags -->
+                <div class="flex flex-wrap gap-2 mb-4">
+                    <span class="category-tag bg-red-500/20 text-red-400 border border-red-500/30">Sécurité</span>
+                    <span class="category-tag bg-orange-500/20 text-orange-400 border border-orange-500/30">Prévention</span>
+                    <span class="category-tag bg-blue-500/20 text-blue-400 border border-blue-500/30">Police</span>
+                </div>
+                
+                <!-- Date et Source -->
+                <div class="mb-4 space-y-2">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-white/60 text-sm">Publié le:</span>
+                        <span class="text-white/80 text-sm font-medium">26 Juin 2025</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-white/60 text-sm">Source:</span>
+                        <span class="text-white/80 text-sm font-medium">Police Municipale</span>
+                    </div>
+                </div>
+                
+                <!-- Boutons d'action -->
+                <div class="flex items-center space-x-3">
+                    <button class="btn-secondary px-4 py-2 rounded-xl text-white/80 text-sm flex items-center space-x-2">
+                        <ion-icon name="share-social" class="text-base"></ion-icon>
+                        <span>Partager</span>
+                    </button>
+                    <button class="btn-primary px-4 py-2 rounded-xl text-white text-sm">
+                        En savoir plus
+                    </button>
+                </div>
+            </article>
+
+            <!-- Recyclage - Positif -->
+            <article class="glass-card article-card rounded-2xl p-6 fade-in" style="animation-delay: 0.7s;">
+                <!-- Titre -->
+                <h3 class="text-2xl font-bold text-white mb-3">Record de recyclage battu en 2024</h3>
+                
+                <!-- Sentiment -->
+                <div class="flex items-center space-x-2 mb-4">
+                    <div class="sentiment-positive rounded-full px-3 py-1 flex items-center space-x-2">
+                        <ion-icon name="checkmark-circle" class="text-lg"></ion-icon>
+                        <span class="text-sm font-medium">Positif</span>
+                    </div>
+                </div>
+                
+                <!-- Tags -->
+                <div class="flex flex-wrap gap-2 mb-4">
+                    <span class="category-tag bg-green-500/20 text-green-400 border border-green-500/30">Environnement</span>
+                    <span class="category-tag bg-blue-500/20 text-blue-400 border border-blue-500/30">Recyclage</span>
+                    <span class="category-tag bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">Écologie</span>
+                </div>
+                
+                <!-- Date et Source -->
+                <div class="mb-4 space-y-2">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-white/60 text-sm">Publié le:</span>
+                        <span class="text-white/80 text-sm font-medium">25 Juin 2025</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-white/60 text-sm">Source:</span>
+                        <span class="text-white/80 text-sm font-medium">Service Environnement</span>
+                    </div>
+                </div>
+                
+                <!-- Boutons d'action -->
+                <div class="flex items-center space-x-3">
+                    <button class="btn-secondary px-4 py-2 rounded-xl text-white/80 text-sm flex items-center space-x-2">
+                        <ion-icon name="share-social" class="text-base"></ion-icon>
+                        <span>Partager</span>
+                    </button>
+                    <button class="btn-primary px-4 py-2 rounded-xl text-white text-sm">
+                        En savoir plus
+                    </button>
+                </div>
+            </article>
+        </div>
+    </main>
+
+    <script>
+        // Animation d'apparition au scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        });
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Gestion des boutons "Partager"
+        document.querySelectorAll('button:has([name="share-social"])').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const article = this.closest('.article-card');
+                const title = article.querySelector('h3').textContent;
+                console.log(`Partage de l'article: ${title}`);
+                
+                // Simulation du partage
+                if (navigator.share) {
+                    navigator.share({
+                        title: title,
+                        text: 'Découvrez cette actualité de notre ville',
+                        url: window.location.href
+                    });
+                } else {
+                    // Fallback pour les navigateurs ne supportant pas l'API Web Share
+                    navigator.clipboard.writeText(window.location.href).then(() => {
+                        alert('Lien copié dans le presse-papiers !');
+                    });
+                }
+            });
+        });
+
+        // Gestion des boutons "En savoir plus"
+        document.querySelectorAll('button').forEach(button => {
+            if (button.textContent.trim() === 'En savoir plus') {
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const article = this.closest('.article-card');
+                    const title = article.querySelector('h3').textContent;
+                    console.log(`Ouverture de l'article complet: ${title}`);
+                    // Ici vous pouvez rediriger vers la page détaillée de l'article
+                });
+            }
+        });
+
+        // Simulation de clics sur les articles (pour consultation rapide)
+        document.querySelectorAll('.article-card').forEach(card => {
+            card.addEventListener('click', function(e) {
+                if (!e.target.closest('button')) {
+                    const title = this.querySelector('h3').textContent;
+                    console.log(`Consultation rapide de: ${title}`);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

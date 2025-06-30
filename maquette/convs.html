@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversations - MonVoisin3000</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .accent-text {
+            color: #ffffff;
+            font-weight: 800;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .conversation-card {
+            transition: all 0.3s ease;
+        }
+
+        .conversation-card:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .status-online {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 16px;
+            height: 16px;
+            background: #22c55e;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-offline {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 16px;
+            height: 16px;
+            background: #6b7280;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+        }
+
+        .unread-badge {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            min-width: 20px;
+            text-align: center;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        .search-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.4);
+            outline: none;
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <!-- Titre principal -->
+    <div class="px-6 mb-6 pt-6 fade-in">
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-3xl font-bold text-white mb-2">
+                    <span class="accent-text">Conversations</span>
+                </h2>
+                <p class="text-white/70">
+                    Restez en contact avec vos voisins
+                </p>
+            </div>
+            <button class="glass-card rounded-xl p-3">
+                <ion-icon name="add" class="text-white text-xl"></ion-icon>
+            </button>
+        </div>
+    </div>
+
+    <!-- Barre de recherche -->
+    <div class="px-6 mb-6 fade-in" style="animation-delay: 0.1s;">
+        <div class="relative">
+            <input 
+                type="text" 
+                placeholder="Rechercher une conversation..."
+                class="search-input w-full py-4 pl-12 pr-4 rounded-2xl text-white placeholder-white/50"
+            >
+            <ion-icon name="search" class="absolute left-4 top-1/2 transform -translate-y-1/2 text-white/50 text-xl"></ion-icon>
+        </div>
+    </div>
+
+    <!-- Liste des conversations -->
+    <main class="px-6 pb-8">
+        <div class="space-y-3">
+            <!-- Conversation avec message non lu -->
+            <div class="glass-card conversation-card rounded-2xl p-4 cursor-pointer fade-in" style="animation-delay: 0.2s;">
+                <div class="flex items-center space-x-4">
+                    <div class="avatar bg-gradient-to-br from-pink-500 to-purple-600">
+                        <span class="text-white font-bold text-lg">MD</span>
+                        <div class="status-online"></div>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between mb-1">
+                            <h3 class="font-semibold text-white">Marie Dupont</h3>
+                            <span class="text-cyan-400 text-sm font-medium">14:30</span>
+                        </div>
+                        <p class="text-white/70 text-sm truncate">Salut ! Est-ce que tu es toujours intéressé par mon vélo ? 🚴‍♂️</p>
+                    </div>
+                    <div class="unread-badge">3</div>
+                </div>
+            </div>
+
+            <!-- Conversation de groupe -->
+            <div class="glass-card conversation-card rounded-2xl p-4 cursor-pointer fade-in" style="animation-delay: 0.3s;">
+                <div class="flex items-center space-x-4">
+                    <div class="avatar bg-gradient-to-br from-green-400 to-emerald-600">
+                        <ion-icon name="people" class="text-white text-2xl"></ion-icon>
+                        <div class="status-online"></div>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between mb-1">
+                            <h3 class="font-semibold text-white">Groupe Événements</h3>
+                            <span class="text-cyan-400 text-sm font-medium">12:15</span>
+                        </div>
+                        <p class="text-white/70 text-sm truncate">Pierre: N'oubliez pas le vide-grenier de samedi ! 🏪</p>
+                    </div>
+                    <div class="unread-badge">1</div>
+                </div>
+            </div>
+
+            <!-- Conversation sans message non lu -->
+            <div class="glass-card conversation-card rounded-2xl p-4 cursor-pointer fade-in" style="animation-delay: 0.4s;">
+                <div class="flex items-center space-x-4">
+                    <div class="avatar bg-gradient-to-br from-orange-400 to-red-600">
+                        <span class="text-white font-bold text-lg">JP</span>
+                        <div class="status-offline"></div>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between mb-1">
+                            <h3 class="font-semibold text-white">Jean-Pierre</h3>
+                            <span class="text-white/50 text-sm">Hier</span>
+                        </div>
+                        <p class="text-white/70 text-sm truncate">Merci pour le service de bricolage, parfait ! ⭐⭐⭐⭐⭐</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Conversation avec Sophie -->
+            <div class="glass-card conversation-card rounded-2xl p-4 cursor-pointer fade-in" style="animation-delay: 0.5s;">
+                <div class="flex items-center space-x-4">
+                    <div class="avatar bg-gradient-to-br from-blue-400 to-purple-600">
+                        <span class="text-white font-bold text-lg">S</span>
+                        <div class="status-online"></div>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between mb-1">
+                            <h3 class="font-semibold text-white">Sophie</h3>
+                            <span class="text-white/50 text-sm">Hier</span>
+                        </div>
+                        <p class="text-white/70 text-sm truncate">Est-ce que ton fils aurait besoin de cours de maths ? 📚</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Conversation avec Antoine -->
+            <div class="glass-card conversation-card rounded-2xl p-4 cursor-pointer fade-in" style="animation-delay: 0.6s;">
+                <div class="flex items-center space-x-4">
+                    <div class="avatar bg-gradient-to-br from-yellow-400 to-orange-600">
+                        <span class="text-white font-bold text-lg">A</span>
+                        <div class="status-online"></div>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between mb-1">
+                            <h3 class="font-semibold text-white">Antoine</h3>
+                            <span class="text-white/50 text-sm">2 jours</span>
+                        </div>
+                        <p class="text-white/70 text-sm truncate">Salut ! J'organise un barbecue dimanche, ça vous dit ? 🍖</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Groupe jardinage -->
+            <div class="glass-card conversation-card rounded-2xl p-4 cursor-pointer fade-in" style="animation-delay: 0.7s;">
+                <div class="flex items-center space-x-4">
+                    <div class="avatar bg-gradient-to-br from-green-500 to-teal-600">
+                        <ion-icon name="leaf" class="text-white text-2xl"></ion-icon>
+                        <div class="status-offline"></div>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between mb-1">
+                            <h3 class="font-semibold text-white">Groupe Jardinage</h3>
+                            <span class="text-white/50 text-sm">3 jours</span>
+                        </div>
+                        <p class="text-white/70 text-sm truncate">Marie: Les tomates commencent à bien pousser ! 🍅</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Conversation avec Lucas -->
+            <div class="glass-card conversation-card rounded-2xl p-4 cursor-pointer fade-in" style="animation-delay: 0.8s;">
+                <div class="flex items-center space-x-4">
+                    <div class="avatar bg-gradient-to-br from-indigo-400 to-blue-600">
+                        <span class="text-white font-bold text-lg">L</span>
+                        <div class="status-offline"></div>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between mb-1">
+                            <h3 class="font-semibold text-white">Lucas</h3>
+                            <span class="text-white/50 text-sm">1 semaine</span>
+                        </div>
+                        <p class="text-white/70 text-sm truncate">Merci pour les conseils bricolage ! 🔨</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Groupe entraide -->
+            <div class="glass-card conversation-card rounded-2xl p-4 cursor-pointer fade-in" style="animation-delay: 0.9s;">
+                <div class="flex items-center space-x-4">
+                    <div class="avatar bg-gradient-to-br from-red-400 to-pink-600">
+                        <ion-icon name="heart" class="text-white text-2xl"></ion-icon>
+                        <div class="status-online"></div>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between mb-1">
+                            <h3 class="font-semibold text-white">Groupe Entraide</h3>
+                            <span class="text-white/50 text-sm">1 semaine</span>
+                        </div>
+                        <p class="text-white/70 text-sm truncate">Qui peut m'aider à déménager samedi ? 📦</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Message d'encouragement -->
+        <div class="glass-card rounded-2xl p-6 mt-8 fade-in" style="animation-delay: 1s;">
+            <div class="text-center">
+                <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center">
+                    <ion-icon name="chatbubbles" class="text-white text-2xl"></ion-icon>
+                </div>
+                <h3 class="text-white font-semibold mb-2">Démarrez une conversation !</h3>
+                <p class="text-white/70 text-sm mb-4 leading-relaxed">
+                    Contactez vos voisins pour échanger, organiser des événements ou simplement faire connaissance.
+                </p>
+                <button class="btn-primary px-6 py-3 rounded-xl text-white font-semibold">
+                    <ion-icon name="add-circle" class="mr-2"></ion-icon>
+                    Nouvelle conversation
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Fonction de recherche
+        document.querySelector('.search-input').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const conversations = document.querySelectorAll('.conversation-card');
+            
+            conversations.forEach(conversation => {
+                const name = conversation.querySelector('h3').textContent.toLowerCase();
+                const message = conversation.querySelector('p').textContent.toLowerCase();
+                
+                if (name.includes(searchTerm) || message.includes(searchTerm)) {
+                    conversation.style.display = 'block';
+                } else {
+                    conversation.style.display = searchTerm === '' ? 'block' : 'none';
+                }
+            });
+        });
+
+        // Animation d'apparition au scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        });
+
+        document.querySelectorAll('.conversation-card').forEach(card => {
+            observer.observe(card);
+        });
+
+        // Simulation de clic sur conversation
+        document.querySelectorAll('.conversation-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const name = this.querySelector('h3').textContent;
+                console.log(`Ouverture de la conversation avec: ${name}`);
+                // Ici vous pouvez ajouter la logique pour ouvrir la conversation
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription - MonVoisin3000</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .accent-text {
+            color: #ffffff;
+            font-weight: 800;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-1px);
+        }
+
+        .input-field {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.4);
+            outline: none;
+        }
+
+        .social-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .social-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .avatar-upload {
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .avatar-upload:hover {
+            transform: scale(1.05);
+        }
+
+        .avatar-preview {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <!-- Header avec logo -->
+    <header class="pt-safe-top">
+        <div class="px-6 py-6">
+            <div class="flex items-center justify-between">
+                <button onclick="window.history.back()" class="glass-card rounded-xl p-3">
+                    <ion-icon name="arrow-back" class="text-white text-xl"></ion-icon>
+                </button>
+                <div class="glass-card rounded-2xl px-4 py-2">
+                    <h1 class="text-xl font-bold text-white">
+                        Mon<span class="accent-text">Voisin</span>3000
+                    </h1>
+                </div>
+                <div class="w-12"></div> <!-- Spacer pour centrer le logo -->
+            </div>
+        </div>
+    </header>
+
+    <!-- Formulaire d'inscription -->
+    <main class="px-6 pb-8">
+        <div class="text-center mb-8 fade-in">
+            <h2 class="text-3xl font-bold text-white mb-3">
+                Rejoignez-nous !
+            </h2>
+            <p class="text-white/70 text-lg">
+                Créez votre profil de voisin connecté
+            </p>
+        </div>
+
+        <div class="glass-card rounded-3xl p-6 fade-in" style="animation-delay: 0.2s;">
+            <!-- Connexion sociale -->
+            <div class="space-y-3 mb-6">
+                <button class="social-btn w-full py-4 rounded-2xl text-white font-medium flex items-center justify-center space-x-3">
+                    <ion-icon name="logo-github" class="text-xl"></ion-icon>
+                    <span>Continuer avec GitHub</span>
+                </button>
+                <button class="social-btn w-full py-4 rounded-2xl text-white font-medium flex items-center justify-center space-x-3">
+                    <ion-icon name="logo-google" class="text-xl"></ion-icon>
+                    <span>Continuer avec Google</span>
+                </button>
+            </div>
+
+            <!-- Séparateur -->
+            <div class="relative my-6">
+                <div class="absolute inset-0 flex items-center">
+                    <div class="w-full border-t border-white/20"></div>
+                </div>
+                <div class="relative flex justify-center">
+                    <span class="px-4 text-white/60 text-sm bg-transparent">ou créez votre compte</span>
+                </div>
+            </div>
+
+            <!-- Upload Avatar -->
+            <div class="flex justify-center mb-6">
+                <div class="avatar-upload" onclick="document.getElementById('avatar-input').click()">
+                    <div class="avatar-preview" id="avatar-preview">
+                        <ion-icon name="camera" class="text-white text-2xl" id="camera-icon"></ion-icon>
+                    </div>
+                    <input type="file" id="avatar-input" class="hidden" accept="image/*" onchange="handleAvatarUpload(event)">
+                    <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center">
+                        <ion-icon name="add" class="text-white text-sm"></ion-icon>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulaire -->
+            <form class="space-y-4" onsubmit="handleRegister(event)">
+                <!-- Pseudo et Tag -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-white/80 text-sm font-medium mb-2">
+                            Pseudo *
+                        </label>
+                        <input 
+                            type="text" 
+                            name="pseudo"
+                            class="input-field w-full py-3 px-4 rounded-xl text-white placeholder-white/50"
+                            placeholder="Votre pseudo"
+                            required
+                        >
+                    </div>
+                    <div>
+                        <label class="block text-white/80 text-sm font-medium mb-2">
+                            Tag *
+                        </label>
+                        <input 
+                            type="text" 
+                            name="tag"
+                            class="input-field w-full py-3 px-4 rounded-xl text-white placeholder-white/50"
+                            placeholder="@votre_tag"
+                            required
+                        >
+                    </div>
+                </div>
+
+                <!-- Email -->
+                <div>
+                    <label class="block text-white/80 text-sm font-medium mb-2">
+                        Email *
+                    </label>
+                    <input 
+                        type="email" 
+                        name="email"
+                        class="input-field w-full py-3 px-4 rounded-xl text-white placeholder-white/50"
+                        placeholder="votre@email.com"
+                        required
+                    >
+                </div>
+
+                <!-- Téléphone -->
+                <div>
+                    <label class="block text-white/80 text-sm font-medium mb-2">
+                        Téléphone
+                    </label>
+                    <input 
+                        type="tel" 
+                        name="phone"
+                        class="input-field w-full py-3 px-4 rounded-xl text-white placeholder-white/50"
+                        placeholder="06 12 34 56 78"
+                    >
+                </div>
+
+                <!-- Adresse -->
+                <div>
+                    <label class="block text-white/80 text-sm font-medium mb-2">
+                        Adresse *
+                    </label>
+                    <input 
+                        type="text" 
+                        name="address"
+                        class="input-field w-full py-3 px-4 rounded-xl text-white placeholder-white/50"
+                        placeholder="Votre adresse complète"
+                        required
+                    >
+                </div>
+
+                <!-- Bio -->
+                <div>
+                    <label class="block text-white/80 text-sm font-medium mb-2">
+                        Bio
+                    </label>
+                    <textarea 
+                        name="bio"
+                        rows="3"
+                        class="input-field w-full py-3 px-4 rounded-xl text-white placeholder-white/50 resize-none"
+                        placeholder="Parlez-nous de vous... (optionnel)"
+                        maxlength="200"
+                    ></textarea>
+                </div>
+
+                <!-- Mot de passe -->
+                <div>
+                    <label class="block text-white/80 text-sm font-medium mb-2">
+                        Mot de passe *
+                    </label>
+                    <input 
+                        type="password" 
+                        name="password"
+                        class="input-field w-full py-3 px-4 rounded-xl text-white placeholder-white/50"
+                        placeholder="Choisissez un mot de passe sécurisé"
+                        required
+                        minlength="8"
+                    >
+                </div>
+
+                <!-- Confirmation mot de passe -->
+                <div>
+                    <label class="block text-white/80 text-sm font-medium mb-2">
+                        Confirmer le mot de passe *
+                    </label>
+                    <input 
+                        type="password" 
+                        name="confirmPassword"
+                        class="input-field w-full py-3 px-4 rounded-xl text-white placeholder-white/50"
+                        placeholder="Confirmez votre mot de passe"
+                        required
+                        minlength="8"
+                    >
+                </div>
+
+                <!-- Conditions d'utilisation -->
+                <div class="py-2">
+                    <label class="flex items-start space-x-3">
+                        <input type="checkbox" name="terms" class="rounded bg-transparent border-white/30 text-orange-500 focus:ring-orange-500 focus:ring-offset-0 mt-1" required>
+                        <span class="text-white/70 text-sm leading-relaxed">
+                            J'accepte les <a href="#" class="text-orange-400 underline">conditions d'utilisation</a> et la <a href="#" class="text-orange-400 underline">politique de confidentialité</a>
+                        </span>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn-primary w-full py-4 rounded-2xl text-white font-semibold text-lg shadow-lg flex items-center justify-center space-x-2">
+                    <ion-icon name="person-add" class="text-xl"></ion-icon>
+                    <span>Créer mon compte</span>
+                </button>
+            </form>
+
+            <!-- Lien vers connexion -->
+            <div class="text-center mt-6 pt-6 border-t border-white/10">
+                <p class="text-white/60 text-sm mb-3">
+                    Vous avez déjà un compte ?
+                </p>
+                <a href="connexion.html" class="btn-secondary w-full py-3 rounded-2xl text-white font-medium flex items-center justify-center space-x-2">
+                    <ion-icon name="log-in" class="text-lg"></ion-icon>
+                    <span>Se connecter</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Informations de sécurité -->
+        <div class="glass-card rounded-2xl p-4 mt-6 fade-in" style="animation-delay: 0.4s;">
+            <div class="flex items-start space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center flex-shrink-0">
+                    <ion-icon name="shield-checkmark" class="text-white text-lg"></ion-icon>
+                </div>
+                <div>
+                    <h4 class="text-white font-medium text-sm mb-1">Vos données sont protégées</h4>
+                    <p class="text-white/60 text-xs leading-relaxed">
+                        Nous utilisons un chiffrement de niveau bancaire pour protéger vos informations personnelles. Aucune donnée n'est partagée sans votre consentement explicite.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Note sur les champs obligatoires -->
+        <div class="text-center mt-4 fade-in" style="animation-delay: 0.6s;">
+            <p class="text-white/50 text-xs">
+                * Champs obligatoires
+            </p>
+        </div>
+    </main>
+
+    <script>
+        function handleAvatarUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('avatar-preview');
+                    const cameraIcon = document.getElementById('camera-icon');
+                    
+                    preview.style.backgroundImage = `url(${e.target.result})`;
+                    preview.style.backgroundSize = 'cover';
+                    preview.style.backgroundPosition = 'center';
+                    cameraIcon.style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function handleRegister(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const password = formData.get('password');
+            const confirmPassword = formData.get('confirmPassword');
+            
+            // Vérification des mots de passe
+            if (password !== confirmPassword) {
+                alert('Les mots de passe ne correspondent pas !');
+                return;
+            }
+            
+            // Récupération de tous les champs
+            const userData = {
+                pseudo: formData.get('pseudo'),
+                tag: formData.get('tag'),
+                email: formData.get('email'),
+                phone: formData.get('phone'),
+                address: formData.get('address'),
+                bio: formData.get('bio'),
+                password: password,
+                terms: formData.get('terms'),
+                avatar: document.getElementById('avatar-input').files[0]
+            };
+            
+            // Simulation d'une inscription
+            console.log('Inscription tentée avec:', userData);
+            
+            // Ici vous pouvez ajouter la logique d'inscription réelle
+            // Pour la démo, on simule une inscription réussie
+            alert('Inscription réussie ! Bienvenue dans MonVoisin3000 ! (Simulation)');
+            
+            // Redirection vers l'app principale ou page de connexion
+            // window.location.href = 'connexion.html';
+        }
+
+        // Validation en temps réel du tag
+        document.querySelector('input[name="tag"]').addEventListener('input', function(e) {
+            let value = e.target.value;
+            if (value && !value.startsWith('@')) {
+                e.target.value = '@' + value;
+            }
+        });
+
+        // Validation en temps réel de la confirmation du mot de passe
+        document.querySelector('input[name="confirmPassword"]').addEventListener('input', function(e) {
+            const password = document.querySelector('input[name="password"]').value;
+            const confirmPassword = e.target.value;
+            
+            if (confirmPassword && password !== confirmPassword) {
+                e.target.style.borderColor = '#ef4444';
+            } else {
+                e.target.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+            }
+        });
+    </script>
+</body>
+</html>
