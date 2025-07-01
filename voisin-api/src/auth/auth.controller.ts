@@ -23,7 +23,6 @@ export class AuthController {
 
   @Public()
   @Post('register')
-  @UsePipes(new ZodValidationPipe(createUserSchema))
   @ApiCreatedResponse({
     description: 'Utilisateur créé avec succès et authentifié.',
     type: AuthResponse,
@@ -32,7 +31,7 @@ export class AuthController {
   @ApiResponse({ status: 201, description: 'Utilisateur créé avec succès et authentifié.' })
   @ApiResponse({ status: 400, description: 'Données invalides.' })
   async register(
-    @Body() createUserDto: CreateUserDto,
+    @Body(new ZodValidationPipe(createUserSchema)) createUserDto: CreateUserDto,
   ): Promise<AuthResponse> {
     const token = await this.authService.register(createUserDto);
     
@@ -42,7 +41,6 @@ export class AuthController {
 
   @Public()
   @Post('login')
-  @UsePipes(new ZodValidationPipe(loginUserSchema))
   @ApiCreatedResponse({
     description: 'Jeton d\'autantification',
     type: AuthResponse
@@ -51,7 +49,7 @@ export class AuthController {
   @ApiResponse({ status: 201, description: 'Utilisateur conecter avec succès.' })
   @ApiResponse({ status: 400, description: 'Données invalides.' })
   async login(
-    @Body() loginUser: LoginUserDto,
+    @Body(new ZodValidationPipe(loginUserSchema)) loginUser: LoginUserDto,
   ): Promise<AuthResponse> {
     const token = await this.authService.login(loginUser);
 
@@ -71,7 +69,6 @@ export class AuthController {
 
   @Public()
   @Post('reset-password')
-  @UsePipes(new ZodValidationPipe(resetPasswordUserSchema))
   @ApiCreatedResponse({
     description: 'Jeton d\'autantification',
     type: AuthResponse
@@ -80,7 +77,7 @@ export class AuthController {
   @ApiResponse({ status: 201, description: 'Utilisateur Reset avec succès.' })
   @ApiResponse({ status: 400, description: 'Données invalides.' })
   async resetPassword(
-    @Body() resetUserPassword:ResetPasswordDto,
+    @Body(new ZodValidationPipe(resetPasswordUserSchema)) resetUserPassword:ResetPasswordDto,
   ): Promise<AuthResponse> {
     const token = await this.authService.resetPassword(resetUserPassword);
 
