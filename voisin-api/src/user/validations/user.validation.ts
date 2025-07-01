@@ -15,6 +15,9 @@ export const createUserSchema = z.object({
   pseudo: z.string().optional(),
   avatar: z.string().url('L\'URL de l\'avatar est invalide').optional(),
   bio: z.string().max(500, 'La bio ne peut pas dépasser 500 caractères').optional(),
+  rue: z.string().max(255, 'La rue ne peut pas dépasser 255 caractères').optional(),
+  cp: z.string().regex(/^[0-9]{5}$/, 'Le code postal doit contenir 5 chiffres').optional(),
+  ville: z.string().max(100, 'La ville ne peut pas dépasser 100 caractères').optional(),
   phoneNumber: z.string()
     .regex(/^\+?[1-9]\d{1,14}$/, 'Numéro de téléphone invalide')
     .optional(),

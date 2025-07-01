@@ -1,4 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, DeleteDateColumn,  } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, OneToMany, ManyToMany,  } from 'typeorm';
+import { Event } from '../../event/entities/event.entity';
+import { Service } from '../../service/service.entity';
 
 export enum UserRole {
   ADMIN = 'admin',
@@ -52,8 +54,16 @@ export class User {
   @Column({ nullable: true })
   location: string;
 
-  @Column({ nullable: true })
-  timezone: string;
+  @OneToMany(() => Event, event => event.createdBy)
+  events: Event[];
+
+  // Services created by this user
+  @OneToMany(() => Service, service => service.creator)
+  services: Service[];
+
+  // Services fulfilled/provided by this user
+  @OneToMany(() => Service, service => service.provider)
+  providedServices: Service[];
 
   @Column({ nullable: true })
   language: string;

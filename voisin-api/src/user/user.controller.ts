@@ -59,14 +59,13 @@ export class UserController {
   }
 
   @Patch('me')
-  @UsePipes(new ZodValidationPipe(updateUserSchema))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Mettre à jour un utilisateur' })
   @ApiResponse({ status: 200, description: 'Utilisateur mis à jour.' })
   @ApiResponse({ status: 404, description: 'Utilisateur non trouvé.' })
   async update(
     @GetUser() user: User,
-    @Body() updateUserDto: UpdateUserDto,
+    @Body(new ZodValidationPipe(updateUserSchema)) updateUserDto: UpdateUserDto,
   ) {
     console.log("la"+updateUserDto);
 
