@@ -17,6 +17,12 @@ export class CreateUserDto implements CreateUserInput {
   @ApiPropertyOptional()
   phoneNumber?: string ;
   @ApiPropertyOptional()
+  rue?:string;
+  @ApiPropertyOptional()
+  cp?:string;
+  @ApiPropertyOptional()
+  ville?:string;
+  @ApiPropertyOptional()
   location?: string ;
   @ApiPropertyOptional()
   timezone?: string ;
