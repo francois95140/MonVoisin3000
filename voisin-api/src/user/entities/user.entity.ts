@@ -54,8 +54,8 @@ export class User {
   @Column({ nullable: true })
   location: string;
 
-  @OneToMany(() => Event, event => event.createdBy)
-  events: Event[];
+  //@OneToMany(() => Event, event => event.createdBy)
+  //events: Event[];
 
   // Services created by this user
   @OneToMany(() => Service, service => service.creator)

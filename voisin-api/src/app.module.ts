@@ -13,6 +13,8 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { MessageModule } from './message/message.module';
 import { Neo4jModule } from 'nest-neo4j'
 import { FriendModule } from './friend/friend.module';
+import { ServiceModule } from './service/service.module';
+//import { EventModule } from './event/event.module';
 
 @Module({
   imports: [
@@ -38,11 +40,13 @@ import { FriendModule } from './friend/friend.module';
     }),
     EventEmitterModule.forRoot(),
     Neo4jModule,
-    UserModule,
-    EmailModule,
     AuthModule,
+    UserModule,
     FriendModule,
-    MessageModule
+    ServiceModule,
+    EmailModule,
+    //MessageModule,
+    //EventModule
   ],
   controllers: [],
   providers: [AuthService,NotificationsService],
