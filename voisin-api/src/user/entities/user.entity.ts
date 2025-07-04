@@ -1,5 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, OneToMany, ManyToMany,  } from 'typeorm';
-import { Event } from '../../event/entities/event.entity';
+//import { Event } from '../../event/entities/event.entity';
 import { Service } from '../../service/service.entity';
 
 export enum UserRole {
