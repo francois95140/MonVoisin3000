@@ -10,7 +10,7 @@ import { AuthService } from './auth/auth.service';
 import { EmailModule } from './email/email.module';
 import { NotificationsService } from './user/notifications/notifications.service';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { MessageModule } from './message/message.module';
+//import { MessageModule } from './message/message.module';
 import { Neo4jModule } from 'nest-neo4j'
 import { FriendModule } from './friend/friend.module';
 import { ServiceModule } from './service/service.module';
