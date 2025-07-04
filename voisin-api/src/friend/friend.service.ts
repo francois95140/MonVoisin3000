@@ -83,4 +83,50 @@ export class FriendService {
 
     return result.records.map((record) => record.get('friend').properties);
   }
+
+  // 📌 Suggestions d'amis basées sur un algorithme
+  async getFriendSuggestions(userId: string, limit: number = 10) {
+    const query = `
+      MATCH (user:User {userPgId: $userId})
+      
+      // Trouver les amis d'amis (niveau 2)
+      OPTIONAL MATCH (user)-[:FRIEND]->(friend)-[:FRIEND]->(suggestion)
+      WHERE suggestion <> user
+        AND NOT (user)-[:FRIEND]-(suggestion)
+        AND NOT (user)-[:FRIEND_REQUEST]-(suggestion)
+        AND NOT (suggestion)-[:FRIEND_REQUEST]-(user)
+      
+      WITH user, suggestion, COUNT(friend) as mutualFriends
+      WHERE suggestion IS NOT NULL
+      
+      // Calculer le score de suggestion
+      WITH suggestion, mutualFriends,
+           mutualFriends * 2 as friendScore
+      
+      // Ajouter des utilisateurs aléatoires si pas assez de suggestions
+      UNION
+      
+      MATCH (user:User {userPgId: $userId})
+      MATCH (randomUser:User)
+      WHERE randomUser <> user
+        AND NOT (user)-[:FRIEND]-(randomUser)
+        AND NOT (user)-[:FRIEND_REQUEST]-(randomUser)
+        AND NOT (randomUser)-[:FRIEND_REQUEST]-(user)
+      
+      WITH randomUser as suggestion, 0 as mutualFriends, 1 as friendScore
+      
+      // Retourner les suggestions triées par score
+      RETURN DISTINCT suggestion, mutualFriends, friendScore
+      ORDER BY friendScore DESC, mutualFriends DESC, rand()
+      LIMIT $limit
+    `;
+
+    const result = await this.neo4jService.read(query, { userId, limit });
+
+    return result.records.map((record) => ({
+      user: record.get('suggestion').properties,
+      mutualFriends: record.get('mutualFriends').toNumber(),
+      score: record.get('friendScore').toNumber()
+    }));
+  }
 }
