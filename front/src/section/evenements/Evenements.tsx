@@ -99,8 +99,8 @@ export default function Evenements() {
                         title={event.title}
                         description={event.description}
                         date={event.date}
-                        timestart={event.time}
-                        timeend={event.time}
+                        timestart={event.timestart}
+                        timeend={event.timeend}
                         location={event.location}
                         icon={event.icon}
                         animationDelay={index}
