@@ -13,6 +13,7 @@ import Carte from "./auth/Inscription";
 import UserHeader from "./UI/head";
 import Navbar from "./UI/navbar";
 import ProfilePage from "./profile/Profile";
+import EditUser from "./auth/Edit";
 
 const hasUserToken = sessionStorage.getItem("UserToken");
 const profileImage = sessionStorage.getItem("UserImage");
@@ -33,6 +34,7 @@ createRoot(document.getElementById("root")!).render(
         {!hasUserToken ? (
           <>
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/editprofil" element={<EditUser />} />
             <Route path="/actualites" element={<Actualites />} />
             <Route path="/services" element={<Services />} />
             <Route path="/evenements" element={<Evenements />} />

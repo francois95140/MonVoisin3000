@@ -1,28 +1,55 @@
+import React, { useEffect } from "react";
 import "./navbar.css";
-import { NavLink } from "react-router";
+import { NavLink, useLocation } from "react-router";
 
 function Navbar() {
+  const location = useLocation();
+
+  useEffect(() => {
+    // Si la route ne commence pas par /evenements
+    if (!location.pathname.startsWith("/evenements")) {
+      // Enlever la classe active de tous les li
+      const allListItems = document.querySelectorAll('.navigation ul li.list');
+      allListItems.forEach(li => li.classList.remove('active'));
+      
+      // Mettre l'indicator en opacity-0
+      const indicator = document.getElementById('indicator');
+      if (indicator) {
+        indicator.style.opacity = '0';
+      }
+    } else {
+      // Si on est sur /evenements, remettre l'opacity à 1
+      const indicator = document.getElementById('indicator');
+      if (indicator) {
+        indicator.style.opacity = '1';
+      }
+    }
+  }, [location.pathname]);
+
+  const handleItemClick = (e) => {
+    e.preventDefault();
+    const list = e.currentTarget.parentNode.children;
+    Array.from(list).forEach((el) => el.classList.remove("active"));
+    e.currentTarget.classList.add("active");
+    
+    // Remettre l'opacity de l'indicator à 1 quand on clique
+    const indicator = document.getElementById('indicator');
+    if (indicator) {
+      indicator.style.opacity = '1';
+    }
+  };
 
   return (
     <>
-      <div
-        className="navbar navheight border-gray-900"
-      >
+      <div className="navbar navheight border-gray-900">
         <div className="navigation">
           <ul>
             <li
               className={
                 "list" +
-                (window.location.pathname.startsWith("/connect")
-                  ? " active"
-                  : "")
+                (location.pathname.startsWith("/testa") ? " active" : "")
               }
-              onClick={(e) => {
-                e.preventDefault();
-                const list = e.currentTarget.parentNode.children;
-                Array.from(list).forEach((el) => el.classList.remove("active"));
-                e.currentTarget.classList.add("active");
-              }}
+              onClick={handleItemClick}
             >
               <NavLink to="/testa">
                 <span className="icon">
@@ -34,16 +61,9 @@ function Navbar() {
             <li
               className={
                 "list" +
-                (window.location.pathname.startsWith("/connect")
-                  ? " active"
-                  : "")
+                (location.pathname.startsWith("/testb") ? " active" : "")
               }
-              onClick={(e) => {
-                e.preventDefault();
-                const list = e.currentTarget.parentNode.children;
-                Array.from(list).forEach((el) => el.classList.remove("active"));
-                e.currentTarget.classList.add("active");
-              }}
+              onClick={handleItemClick}
             >
               <NavLink to="/testb">
                 <span className="icon">
@@ -55,16 +75,9 @@ function Navbar() {
             <li
               className={
                 "list" +
-                (window.location.pathname.startsWith("/evenements")
-                  ? " active"
-                  : "")
+                (location.pathname.startsWith("/evenements") ? " active" : "")
               }
-              onClick={(e) => {
-                e.preventDefault();
-                const list = e.currentTarget.parentNode.children;
-                Array.from(list).forEach((el) => el.classList.remove("active"));
-                e.currentTarget.classList.add("active");
-              }}
+              onClick={handleItemClick}
             >
               <NavLink to="/evenements">
                 <span className="icon">
@@ -76,18 +89,11 @@ function Navbar() {
             <li
               className={
                 "list" +
-                (window.location.pathname.startsWith("/connect")
-                  ? " active"
-                  : "")
+                (location.pathname.startsWith("/convs") ? " active" : "")
               }
-              onClick={(e) => {
-                e.preventDefault();
-                const list = e.currentTarget.parentNode.children;
-                Array.from(list).forEach((el) => el.classList.remove("active"));
-                e.currentTarget.classList.add("active");
-              }}
+              onClick={handleItemClick}
             >
-              <NavLink to="/test">
+              <NavLink to="/convs">
                 <span className="icon">
                   <ion-icon name="paper-plane-outline"></ion-icon>
                 </span>
@@ -97,18 +103,11 @@ function Navbar() {
             <li
               className={
                 "list" +
-                (window.location.pathname.startsWith("/connect")
-                  ? " active"
-                  : "")
+                (location.pathname.startsWith("/trackmap") ? " active" : "")
               }
-              onClick={(e) => {
-                e.preventDefault();
-                const list = e.currentTarget.parentNode.children;
-                Array.from(list).forEach((el) => el.classList.remove("active"));
-                e.currentTarget.classList.add("active");
-              }}
+              onClick={handleItemClick}
             >
-              <NavLink to="/test">
+              <NavLink to="/trackmap">
                 <span className="icon">
                   <ion-icon name="location-outline"></ion-icon>
                 </span>

@@ -1,29 +1,5 @@
 import React, { useState } from 'react';
-
-// Simulation de NavLink pour la démo
-const NavLink: React.FC<{
-  to: string;
-  className?: string;
-  children: React.ReactNode;
-}> = ({ to, className, children, ...props }) => {
-  const handleClick = () => {
-    console.log(`Navigation vers: ${to}`);
-  };
-  document.getElementById("indicator")?.classList.add("filter", "opacity-0");
-  setTimeout(() => {
-    const list = document.getElementById("indicator").parentNode.children;
-    Array.from(list).forEach((el) => el.classList.remove("active"));
-  }, 0);
-  return (
-    <button 
-      className={className} 
-      onClick={handleClick}
-      {...props}
-    >
-      {children}
-    </button>
-  );
-};
+import { NavLink } from 'react-router-dom';
 
 // Composant pour les icônes Ionicons
 const IonIcon: React.FC<{ name: string; className?: string }> = ({ name, className = "" }) => (
@@ -33,6 +9,13 @@ const IonIcon: React.FC<{ name: string; className?: string }> = ({ name, classNa
 interface ProfilePageProps {}
 
 const ProfilePage: React.FC<ProfilePageProps> = () => {
+
+  document.getElementById("indicator")?.classList.add("filter", "opacity-0");
+  setTimeout(() => {
+    const list = document.getElementById("indicator").parentNode.children;
+    Array.from(list).forEach((el) => el.classList.remove("active"));
+  }, 0);
+
   const [formData, setFormData] = useState({
     pseudo: 'MonVoisin123',
     email: 'exemple@email.com',
@@ -79,44 +62,7 @@ const ProfilePage: React.FC<ProfilePageProps> = () => {
 
   return (
     <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        
-        * {
-          font-family: 'Inter', sans-serif;
-        }
-
-        .glass-card {
-          background: rgba(255, 255, 255, 0.1);
-          backdrop-filter: blur(20px);
-          border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .danger-zone {
-          background: rgba(239, 68, 68, 0.1);
-          border: 1px solid rgba(239, 68, 68, 0.3);
-        }
-
-        .fade-in {
-          animation: fadeIn 0.6s ease-out;
-        }
-
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
-
-      {/* Script pour charger Ionicons */}
-      <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
-      <script noModule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
-
+      
       <div 
         className="min-h-screen pt-8 pb-8 px-4"
         style={{background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'}}
