@@ -61,7 +61,7 @@ async function handleInscription(event: React.FormEvent<HTMLFormElement>) {
         avatar: "https://avatars.githubusercontent.com/u/94387150?v=4",
         bio: formValues.bio,
         phoneNumber: formValues.phoneNumber,
-        quartier: "Quartier",
+        quartier: "quartier",
         address: {
           street: formValues.rue,
           postalCode: formValues.codePostal,
