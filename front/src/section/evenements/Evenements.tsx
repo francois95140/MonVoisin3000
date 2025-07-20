@@ -2,7 +2,7 @@ import Card from './components/Card';
 import Add from './components/Add';
 
 export default function Evenements() {
-
+    document.getElementById("indicator")?.classList.remove("filter", "opacity-0");
     const events = [
         {
             title: "Vide-grenier Géant",

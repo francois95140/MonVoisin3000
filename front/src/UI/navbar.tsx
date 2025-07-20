@@ -1,7 +1,7 @@
-import "./mobile.css";
+import "./navbar.css";
 import { NavLink } from "react-router";
 
-function App() {
+function Navbar() {
 
   return (
     <>
@@ -115,7 +115,7 @@ function App() {
                 <span className="text">Trackmap</span>
               </NavLink>
             </li>
-            <div className="indicator"></div>
+            <div className="indicator" id="indicator"></div>
           </ul>
         </div>
       </div>
@@ -124,4 +124,4 @@ function App() {
   );
 }
 
-export default App;
+export default Navbar;

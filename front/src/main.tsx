@@ -10,24 +10,29 @@ import Services from "./auth/Inscription";
 import Evenements from "./section/evenements/Evenements";
 import Messages from "./auth/Inscription";
 import Carte from "./auth/Inscription";
-//import Head from "./UI/head";
-import UiMobile from "./UI/mobile";
-import UiDesktop from "./UI/desktop";
+import UserHeader from "./UI/head";
+import Navbar from "./UI/navbar";
+import ProfilePage from "./profile/Profile";
 
-const isMobile = window.matchMedia("(max-width: 767px)").matches;
 const hasUserToken = sessionStorage.getItem("UserToken");
+const profileImage = sessionStorage.getItem("UserImage");
+const pseudo = sessionStorage.getItem("UserPseudo") || "Utilisateur";
 const isPublicRoute = window.location.pathname === "/connexion" || window.location.pathname === "/inscription" || window.location.pathname === "/";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
-      {/* //{!hasUserToken && !isPublicRoute && <Head />} */}
+      {!hasUserToken && !isPublicRoute && <UserHeader
+        profileImage={profileImage || ""}
+        pseudo={pseudo}
+       />}
       <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/connexion" element={<Connexion />} />
       <Route path="/inscription" element={<Inscription />} />
         {!hasUserToken ? (
           <>
+            <Route path="/profile" element={<ProfilePage />} />
             <Route path="/actualites" element={<Actualites />} />
             <Route path="/services" element={<Services />} />
             <Route path="/evenements" element={<Evenements />} />
@@ -38,7 +43,7 @@ createRoot(document.getElementById("root")!).render(
           <Route path="*" element={<Navigate to="/connexion" replace />} />
         )}
       </Routes>
-      {!hasUserToken && !isPublicRoute && (isMobile ? <UiMobile /> : <UiDesktop />)}
+      {!hasUserToken && !isPublicRoute && <Navbar />}
     </BrowserRouter>
   </StrictMode>
 );
