@@ -127,6 +127,10 @@ export class AuthService {
     return token;
   }
 
+  async resetPasswordCode(email: string): Promise<void> {
+    await this.userService.sendResetPasswordCode(email);
+  }
+
   private userToPayload(user: User): UserPayload {
     console.log(user.role);
     const payload: UserPayload = {

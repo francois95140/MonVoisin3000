@@ -1,6 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, OneToMany, ManyToMany,  } from 'typeorm';
-//import { Event } from '../../event/entities/event.entity';
-import { Service } from '../../service/service.entity';
+import { Event } from '../../event/entities/event.entity';
+import { Service } from '../../service/entities/service.entity';
 
 export enum UserRole {
   ADMIN = 'admin',
@@ -54,8 +54,20 @@ export class User {
   @Column({ nullable: true })
   location: string;
 
-  //@OneToMany(() => Event, event => event.createdBy)
-  //events: Event[];
+  @Column({ nullable: true })
+  rue: string;
+
+  @Column({ nullable: true })
+  cp: string;
+
+  @Column({ nullable: true })
+  ville: string;
+
+  @Column({ nullable: true })
+  quartier: string;
+
+  @OneToMany(() => Event, event => event.createdBy)
+  events: Event[];
 
   // Services created by this user
   @OneToMany(() => Service, service => service.creator)
@@ -76,6 +88,9 @@ export class User {
 
   @Column({nullable:true})
   refreshToken: string;
+
+  @Column({nullable:true})
+  resetPasswordCode: string;
   
   @CreateDateColumn()
   createdAt: Date;

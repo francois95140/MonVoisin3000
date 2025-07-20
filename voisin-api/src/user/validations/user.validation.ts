@@ -13,6 +13,7 @@ export const createUserSchema = z.object({
     .min(8, 'Le mot de passe doit contenir au moins 8 caractères')
     .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 'Le mot de passe doit contenir au moins une majuscule, une minuscule et un chiffre'),
   pseudo: z.string().optional(),
+  quartier:z.string().optional(),
   avatar: z.string().url('L\'URL de l\'avatar est invalide').optional(),
   bio: z.string().max(500, 'La bio ne peut pas dépasser 500 caractères').optional(),
   rue: z.string().max(255, 'La rue ne peut pas dépasser 255 caractères').optional(),

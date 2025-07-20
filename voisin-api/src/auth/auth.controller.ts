@@ -68,6 +68,17 @@ export class AuthController {
   }
 
   @Public()
+  @Post('reset-password-code')
+  @ApiOperation({ summary: 'Reset de mot de passe' })
+  @ApiResponse({ status: 201, description: 'code envoyer par email' })
+  @ApiResponse({ status: 400, description: 'Données invalides.' })
+  async resetPasswordCode(
+    @Body('email') email: string,
+  ){
+    return this.authService.resetPasswordCode(email);
+  }
+
+  @Public()
   @Post('reset-password')
   @ApiCreatedResponse({
     description: 'Jeton d\'autantification',
