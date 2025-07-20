@@ -870,9 +870,9 @@ body {
 
         .icon-grid {
             display: grid;
-            grid-template-columns: repeat(6, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 12px;
-            max-height: 200px;
+            max-height: 180px;
             overflow-y: auto;
         }
 
