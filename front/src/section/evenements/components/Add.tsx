@@ -1,7 +1,17 @@
 import { useState } from 'react'
+import IconOption from './IconOption';
 
 export default function Add() {
     const [isOpen, setIsOpen] = useState(false);
+
+    const iconOptions = [
+        "calendar", "musical-notes", "restaurant", "fitness", "library",
+        "cafe", "basketball", "camera", "boat", "bicycle", "book", "gift",
+        "heart", "home", "medical", "people", "school", "school", "school",
+        "calendar", "musical-notes", "restaurant", "fitness", "library",
+        "cafe", "basketball", "camera", "boat", "bicycle", "book", "gift",
+        "heart", "home", "medical", "people", "school", "school", "school"
+    ];
 
     const toggleModal = () => {
         setIsOpen(!isOpen);
@@ -42,60 +52,11 @@ export default function Add() {
                             <div>
                                 <label className="block text-white font-medium mb-3">Choisir une icône</label>
                                 <div className="icon-grid">
-                                    <div className="icon-option" data-icon="calendar">
-                                        <ion-icon name="calendar" className="text-white text-xl"></ion-icon>
-                                    </div>
-                                    <div className="icon-option" data-icon="musical-notes">
-                                        <ion-icon name="musical-notes" className="text-white text-xl"></ion-icon>
-                                    </div>
-                                    <div className="icon-option" data-icon="restaurant">
-                                        <ion-icon name="restaurant" className="text-white text-xl"></ion-icon>
-                                    </div>
-                                    <div className="icon-option" data-icon="fitness">
-                                        <ion-icon name="fitness" className="text-white text-xl"></ion-icon>
-                                    </div>
-                                    <div className="icon-option" data-icon="library">
-                                        <ion-icon name="library" className="text-white text-xl"></ion-icon>
-                                    </div>
-                                    <div className="icon-option" data-icon="cafe">
-                                        <ion-icon name="cafe" className="text-white text-xl"></ion-icon>
-                                    </div>
-                                    <div className="icon-option" data-icon="basketball">
-                                        <ion-icon name="basketball" className="text-white text-xl"></ion-icon>
-                                    </div>
-                                    <div className="icon-option" data-icon="cafe">
-                                        <ion-icon name="cafe" className="text-white text-xl"></ion-icon>
-                                    </div>
-                                    <div className="icon-option" data-icon="camera">
-                                        <ion-icon name="camera" className="text-white text-xl"></ion-icon>
-                                    </div>
-                                    <div className="icon-option" data-icon="boat">
-                                        <ion-icon name="boat" className="text-white text-xl"></ion-icon>
-                                    </div>
-                                    <div className="icon-option" data-icon="bicycle">
-                                        <ion-icon name="bicycle" className="text-white text-xl"></ion-icon>
-                                    </div>
-                                    <div className="icon-option" data-icon="book">
-                                        <ion-icon name="book" className="text-white text-xl"></ion-icon>
-                                    </div>
-                                    <div className="icon-option" data-icon="gift">
-                                        <ion-icon name="gift" className="text-white text-xl"></ion-icon>
-                                    </div>
-                                    <div className="icon-option" data-icon="heart">
-                                        <ion-icon name="heart" className="text-white text-xl"></ion-icon>
-                                    </div>
-                                    <div className="icon-option" data-icon="home">
-                                        <ion-icon name="home" className="text-white text-xl"></ion-icon>
-                                    </div>
-                                    <div className="icon-option" data-icon="medical">
-                                        <ion-icon name="medical" className="text-white text-xl"></ion-icon>
-                                    </div>
-                                    <div className="icon-option" data-icon="people">
-                                        <ion-icon name="people" className="text-white text-xl"></ion-icon>
-                                    </div>
-                                    <div className="icon-option" data-icon="school">
-                                        <ion-icon name="school" className="text-white text-xl"></ion-icon>
-                                    </div>
+
+                                    {iconOptions.map((icon, index) => (
+                                        <IconOption key={index} dataIcon={icon} />
+                                    ))}
+                                    
                                 </div>
                                 <input type="hidden" id="selectedIcon" name="icon" value=""/>
                             </div>
