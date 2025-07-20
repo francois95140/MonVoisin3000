@@ -1,9 +1,7 @@
-//import { useState } from 'react'
 import "./mobile.css";
 import { NavLink } from "react-router";
 
 function App() {
-  //const [count, setCount] = useState(0)
 
   return (
     <>
@@ -57,7 +55,7 @@ function App() {
             <li
               className={
                 "list" +
-                (window.location.pathname.startsWith("/connect")
+                (window.location.pathname.startsWith("/evenements")
                   ? " active"
                   : "")
               }
@@ -68,7 +66,7 @@ function App() {
                 e.currentTarget.classList.add("active");
               }}
             >
-              <NavLink to="/">
+              <NavLink to="/evenements">
                 <span className="icon">
                   <ion-icon name="calendar-number-outline"></ion-icon>
                 </span>

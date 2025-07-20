@@ -213,12 +213,22 @@ function Inscription() {
                             .join(
                               '<hr class="border-t mx-5 border-3 border-indigo-500 my-4"/>'
                             );
+
+                          document.getElementById("rue").value = data.features[0].properties.name;
+                          document.getElementById("cp").value = data.features[0].properties.postcode;
+                          document.getElementById("ville").value = data.features[0].properties.city;
+
+
                         }
                       });
                   }
                 }}
                 className="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
               />
+              <input type="hidden" name="rue" id="rue" />
+              <input type="hidden" name="cp" id="cp" />
+              <input type="hidden" name="ville" id="ville" />
+
             </div>
             <div className="mb-4">
               <div
