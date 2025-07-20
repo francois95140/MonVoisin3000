@@ -7,7 +7,7 @@ function Navbar() {
 
   useEffect(() => {
     // Si la route ne commence pas par /evenements
-    if (!location.pathname.startsWith("/evenements")||!location.pathname.startsWith("/trock")) {
+    if (!location.pathname.startsWith("/evenements")&&!location.pathname.startsWith("/trock")) {
       // Enlever la classe active de tous les li
       const allListItems = document.querySelectorAll('.navigation ul li.list');
       allListItems.forEach(li => li.classList.remove('active'));
@@ -15,13 +15,13 @@ function Navbar() {
       // Mettre l'indicator en opacity-0
       const indicator = document.getElementById('indicator');
       if (indicator) {
-        indicator.style.opacity = '0';
+        indicator.classList.add('opacity-0');
       }
     } else {
       // Si on est sur /evenements, remettre l'opacity à 1
       const indicator = document.getElementById('indicator');
       if (indicator) {
-        indicator.style.opacity = '1';
+        indicator.classList.remove('opacity-0');
       }
     }
   }, [location.pathname]);
@@ -35,7 +35,7 @@ function Navbar() {
     // Remettre l'opacity de l'indicator à 1 quand on clique
     const indicator = document.getElementById('indicator');
     if (indicator) {
-      indicator.style.opacity = '1';
+      indicator.classList.remove('opacity-0');
     }
   };
 
