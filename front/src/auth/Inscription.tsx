@@ -1,58 +1,98 @@
 import { NavLink } from "react-router-dom";
+const apiUrl = import.meta.env.VITE_API_URL;
 import "./Inscription.css";
-function handleInscription(event: React.FormEvent<HTMLFormElement>) {
+async function handleInscription(event: React.FormEvent<HTMLFormElement>) {
   event.preventDefault();
+  
   const formData = new FormData(event.currentTarget);
-  const formValues = Object.fromEntries(formData.entries()) as {
-    tag: string;
-    email: string;
-    password: string;
-    pseudo: string;
-    avatar: string | Blob;
-    bio: string;
-    phoneNumber: string;
-    location: string;
-    timezone: string;
-    language: string;
+  
+  // Récupération des valeurs du formulaire avec les bons noms de champs
+  const formValues = {
+    tag: formData.get("tag") as string,
+    email: formData.get("email") as string,
+    password: formData.get("motdepasse") as string, // Le champ s'appelle "motdepasse" dans le HTML
+    pseudo: formData.get("pseudo") as string,
+    bio: formData.get("bio") as string,
+    phoneNumber: formData.get("tel") as string, // Le champ s'appelle "tel" dans le HTML
+    rue: formData.get("rue") as string,
+    codePostal: formData.get("cp") as string,
+    ville: formData.get("ville") as string,
+    adresse: formData.get("adresse") as string
   };
-
+  console.log("url: ", apiUrl);
   console.log("Form values:", formValues);
 
-  const avatarInput = event.currentTarget.elements.namedItem("photo") as HTMLInputElement;
 
-  console.log("Avatar input:", avatarInput);
-  const avatarFile = avatarInput?.files?.[0];
-  if (avatarFile) {
-    const formData = new FormData();
-    formData.append("avatar", avatarFile);
-    fetch(`${process.env.PUBLIC_URL}/avatars/${avatarFile.name}`, {
+  try {
+    // Gestion de l'avatar si présent
+    const avatarInput = event.currentTarget.elements.namedItem("photo") as HTMLInputElement;
+    const avatarFile = avatarInput?.files?.[0];
+    let avatarUrl = "";
+
+    if (avatarFile) {
+      // Upload de l'avatar d'abord
+      const avatarFormData = new FormData();
+      avatarFormData.append("avatar", avatarFile);
+      
+      const avatarResponse = await fetch(`${apiUrl}/upload/avatar`, {
+        method: "POST",
+        body: avatarFormData,
+      });
+      
+      if (avatarResponse.ok) {
+        const avatarData = await avatarResponse.json();
+        avatarUrl = avatarData.url || "";
+      } else {
+        console.error("Erreur lors de l'upload de l'avatar:", avatarResponse.statusText);
+      }
+    }
+
+    // Envoi des données d'inscription
+    const response = await fetch(`${apiUrl}/auth/register`, {
       method: "POST",
-      body: formData,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        tag: formValues.tag,
+        email: formValues.email,
+        password: formValues.password,
+        pseudo: formValues.pseudo,
+        avatar: "https://avatars.githubusercontent.com/u/94387150?v=4",
+        bio: formValues.bio,
+        phoneNumber: formValues.phoneNumber,
+        quartier: "quartier",
+        address: {
+          street: formValues.rue,
+          postalCode: formValues.codePostal,
+          city: formValues.ville,
+          fullAddress: formValues.adresse
+        }
+      }),
     });
-  }
 
-  fetch(`${process.env.REACT_APP_API_URL}/auth/register`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      tag: formValues.tag,
-      email: formValues.email,
-      password: formValues.password,
-      pseudo: formValues.pseudo,
-      avatar: typeof formValues.avatar === "string" ? formValues.avatar : "",
-      bio: formValues.bio,
-      phoneNumber: formValues.phoneNumber,
-      location: formValues.location,
-      timezone: formValues.timezone,
-      language: formValues.language,
-    }),
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      console.log("Server response:", data);
-    });
+    console.log("Response status:", response);
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log("Inscription réussie:", data);
+      
+      // Redirection ou affichage d'un message de succès
+      alert("Inscription réussie ! Vous pouvez maintenant vous connecter.");
+      
+      // Optionnel: redirection vers la page de connexion
+      // window.location.href = "/connexion";
+      
+    } else {
+      const errorData = await response.json();
+      console.error("Erreur lors de l'inscription:", errorData);
+      alert(`Erreur lors de l'inscription: ${errorData.message || 'Une erreur est survenue'}`);
+    }
+    
+  } catch (error) {
+    console.error("Erreur réseau:", error);
+    alert("Erreur de connexion. Veuillez réessayer.");
+  }
 }
 
 function Inscription() {
