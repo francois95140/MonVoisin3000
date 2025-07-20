@@ -3,13 +3,13 @@ import Add from './components/Add';
 
 export default function Evenements() {
 
-
     const events = [
         {
             title: "Vide-grenier Géant",
             description: "Le plus grand vide-grenier de l'année ! Venez chiner, vendre vos trésors cachés et rencontrer vos voisins. Stands de restauration et animations pour enfants.",
             date: "Samedi 25 Juillet 2025",
-            time: "9h00 - 18h00",
+            timestart: "9h00",
+            timeend: "18h00",
             location: "Place de la Mairie, 75001 Paris",
             icon: "storefront",
             buttonText: "Participer",
@@ -19,7 +19,8 @@ export default function Evenements() {
             title: "Yoga en Plein Air",
             description: "Séances de yoga gratuites dans le parc. Détendez-vous après le travail et reconnectez-vous avec la nature. Tous niveaux bienvenus ! Apportez votre tapis.",
             date: "Mardi 22 Juillet 2025",
-            time: "19h00 - 20h00",
+            timestart: "19h00",
+            timeend: "20h00",
             location: "Parc Municipal, Avenue des Tilleuls",
             icon: "flower",
             buttonText: "S'inscrire",
@@ -29,7 +30,8 @@ export default function Evenements() {
             title: "Nettoyage Collectif du Parc",
             description: "Rejoignez l'effort collectif pour remettre en état notre parc après les intempéries. Matériel fourni, collation offerte. Ensemble, rendons notre quartier plus beau !",
             date: "Samedi 20 Juillet 2025",
-            time: "9h00 - 12h00",
+            timestart: "9h00",
+            timeend: "12h00",
             location: "Entrée du Parc, Rue des Jardins",
             icon: "leaf",
             buttonText: "Participer",
@@ -39,7 +41,8 @@ export default function Evenements() {
             title: "Soirée Jeux de Société",
             description: "Venez passer une soirée conviviale autour de jeux de société. Apportez vos jeux préférés ou découvrez de nouveaux jeux ! Boissons et snacks fournis.",
             date: "Vendredi 2 Août 2025",
-            time: "19h30 - 23h00",
+            timestart: "19h30",
+            timeend: "23h00",
             location: "Salle des Fêtes, 12 Rue de la République",
             icon: "game-controller",
             buttonText: "Participer",
@@ -49,7 +52,8 @@ export default function Evenements() {
             title: "Marché des Producteurs",
             description: "Marché de producteurs locaux. Fruits, légumes de saison, pain frais et produits artisanaux de la région. Venez soutenir nos producteurs locaux !",
             date: "Samedi 26 Juillet 2025",
-            time: "8h00 - 13h00",
+            timestart: "8h00",
+            timeend: "13h00",
             location: "Place du Marché, Centre-ville",
             icon: "basket",
             buttonText: "Plus d'infos",
@@ -59,15 +63,14 @@ export default function Evenements() {
             title: "Atelier Jardinage Bio",
             description: "Apprenez les bases du jardinage biologique avec notre expert local. Techniques de compostage, plantation et entretien naturel. Outils fournis.",
             date: "Dimanche 28 Juillet 2025",
-            time: "14h00 - 17h00",
+            timestart: "14h00",
+            timeend: "17h00",
             location: "Jardin Partagé, 45 Rue des Roses",
             icon: "rose",
             buttonText: "S'inscrire",
             buttonType: "primary"
         }
     ];
-
-    
 
     return (
     <>

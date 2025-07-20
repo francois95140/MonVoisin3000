@@ -10,6 +10,7 @@ import Services from "./auth/Inscription";
 import Evenements from "./section/evenements/Evenements";
 import Messages from "./auth/Inscription";
 import Carte from "./auth/Inscription";
+//import Head from "./UI/head";
 import UiMobile from "./UI/mobile";
 import UiDesktop from "./UI/desktop";
 
@@ -20,6 +21,7 @@ const isPublicRoute = window.location.pathname === "/connexion" || window.locati
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
+      {/* //{!hasUserToken && !isPublicRoute && <Head />} */}
       <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/connexion" element={<Connexion />} />
