@@ -36,7 +36,6 @@ createRoot(document.getElementById("root")!).render(
           <Route path="*" element={<Navigate to="/connexion" replace />} />
         )}
       </Routes>
-      <UiMobile />
       {hasUserToken && !isPublicRoute && (isMobile ? <UiMobile /> : <UiDesktop />)}
     </BrowserRouter>
   </StrictMode>
