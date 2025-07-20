@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 
+
 :root {
   --background: oklch(1 0 0); /* background principal appliqué au body*/
   --foreground: oklch(0.145 0 0); /* color / texte appliqué au body */
@@ -137,3 +138,4 @@
     @apply bg-background text-foreground;
   }
 }
+
