@@ -9,6 +9,9 @@ interface CardProps {
     location: string;
     icon: string;
     animationDelay?: number;
+    buttonText?: string;
+    buttonType?: 'primary' | 'secondary';
+    onClick?: () => void;
 }
 
 const Card: React.FC<CardProps> = ({ 
@@ -20,6 +23,9 @@ const Card: React.FC<CardProps> = ({
     location, 
     icon, 
     animationDelay = 0,
+    buttonText = 'Participer',
+    buttonType = 'primary',
+    onClick
 }) => {
 
 
@@ -50,8 +56,11 @@ const Card: React.FC<CardProps> = ({
                         {location || "Lieu de l'événement non fourni."}
                     </div>
                 </div>
-                <button className="btn-primary px-6 py-2 rounded-xl text-white font-semibold text-sm">
-                    Participer
+                <button 
+                    className={`${buttonType === 'primary' ? 'btn-primary' : 'btn-secondary'} px-6 py-2 rounded-xl text-white font-semibold text-sm`}
+                    onClick={onClick}
+                >
+                    {buttonText}
                 </button>
             </div>
         </div>
