@@ -6,7 +6,7 @@ import Home from "./home/Home";
 import Connexion from "./auth/Connexion";
 import Inscription from "./auth/Inscription";
 import Actualites from "./auth/Inscription";
-import Services from "./auth/Inscription";
+import Trock from "./trock/Trock";
 import Evenements from "./section/evenements/Evenements";
 import Messages from "./auth/Inscription";
 import Carte from "./auth/Inscription";
@@ -36,7 +36,7 @@ createRoot(document.getElementById("root")!).render(
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/editprofil" element={<EditUser />} />
             <Route path="/actualites" element={<Actualites />} />
-            <Route path="/services" element={<Services />} />
+            <Route path="/trock" element={<Trock />} />
             <Route path="/evenements" element={<Evenements />} />
             <Route path="/messages" element={<Messages />} />
             <Route path="/carte" element={<Carte />} />
