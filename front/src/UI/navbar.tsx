@@ -6,19 +6,16 @@ function Navbar() {
   const location = useLocation();
 
   useEffect(() => {
-    // Si la route ne commence pas par /evenements
     if (!location.pathname.startsWith("/evenements")&&!location.pathname.startsWith("/trock")&& !location.pathname.startsWith("/news")) {
       // Enlever la classe active de tous les li
       const allListItems = document.querySelectorAll('.navigation ul li.list');
       allListItems.forEach(li => li.classList.remove('active'));
       
-      // Mettre l'indicator en opacity-0
       const indicator = document.getElementById('indicator');
       if (indicator) {
         indicator.classList.add('opacity-0');
       }
     } else {
-      // Si on est sur /evenements, remettre l'opacity à 1
       const indicator = document.getElementById('indicator');
       if (indicator) {
         indicator.classList.remove('opacity-0');
@@ -47,7 +44,7 @@ function Navbar() {
             <li
               className={
                 "list" +
-                (location.pathname.startsWith("/testa") ? " active" : "")
+                (location.pathname.startsWith("/news") ? " active" : "")
               }
               onClick={handleItemClick}
             >
@@ -61,7 +58,7 @@ function Navbar() {
             <li
               className={
                 "list" +
-                (location.pathname.startsWith("/testb") ? " active" : "")
+                (location.pathname.startsWith("/trock") ? " active" : "")
               }
               onClick={handleItemClick}
             >

@@ -170,10 +170,6 @@ const Trock: React.FC = () => {
 
   return (
     <>
-      {/* Script pour charger Ionicons */}
-      <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
-      <script noModule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
-
       <div 
         className="min-h-screen antialiased"
         style={{background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'}}
