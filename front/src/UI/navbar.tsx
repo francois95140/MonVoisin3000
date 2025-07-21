@@ -7,7 +7,7 @@ function Navbar() {
 
   useEffect(() => {
     // Si la route ne commence pas par /evenements
-    if (!location.pathname.startsWith("/evenements")&&!location.pathname.startsWith("/trock")) {
+    if (!location.pathname.startsWith("/evenements")&&!location.pathname.startsWith("/trock")&& !location.pathname.startsWith("/news")) {
       // Enlever la classe active de tous les li
       const allListItems = document.querySelectorAll('.navigation ul li.list');
       allListItems.forEach(li => li.classList.remove('active'));
@@ -51,7 +51,7 @@ function Navbar() {
               }
               onClick={handleItemClick}
             >
-              <NavLink to="/testa">
+              <NavLink to="/news">
                 <span className="icon">
                   <ion-icon name="newspaper-outline"></ion-icon>
                 </span>
