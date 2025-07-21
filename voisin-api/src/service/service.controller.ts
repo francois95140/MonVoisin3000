@@ -4,7 +4,7 @@ import { createServiceSchema, CreateServiceDto } from './dto/create-service.dto'
 import { updateServiceSchema, UpdateServiceDto } from './dto/update-service.dto';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 import { filterServiceSchema, FilterServiceDto } from './dto/filter-service.dto';
-import { Service } from './service.entity';
+import { Service } from './entities/service.entity';
 import { User } from 'src/user/entities/user.entity';
 import { GetUser } from 'src/auth/decorators/user.decorator';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
