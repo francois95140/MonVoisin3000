@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Troc & Services - MonVoisin3000</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .accent-text {
+            color: #ffffff;
+            font-weight: 800;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-1px);
+        }
+
+        .tab-button {
+            transition: all 0.3s ease;
+        }
+
+        .tab-button.active {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+        }
+
+        .tab-button:not(.active) {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .item-card {
+            transition: all 0.3s ease;
+        }
+
+        .item-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .item-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .service-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .rating-stars {
+            color: #fbbf24;
+        }
+
+        .price-tag {
+            background: linear-gradient(45px, #22c55e, #16a34a);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .distance-tag {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <!-- Titre principal -->
+    <div class="px-6 mb-6 pt-6 fade-in">
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-3xl font-bold text-white mb-2">
+                    <span class="accent-text">Troc</span> & Services
+                </h2>
+                <p class="text-white/70">
+                    Échangez, partagez et entraidez-vous
+                </p>
+            </div>
+            <button class="glass-card rounded-xl p-3">
+                <ion-icon name="add" class="text-white text-xl"></ion-icon>
+            </button>
+        </div>
+    </div>
+
+    <!-- Onglets -->
+    <div class="px-6 mb-6 fade-in" style="animation-delay: 0.1s;">
+        <div class="glass-card rounded-2xl p-2 flex">
+            <button class="tab-button active flex-1 py-3 rounded-xl font-semibold" onclick="switchTab('troc')">
+                Troc
+            </button>
+            <button class="tab-button flex-1 py-3 rounded-xl font-semibold" onclick="switchTab('services')">
+                Services
+            </button>
+        </div>
+    </div>
+
+    <!-- Contenu Troc -->
+    <div id="troc-content" class="tab-content active">
+        <main class="px-6 pb-8">
+            <div class="space-y-4">
+                <!-- Vélo d'appartement -->
+                <div class="glass-card item-card rounded-2xl p-4 fade-in" style="animation-delay: 0.2s;">
+                    <div class="flex items-start space-x-4">
+                        <div class="item-image bg-gradient-to-br from-purple-400 to-pink-600">
+                            <ion-icon name="bicycle" class="text-white text-3xl"></ion-icon>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-xl font-bold text-white mb-2">Vélo d'appartement</h3>
+                            <p class="text-white/70 text-sm leading-relaxed mb-3">
+                                Vélo d'appartement en excellent état, peu utilisé. Échange contre table de jardin ou outils de bricolage.
+                            </p>
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center space-x-2">
+                                    <span class="distance-tag">500m</span>
+                                    <span class="text-white/60 text-xs">Il y a 2h</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-6 h-6 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center">
+                                        <span class="text-white text-xs font-bold">M</span>
+                                    </div>
+                                    <span class="text-white/80 text-sm">Marie</span>
+                                </div>
+                            </div>
+                            <button class="btn-primary px-6 py-2 rounded-xl text-white font-semibold text-sm">
+                                Échanger
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Livres de cuisine -->
+                <div class="glass-card item-card rounded-2xl p-4 fade-in" style="animation-delay: 0.3s;">
+                    <div class="flex items-start space-x-4">
+                        <div class="item-image bg-gradient-to-br from-green-400 to-emerald-600">
+                            <ion-icon name="book" class="text-white text-3xl"></ion-icon>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-xl font-bold text-white mb-2">Collection Livres de Cuisine</h3>
+                            <p class="text-white/70 text-sm leading-relaxed mb-3">
+                                15 livres de cuisine variés, recettes du monde entier. Échange contre plantes ou graines de légumes.
+                            </p>
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center space-x-2">
+                                    <span class="distance-tag">800m</span>
+                                    <span class="text-white/60 text-xs">Il y a 5h</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-6 h-6 rounded-full bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center">
+                                        <span class="text-white text-xs font-bold">A</span>
+                                    </div>
+                                    <span class="text-white/80 text-sm">Antoine</span>
+                                </div>
+                            </div>
+                            <button class="btn-primary px-6 py-2 rounded-xl text-white font-semibold text-sm">
+                                Échanger
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Console de jeux -->
+                <div class="glass-card item-card rounded-2xl p-4 fade-in" style="animation-delay: 0.4s;">
+                    <div class="flex items-start space-x-4">
+                        <div class="item-image bg-gradient-to-br from-blue-400 to-indigo-600">
+                            <ion-icon name="game-controller" class="text-white text-3xl"></ion-icon>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-xl font-bold text-white mb-2">PlayStation 4 + Jeux</h3>
+                            <p class="text-white/70 text-sm leading-relaxed mb-3">
+                                Console PS4 en bon état avec 5 jeux inclus. Cherche ordinateur portable ou tablette en échange.
+                            </p>
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center space-x-2">
+                                    <span class="distance-tag">1.2km</span>
+                                    <span class="text-white/60 text-xs">Hier</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                                        <span class="text-white text-xs font-bold">L</span>
+                                    </div>
+                                    <span class="text-white/80 text-sm">Lucas</span>
+                                </div>
+                            </div>
+                            <button class="btn-primary px-6 py-2 rounded-xl text-white font-semibold text-sm">
+                                Échanger
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Plantes -->
+                <div class="glass-card item-card rounded-2xl p-4 fade-in" style="animation-delay: 0.5s;">
+                    <div class="flex items-start space-x-4">
+                        <div class="item-image bg-gradient-to-br from-green-500 to-lime-600">
+                            <ion-icon name="leaf" class="text-white text-3xl"></ion-icon>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-xl font-bold text-white mb-2">Boutures et Graines</h3>
+                            <p class="text-white/70 text-sm leading-relaxed mb-3">
+                                Diverses boutures de plantes vertes et graines de légumes de mon jardin. Échange contre pots ou outils.
+                            </p>
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center space-x-2">
+                                    <span class="distance-tag">300m</span>
+                                    <span class="text-white/60 text-xs">Il y a 1 jour</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-6 h-6 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center">
+                                        <span class="text-white text-xs font-bold">S</span>
+                                    </div>
+                                    <span class="text-white/80 text-sm">Sophie</span>
+                                </div>
+                            </div>
+                            <button class="btn-primary px-6 py-2 rounded-xl text-white font-semibold text-sm">
+                                Échanger
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Contenu Services -->
+    <div id="services-content" class="tab-content">
+        <main class="px-6 pb-8">
+            <div class="space-y-4">
+                <!-- Service Bricolage -->
+                <div class="glass-card item-card rounded-2xl p-4 fade-in" style="animation-delay: 0.2s;">
+                    <div class="flex items-start space-x-4">
+                        <div class="service-avatar bg-gradient-to-br from-orange-400 to-red-600">
+                            <ion-icon name="hammer" class="text-white text-2xl"></ion-icon>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-start justify-between mb-2">
+                                <div>
+                                    <h3 class="text-lg font-bold text-white">Bricolage & Réparations</h3>
+                                    <p class="text-white/80 text-sm">Jean-Pierre M.</p>
+                                </div>
+                                <span class="price-tag">15€/h</span>
+                            </div>
+                            <p class="text-white/70 text-sm leading-relaxed mb-3">
+                                Petits travaux de bricolage, montage de meubles, réparations diverses. 20 ans d'expérience dans le bâtiment.
+                            </p>
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center space-x-3">
+                                    <span class="distance-tag">300m</span>
+                                    <div class="flex items-center space-x-1">
+                                        <div class="rating-stars text-sm">⭐⭐⭐⭐⭐</div>
+                                        <span class="text-white/60 text-xs">(28 avis)</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="btn-primary px-6 py-2 rounded-xl text-white font-semibold text-sm">
+                                Contacter
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Service Jardinage -->
+                <div class="glass-card item-card rounded-2xl p-4 fade-in" style="animation-delay: 0.3s;">
+                    <div class="flex items-start space-x-4">
+                        <div class="service-avatar bg-gradient-to-br from-green-400 to-emerald-600">
+                            <ion-icon name="leaf" class="text-white text-2xl"></ion-icon>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-start justify-between mb-2">
+                                <div>
+                                    <h3 class="text-lg font-bold text-white">Jardinage & Entretien</h3>
+                                    <p class="text-white/80 text-sm">Marie L.</p>
+                                </div>
+                                <span class="price-tag">12€/h</span>
+                            </div>
+                            <p class="text-white/70 text-sm leading-relaxed mb-3">
+                                Entretien de jardin, plantation, taille, conseils jardinage. Passionnée de jardinage depuis toujours.
+                            </p>
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center space-x-3">
+                                    <span class="distance-tag">600m</span>
+                                    <div class="flex items-center space-x-1">
+                                        <div class="rating-stars text-sm">⭐⭐⭐⭐⭐</div>
+                                        <span class="text-white/60 text-xs">(15 avis)</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="btn-primary px-6 py-2 rounded-xl text-white font-semibold text-sm">
+                                Contacter
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Service Cours particuliers -->
+                <div class="glass-card item-card rounded-2xl p-4 fade-in" style="animation-delay: 0.4s;">
+                    <div class="flex items-start space-x-4">
+                        <div class="service-avatar bg-gradient-to-br from-blue-400 to-purple-600">
+                            <ion-icon name="school" class="text-white text-2xl"></ion-icon>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-start justify-between mb-2">
+                                <div>
+                                    <h3 class="text-lg font-bold text-white">Cours Particuliers</h3>
+                                    <p class="text-white/80 text-sm">Sophie R.</p>
+                                </div>
+                                <span class="price-tag">20€/h</span>
+                            </div>
+                            <p class="text-white/70 text-sm leading-relaxed mb-3">
+                                Mathématiques et physique niveau collège/lycée. Enseignante certifiée avec 10 ans d'expérience.
+                            </p>
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center space-x-3">
+                                    <span class="distance-tag">450m</span>
+                                    <div class="flex items-center space-x-1">
+                                        <div class="rating-stars text-sm">⭐⭐⭐⭐⭐</div>
+                                        <span class="text-white/60 text-xs">(42 avis)</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="btn-primary px-6 py-2 rounded-xl text-white font-semibold text-sm">
+                                Contacter
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Service Baby-sitting -->
+                <div class="glass-card item-card rounded-2xl p-4 fade-in" style="animation-delay: 0.5s;">
+                    <div class="flex items-start space-x-4">
+                        <div class="service-avatar bg-gradient-to-br from-pink-400 to-rose-600">
+                            <ion-icon name="heart" class="text-white text-2xl"></ion-icon>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-start justify-between mb-2">
+                                <div>
+                                    <h3 class="text-lg font-bold text-white">Baby-sitting</h3>
+                                    <p class="text-white/80 text-sm">Emma D.</p>
+                                </div>
+                                <span class="price-tag">10€/h</span>
+                            </div>
+                            <p class="text-white/70 text-sm leading-relaxed mb-3">
+                                Garde d'enfants à domicile, aide aux devoirs. Étudiante en éducation, expérience avec enfants 3-12 ans.
+                            </p>
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center space-x-3">
+                                    <span class="distance-tag">200m</span>
+                                    <div class="flex items-center space-x-1">
+                                        <div class="rating-stars text-sm">⭐⭐⭐⭐⭐</div>
+                                        <span class="text-white/60 text-xs">(18 avis)</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="btn-primary px-6 py-2 rounded-xl text-white font-semibold text-sm">
+                                Contacter
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Service Informatique -->
+                <div class="glass-card item-card rounded-2xl p-4 fade-in" style="animation-delay: 0.6s;">
+                    <div class="flex items-start space-x-4">
+                        <div class="service-avatar bg-gradient-to-br from-indigo-400 to-blue-600">
+                            <ion-icon name="laptop" class="text-white text-2xl"></ion-icon>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-start justify-between mb-2">
+                                <div>
+                                    <h3 class="text-lg font-bold text-white">Dépannage Informatique</h3>
+                                    <p class="text-white/80 text-sm">Thomas B.</p>
+                                </div>
+                                <span class="price-tag">25€/h</span>
+                            </div>
+                            <p class="text-white/70 text-sm leading-relaxed mb-3">
+                                Réparation ordinateurs, installation logiciels, formation informatique. Technicien certifié.
+                            </p>
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center space-x-3">
+                                    <span class="distance-tag">900m</span>
+                                    <div class="flex items-center space-x-1">
+                                        <div class="rating-stars text-sm">⭐⭐⭐⭐⭐</div>
+                                        <span class="text-white/60 text-xs">(35 avis)</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="btn-primary px-6 py-2 rounded-xl text-white font-semibold text-sm">
+                                Contacter
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Message d'encouragement -->
+    <div class="px-6 pb-8">
+        <div class="glass-card rounded-2xl p-6 fade-in" style="animation-delay: 0.7s;">
+            <div class="text-center">
+                <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center">
+                    <ion-icon name="swap-horizontal" class="text-white text-2xl"></ion-icon>
+                </div>
+                <h3 class="text-white font-semibold mb-2">Proposez vos objets ou services !</h3>
+                <p class="text-white/70 text-sm mb-4 leading-relaxed">
+                    Vous avez des objets à échanger ou des compétences à partager ? Créez votre annonce et aidez votre communauté.
+                </p>
+                <button class="btn-primary px-6 py-3 rounded-xl text-white font-semibold">
+                    <ion-icon name="add-circle" class="mr-2"></ion-icon>
+                    Créer une annonce
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tabName) {
+            // Mettre à jour l'apparence des onglets
+            document.querySelectorAll('.tab-button').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Afficher le bon contenu
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabName + '-content').classList.add('active');
+        }
+
+        // Animation d'apparition au scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        });
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Simulation de clics sur les annonces
+        document.querySelectorAll('.item-card').forEach(card => {
+            card.addEventListener('click', function(e) {
+                if (!e.target.closest('button')) {
+                    const title = this.querySelector('h3').textContent;
+                    console.log(`Consultation de l'annonce: ${title}`);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
