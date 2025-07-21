@@ -1,0 +1,45 @@
+@auth_token_bisho =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjFhZmJlZjM5LTE4NzctNGE1NC04ODk2LWRlMmZiNGU5NjRjMSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzQxOTU0NDc3LCJleHAiOjE3NDIwNDA4Nzd9.EFnXvOwRnXPKWIpAbcxxzgMYJCp_2wZSbRzerSvGJyw
+@auth_token_toger =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImIzOGQzYTZmLTZjMjktNGMwZi05YzNmLTk2MzhlZGY2YTUzOSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzQxOTU0NjI5LCJleHAiOjE3NDIwNDEwMjl9.OK0d8iwqKVI544VF_wDqC9yqMWCxJ1E7bHpcHYvvGl8
+
+### send friend request
+
+POST http://localhost:3000/friends/request
+Authorization: Bearer {{auth_token_bisho}}
+Content-Type: application/json
+
+{
+  "to": "b38d3a6f-6c29-4c0f-9c3f-9638edf6a539"
+}
+
+### reject friend request
+
+POST http://localhost:3000//friends/reject
+Authorization: Bearer {{auth_token_toger}}
+Content-Type: application/json
+
+{
+  "from": "1afbef39-1877-4a54-8896-de2fb4e964c1"
+}
+
+### reject friend request
+
+POST http://localhost:3000//friends/accept
+Authorization: Bearer {{auth_token_toger}}
+Content-Type: application/json
+
+{
+  "from": "1afbef39-1877-4a54-8896-de2fb4e964c1"
+}
+
+### recived friend request
+
+GET http://localhost:3000/friends/requests/incoming
+Authorization: Bearer {{auth_token_toger}}
+Content-Type: application/json
+
+### sended friend request
+
+GET http://localhost:3000/friends/requests/outgoing
+Authorization: Bearer {{auth_token_toger}}
+Content-Type: application/json
+

@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  # PostgreSQL pour les utilisateurs
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres_users
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MongoDB pour les conversations
+  mongodb:
+    image: mongo:6-jammy
+    container_name: mongo_conversations
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_DB}
+    ports:
+      - "${MONGO_PORT}:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - app_network
+    restart: unless-stopped
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/${MONGO_DB} --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Neo4j pour les relations sociales
+  neo4j:
+    image: neo4j:5-community
+    container_name: neo4j_friends
+    environment:
+      NEO4J_AUTH: ${NEO4J_USER}/${NEO4J_PASSWORD}
+      NEO4J_apoc_export_file_enabled: 'true'
+      NEO4J_apoc_import_file_enabled: 'true'
+      NEO4J_apoc_import_file_use__neo4j__config: 'true'
+    ports:
+      - "${NEO4J_HTTP_PORT}:7474"
+      - "${NEO4J_BOLT_PORT}:7687"
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+      - neo4j_import:/var/lib/neo4j/import
+      - neo4j_plugins:/plugins
+    networks:
+      - app_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:7474"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  app_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  mongo_data:
+  neo4j_data:
+  neo4j_logs:
+  neo4j_import:
+  neo4j_plugins:
