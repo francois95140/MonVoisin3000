@@ -20,8 +20,7 @@ export class ServiceController {
   @ApiBody({ type: CreateServiceDto })
   @ApiResponse({ status: 201, description: 'Service successfully created', type: Service })
   @ApiResponse({ status: 400, description: 'Bad request' })
-  @UsePipes(new ZodValidationPipe(createServiceSchema))
-  create(@Body() createServiceDto: CreateServiceDto, @GetUser() user: User) {
+  create(@Body(new ZodValidationPipe(createServiceSchema)) createServiceDto: CreateServiceDto, @GetUser() user: User) {
     return this.serviceService.create(createServiceDto, user.id);
   }
 
@@ -36,8 +35,7 @@ export class ServiceController {
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiResponse({ status: 200, description: 'Return all services with pagination' })
-  @UsePipes(new ZodValidationPipe(filterServiceSchema))
-  findAll(@Query() filters: FilterServiceDto): Promise<{ items: Service[]; total: number; page: number; limit: number }> 
+  findAll(@Query(new ZodValidationPipe(filterServiceSchema)) filters: FilterServiceDto): Promise<{ items: Service[]; total: number; page: number; limit: number }> 
   {
     return this.serviceService.findAll(filters);
   }
