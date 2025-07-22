@@ -100,11 +100,11 @@ function Navbar() {
             <li
               className={
                 "list" +
-                (location.pathname.startsWith("/trackmap") ? " active" : "")
+                (location.pathname.startsWith("/carte") ? " active" : "")
               }
               onClick={handleItemClick}
             >
-              <NavLink to="/trackmap">
+              <NavLink to="/carte">
                 <span className="icon">
                   <ion-icon name="location-outline"></ion-icon>
                 </span>

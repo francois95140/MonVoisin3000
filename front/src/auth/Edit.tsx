@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import Inscription from './Inscription';
 
-
-
 const EditUser = () => {
+    const location = useLocation();
+    const userData = location.state?.userData || {};
+    
     document.getElementById("indicator")?.classList.add("filter", "opacity-0");
   setTimeout(() => {
     const list = document.getElementById("indicator").parentNode.children;
@@ -12,6 +13,7 @@ const EditUser = () => {
   return (
       <Inscription
       isInscription = {false}
+      userData = {userData}
       />
   );
 };

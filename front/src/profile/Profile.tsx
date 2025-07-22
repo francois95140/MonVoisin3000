@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 
 // Composant pour les icônes Ionicons
@@ -17,13 +17,69 @@ const ProfilePage: React.FC<ProfilePageProps> = () => {
   }, 0);
 
   const [formData, setFormData] = useState({
-    pseudo: 'MonVoisin123',
-    email: 'exemple@email.com',
-    phone: '06 12 34 56 78',
-    address: '123 Rue de la Paix, 75001 Paris',
-    bio: 'Voisin sympa qui aime partager et échanger !',
+    pseudo: '',
+    email: '',
+    phone: '',
+    address: '',
+    bio: '',
+    tag:'',
     geoPermission: 'friends-only'
   });
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Récupération des informations utilisateur
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        setLoading(true);
+        const apiUrl = import.meta.env.VITE_API_URL;
+        // Récupération du token d'authentification
+        const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+        
+        if (!token) {
+          throw new Error('Token d\'authentification manquant. Veuillez vous reconnecter.');
+        }
+        
+        const response = await fetch(`${apiUrl}/users/me`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+        });
+
+        if (!response.ok) {
+          if (response.status === 401) {
+            // Token expiré ou invalide
+            localStorage.removeItem('authToken');
+            sessionStorage.removeItem('authToken');
+            throw new Error('Session expirée. Veuillez vous reconnecter.');
+          }
+          throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+        }
+
+        const userData = await response.json();
+        setFormData({
+          pseudo: userData.pseudo || '',
+          email: userData.email || '',
+          phone: userData.phoneNumber || '',
+          address: userData.address || '',
+          bio: userData.bio || '',
+          tag: userData.tag || '',
+          geoPermission: userData.geoPermission || 'friends-only'
+        });
+      } catch (err) {
+        console.error('Erreur lors de la récupération des données utilisateur:', err);
+        setError(err instanceof Error ? err.message : 'Une erreur est survenue');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   const [avatar, setAvatar] = useState<string | null>(null);
 
@@ -75,8 +131,47 @@ const ProfilePage: React.FC<ProfilePageProps> = () => {
             <p className="text-white/70">Gérez vos informations personnelles <br/> et paramètres</p>
           </div>
 
+          {/* État de chargement */}
+          {loading && (
+            <div className="glass-card rounded-3xl p-6 fade-in text-center">
+              <div className="flex items-center justify-center space-x-2">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                <span className="text-white">Chargement des informations...</span>
+              </div>
+            </div>
+          )}
+
+          {/* Affichage d'erreur */}
+          {error && (
+            <div className="glass-card rounded-3xl p-6 fade-in">
+              <div className="bg-red-500/20 border border-red-500/30 rounded-xl p-4">
+                <div className="flex items-center space-x-2">
+                  <ion-icon name="alert-circle" className="text-red-400 text-xl"></ion-icon>
+                  <span className="text-red-400 font-medium">Erreur de chargement</span>
+                </div>
+                <p className="text-red-300 mt-2 text-sm">{error}</p>
+                <div className="flex space-x-2 mt-3">
+                  <button 
+                    onClick={() => window.location.reload()}
+                    className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm transition-colors"
+                  >
+                    Réessayer
+                  </button>
+                  {error.includes('authentification') || error.includes('Session expirée') ? (
+                    <NavLink 
+                      to="/login"
+                      className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm transition-colors"
+                    >
+                      Se connecter
+                    </NavLink>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+          )}
           
           {/* Informations personnelles */}
+          {!loading && !error && (
           <div className="glass-card rounded-3xl p-6 fade-in">
           <div className="relative mb-4 flex justify-center">
               
@@ -142,12 +237,27 @@ const ProfilePage: React.FC<ProfilePageProps> = () => {
 
               <NavLink 
                 to="/editprofil"
+                state={{ 
+                  userData: {
+                    pseudo: formData.pseudo,
+                    email: formData.email,
+                    phone: formData.phone,
+                    address: formData.address,
+                    bio: formData.bio,
+                    tag: formData.tag,
+                    // Extraction des composants d'adresse si disponibles
+                    rue: formData.address?.split(',')[0] || '',
+                    ville: formData.address?.split(',').pop()?.trim() || '',
+                    codePostal: formData.address?.match(/\d{5}/) ? formData.address.match(/\d{5}/)[0] : ''
+                  }
+                }}
                 className="w-full flex items-center justify-center py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-xl font-semibold transition-all duration-200 transform hover:scale-105"
               >
                 Modifier mes informations
               </NavLink>
             </div>
           </div>
+          )}
 
           {/* Sécurité et mot de passe */}
           <div className="glass-card rounded-3xl p-6 fade-in">

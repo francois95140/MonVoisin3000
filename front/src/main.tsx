@@ -8,8 +8,9 @@ import Inscription from "./auth/Inscription";
 import Actualites from "./auth/Inscription"; // ⚠️ Vérifier ce composant
 import Trock from "./trock/Trock";
 import Evenements from "./section/evenements/Evenements";
-import Messages from "./auth/Inscription"; // ⚠️ Vérifier ce composant
-import Carte from "./auth/Inscription"; // ⚠️ Vérifier ce composant
+import Messages from "./auth/Inscription";
+import Carte from "./auth/Inscription";
+import Map from "./section/carte/Carte";
 import UserHeader from "./UI/head";
 import Navbar from "./UI/navbar";
 import ProfilePage from "./profile/Profile";
@@ -55,7 +56,7 @@ function AppLayout() {
             <Route path="/trock" element={<Trock />} />
             <Route path="/evenements" element={<Evenements />} />
             <Route path="/messages" element={<Messages />} />
-            <Route path="/carte" element={<Carte />} />
+            <Route path="/carte" element={<Map />} />
           </>
         ) : (
           // Redirection si pas connecté

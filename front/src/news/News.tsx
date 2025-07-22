@@ -325,15 +325,6 @@ const News: React.FC = () => {
                     <IonIcon name="share-social" className="text-base" />
                     <span>Partager</span>
                   </button>
-                  <button 
-                    className="btn-primary px-4 py-2 rounded-xl text-white text-sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleReadMore(article.title);
-                    }}
-                  >
-                    En savoir plus
-                  </button>
                 </div>
               </article>
             ))}

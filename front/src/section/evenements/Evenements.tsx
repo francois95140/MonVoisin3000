@@ -27,6 +27,39 @@ export default function Evenements() {
     const [isEditMode, setIsEditMode] = useState(false);
 
     useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                // Récupération du token d'authentification
+                const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+                
+                if (!token) {
+                    console.warn('Aucun token d\'authentification trouvé');
+                    return;
+                }
+
+                const response = await fetch(`${apiUrl}/users/me`, {
+                    method: "GET",
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                });
+
+                console.log("Réponse utilisateur:", response);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log("Utilisateur:", data.user);
+                    
+                    // Mise à jour du localStorage avec les nouvelles données
+                    localStorage.setItem("user", JSON.stringify(data.user));
+                } else {
+                    console.error('Erreur lors de la récupération des données utilisateur:', response.status);
+                }
+            } catch (error) {
+                console.error('Erreur lors de la récupération des données utilisateur:', error);
+            }
+        };
+
         const fetchEvents = async () => {
             try {
                 setLoading(true);
@@ -65,7 +98,13 @@ export default function Evenements() {
             }
         };
 
-        fetchEvents();
+        // Récupération des données utilisateur puis des événements
+        const initializeData = async () => {
+            await fetchUser();
+            await fetchEvents();
+        };
+
+        initializeData();
     }, []);
 
     const fetchRegisteredEvents = async () => {
