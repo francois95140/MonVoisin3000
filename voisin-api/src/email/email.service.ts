@@ -30,4 +30,8 @@ export class EmailService {
     });
   }
 
+  async sendMail(options: any) {
+    return await this.mailerService.sendMail(options);
+  }
+
 }

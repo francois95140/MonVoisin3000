@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ServiceType } from '../service.entity';
+import { ServiceType } from '../entities/service.entity';
 import { ApiProperty } from '@nestjs/swagger';
 
 // Zod schema for validation

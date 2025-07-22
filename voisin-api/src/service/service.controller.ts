@@ -4,7 +4,7 @@ import { createServiceSchema, CreateServiceDto } from './dto/create-service.dto'
 import { updateServiceSchema, UpdateServiceDto } from './dto/update-service.dto';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 import { filterServiceSchema, FilterServiceDto } from './dto/filter-service.dto';
-import { Service } from './service.entity';
+import { Service } from './entities/service.entity';
 import { User } from 'src/user/entities/user.entity';
 import { GetUser } from 'src/auth/decorators/user.decorator';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
@@ -20,8 +20,7 @@ export class ServiceController {
   @ApiBody({ type: CreateServiceDto })
   @ApiResponse({ status: 201, description: 'Service successfully created', type: Service })
   @ApiResponse({ status: 400, description: 'Bad request' })
-  @UsePipes(new ZodValidationPipe(createServiceSchema))
-  create(@Body() createServiceDto: CreateServiceDto, @GetUser() user: User) {
+  create(@Body(new ZodValidationPipe(createServiceSchema)) createServiceDto: CreateServiceDto, @GetUser() user: User) {
     return this.serviceService.create(createServiceDto, user.id);
   }
 
@@ -36,8 +35,7 @@ export class ServiceController {
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiResponse({ status: 200, description: 'Return all services with pagination' })
-  @UsePipes(new ZodValidationPipe(filterServiceSchema))
-  findAll(@Query() filters: FilterServiceDto): Promise<{ items: Service[]; total: number; page: number; limit: number }> 
+  findAll(@Query(new ZodValidationPipe(filterServiceSchema)) filters: FilterServiceDto): Promise<{ items: Service[]; total: number; page: number; limit: number }> 
   {
     return this.serviceService.findAll(filters);
   }
