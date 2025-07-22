@@ -62,6 +62,6 @@ public class MainController implements Initializable {
 
     @FXML
     private void ouvrirGestionnairePlugins(MouseEvent event) {
-        Main.changeScene("Plugins", new PluginController(), "Gestion des plugins");
+        //Main.changeScene("Plugins", new PluginController(), "Gestion des plugins");
     }
 }
