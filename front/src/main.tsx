@@ -1,11 +1,11 @@
-import { BrowserRouter, Routes, Route, Outlet, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Outlet, Navigate, useLocation } from "react-router-dom";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import Home from "./home/Home";
 import Connexion from "./auth/Connexion";
 import Inscription from "./auth/Inscription";
-import Actualites from "./auth/Inscription";
+import Actualites from "./auth/Inscription"; // ⚠️ Vérifier ce composant
 import Trock from "./trock/Trock";
 import Evenements from "./section/evenements/Evenements";
 import Messages from "./auth/Inscription";
@@ -17,23 +17,37 @@ import ProfilePage from "./profile/Profile";
 import EditUser from "./auth/Edit";
 import News from "./news/News";
 
-const hasUserToken = sessionStorage.getItem("UserToken");
-const profileImage = sessionStorage.getItem("UserImage");
-const pseudo = sessionStorage.getItem("UserPseudo") || "Utilisateur";
-const isPublicRoute = window.location.pathname === "/connexion" || window.location.pathname === "/inscription" || window.location.pathname === "/";
+// Définit le basename pour React Router
+const basename = '/';
 
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <BrowserRouter>
-      {!hasUserToken && !isPublicRoute && <UserHeader
-        profileImage={profileImage || ""}
-        pseudo={pseudo}
-       />}
+// Composant pour gérer l'affichage conditionnel
+function AppLayout() {
+  const location = useLocation();
+  const hasUserToken = sessionStorage.getItem("UserToken");
+  const profileImage = sessionStorage.getItem("UserImage");
+  const pseudo = sessionStorage.getItem("UserPseudo") || "Utilisateur";
+  
+  // Routes publiques (sans basename car useLocation le gère automatiquement)
+  const isPublicRoute = location.pathname === "/" || 
+                       location.pathname === "/connexion" || 
+                       location.pathname === "/inscription";
+
+  return (
+    <>
+      {hasUserToken && !isPublicRoute && (
+        <UserHeader
+          profileImage={profileImage || ""}
+          pseudo={pseudo}
+        />
+      )}
+      
       <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/connexion" element={<Connexion />} />
-      <Route path="/inscription" element={<Inscription />} />
-        {!hasUserToken ? (
+        <Route path="/" element={<Home />} />
+        <Route path="/connexion" element={<Connexion />} />
+        <Route path="/inscription" element={<Inscription />} />
+        
+        {hasUserToken ? (
+          // Routes protégées (utilisateur connecté)
           <>
             <Route path="/news" element={<News />} />
             <Route path="/profile" element={<ProfilePage />} />
@@ -45,10 +59,20 @@ createRoot(document.getElementById("root")!).render(
             <Route path="/carte" element={<Map />} />
           </>
         ) : (
+          // Redirection si pas connecté
           <Route path="*" element={<Navigate to="/connexion" replace />} />
         )}
       </Routes>
-      {!hasUserToken && !isPublicRoute && <Navbar />}
+      
+      {hasUserToken && !isPublicRoute && <Navbar />}
+    </>
+  );
+}
+
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    <BrowserRouter basename={basename}>
+      <AppLayout />
     </BrowserRouter>
   </StrictMode>
 );
