@@ -44,15 +44,11 @@ async function handleConnexion(event: React.FormEvent<HTMLFormElement>) {
         }
       }
       
-      // Stockage des informations utilisateur
-      if (data.user) {
-        localStorage.setItem("user", JSON.stringify(data.user));
-      }
       
       alert("Connexion réussie !");
       
       // Redirection vers la page d'accueil ou dashboard
-      window.location.href = "/";
+      window.location.href = "/evenements";
       
     } else {
       const errorData = await response.json();

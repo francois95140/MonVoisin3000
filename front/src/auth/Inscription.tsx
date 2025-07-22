@@ -1,7 +1,7 @@
 import { NavLink } from "react-router-dom";
 const apiUrl = import.meta.env.VITE_API_URL;
 import "./Inscription.css";
-async function handleInscription(event: React.FormEvent<HTMLFormElement>) {
+async function handleInscription(event: React.FormEvent<HTMLFormElement>, isInscription: boolean = true, initialUserData: UserData = {}) {
   event.preventDefault();
   
   const formData = new FormData(event.currentTarget);
@@ -47,13 +47,27 @@ async function handleInscription(event: React.FormEvent<HTMLFormElement>) {
       }
     }
 
-    // Envoi des données d'inscription
-    const response = await fetch(`${apiUrl}/auth/register`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+    // Préparation des headers
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+    };
+
+    // Ajout du token d'authentification pour la modification
+    if (!isInscription) {
+      const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+      if (!token) {
+        alert('Session expirée. Veuillez vous reconnecter.');
+        return;
+      }
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    // Préparation du body selon le mode
+    let bodyData: any;
+    
+    if (isInscription) {
+      // Pour l'inscription, envoyer toutes les données
+      bodyData = {
         tag: formValues.tag,
         email: formValues.email,
         password: formValues.password,
@@ -62,12 +76,48 @@ async function handleInscription(event: React.FormEvent<HTMLFormElement>) {
         bio: formValues.bio,
         phoneNumber: formValues.phoneNumber,
         quartier: "quartier",
-        address: {
-          street: formValues.rue,
-          postalCode: formValues.codePostal,
-          city: formValues.ville,
-          fullAddress: formValues.adresse
-        }
+        rue: formValues.rue,
+        cp: formValues.codePostal,
+        fullAddress: formValues.adresse
+      };
+    } else {
+      // Pour la modification, ne envoyer que les champs modifiés
+      bodyData = {};
+      
+      // Fonction pour comparer les valeurs en traitant null, undefined et chaînes vides comme équivalentes
+      const hasChanged = (newValue: string, oldValue: string | undefined) => {
+        const normalizeValue = (val: string | undefined | null) => val || '';
+        return normalizeValue(newValue) !== normalizeValue(oldValue);
+      };
+      
+      // Comparaison et ajout des champs modifiés
+      if (hasChanged(formValues.tag, initialUserData.tag)) bodyData.tag = formValues.tag;
+      if (hasChanged(formValues.email, initialUserData.email)) bodyData.email = formValues.email;
+      if (hasChanged(formValues.pseudo, initialUserData.pseudo)) bodyData.pseudo = formValues.pseudo;
+      if (hasChanged(formValues.bio, initialUserData.bio)) bodyData.bio = formValues.bio;
+      if (hasChanged(formValues.phoneNumber, initialUserData.phone)) bodyData.phoneNumber = formValues.phoneNumber;
+      if (hasChanged(formValues.rue, initialUserData.rue)) bodyData.rue = formValues.rue;
+      if (hasChanged(formValues.codePostal, initialUserData.codePostal)) bodyData.cp = formValues.codePostal;
+      if (hasChanged(formValues.adresse, initialUserData.address)) bodyData.fullAddress = formValues.adresse;
+      
+      // Si aucun champ n'a été modifié, informer l'utilisateur
+      if (Object.keys(bodyData).length === 0) {
+        alert("Aucune modification détectée.");
+        return;
+      }
+      
+      console.log("Champs modifiés:", bodyData);
+    }
+
+    // Envoi des données
+    const url = isInscription ? `${apiUrl}/auth/register` : `${apiUrl}/users/me`;
+    const method = isInscription ? "POST" : "PATCH";
+    
+    const response = await fetch(url, {
+      method,
+      headers,
+      body: JSON.stringify({...bodyData,
+        cp: bodyData.codePostal,
       }),
     });
 
@@ -75,18 +125,33 @@ async function handleInscription(event: React.FormEvent<HTMLFormElement>) {
 
     if (response.ok) {
       const data = await response.json();
-      console.log("Inscription réussie:", data);
+      console.log(isInscription ? "Inscription réussie:" : "Modification réussie:", data);
       
-      // Redirection ou affichage d'un message de succès
-      alert("Inscription réussie ! Vous pouvez maintenant vous connecter.");
-      
-      // Optionnel: redirection vers la page de connexion
-      // window.location.href = "/connexion";
+      if (isInscription) {
+        // Redirection ou affichage d'un message de succès pour l'inscription
+        alert("Inscription réussie ! Vous pouvez maintenant vous connecter.");
+        // Optionnel: redirection vers la page de connexion
+        // window.location.href = "/connexion";
+      } else {
+        // Message de succès pour la modification
+        alert("Profil modifié avec succès !");
+        // Optionnel: redirection vers le profil
+        // window.location.href = "/profile";
+      }
       
     } else {
       const errorData = await response.json();
-      console.error("Erreur lors de l'inscription:", errorData);
-      alert(`Erreur lors de l'inscription: ${errorData.message || 'Une erreur est survenue'}`);
+      const action = isInscription ? "inscription" : "modification";
+      console.error(`Erreur lors de l'${action}:`, errorData);
+      
+      if (response.status === 401 && !isInscription) {
+        localStorage.removeItem('authToken');
+        sessionStorage.removeItem('authToken');
+        alert('Session expirée. Veuillez vous reconnecter.');
+        return;
+      }
+      
+      alert(`Erreur lors de l'${action}: ${errorData.message || 'Une erreur est survenue'}`);
     }
     
   } catch (error) {
@@ -95,14 +160,25 @@ async function handleInscription(event: React.FormEvent<HTMLFormElement>) {
   }
 }
 
-function Inscription({ isInscription = true }) {
+interface UserData {
+  pseudo?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  bio?: string;
+  tag?: string;
+  rue?: string;
+  codePostal?: string;
+}
+
+function Inscription({ isInscription = true, userData = {} }: { isInscription?: boolean; userData?: UserData }) {
   return (
     <>
       <section className="text-gray-600 body-font flex flex-col justify-center items-center">
         <h1 className="text-3xl font-semibold my-5">{isInscription ? "Inscription" : "Modification"}</h1>
         <div className="container px-5 py-6 mx-auto flex flex-wrap items-center justify-center">
           <form
-            onSubmit={handleInscription}
+            onSubmit={(e) => handleInscription(e, isInscription, userData)}
             className="lg:w-2/5 md:w-1/2 bg-gray-100 rounded-lg p-8 flex flex-col w-full mt-0 justify-center"
           >
             <h2 className="text-gray-900 text-lg font-medium title-font mb-5">
@@ -182,6 +258,7 @@ function Inscription({ isInscription = true }) {
                 type="text"
                 id="pseudo"
                 name="pseudo"
+                defaultValue={userData.pseudo || ''}
                 className="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
               />
             </div>
@@ -193,6 +270,7 @@ function Inscription({ isInscription = true }) {
                 type="text"
                 id="tag"
                 name="tag"
+                defaultValue={userData.tag || ''}
                 className="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
               />
             </div>
@@ -204,6 +282,7 @@ function Inscription({ isInscription = true }) {
                 type="tel"
                 id="tel"
                 name="tel"
+                defaultValue={userData.phone || ''}
                 className="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
               />
             </div>
@@ -218,6 +297,7 @@ function Inscription({ isInscription = true }) {
                 type="email"
                 id="email"
                 name="email"
+                defaultValue={userData.email || ''}
                 className="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
               />
             </div>
@@ -232,6 +312,7 @@ function Inscription({ isInscription = true }) {
                 type="text"
                 id="adresse"
                 name="adresse"
+                defaultValue={userData.address || ''}
                 onChange={(e) => {
                   if (e.target.value.length > 3) {
                     fetch(
@@ -258,20 +339,17 @@ function Inscription({ isInscription = true }) {
                               '<hr class="border-t mx-5 border-3 border-indigo-500 my-4"/>'
                             );
 
-                          document.getElementById("rue").value = data.features[0].properties.name;
-                          document.getElementById("cp").value = data.features[0].properties.postcode;
-                          document.getElementById("ville").value = data.features[0].properties.city;
-
-
+                          userData.rue = data.features[0].properties.name;
+                          userData.codePostal = data.features[0].properties.postcode;
+                          userData.address = data.features[0].properties.label;
                         }
                       });
                   }
                 }}
                 className="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
               />
-              <input type="hidden" name="rue" id="rue" />
-              <input type="hidden" name="cp" id="cp" />
-              <input type="hidden" name="ville" id="ville" />
+              <input type="hidden" name="rue" id="rue" defaultValue={userData.rue || ''} />
+              <input type="hidden" name="cp" id="cp" defaultValue={userData.codePostal || ''} />
 
             </div>
             <div className="mb-4">
@@ -289,6 +367,7 @@ function Inscription({ isInscription = true }) {
               <textarea
                 id="bio"
                 name="bio"
+                defaultValue={userData.bio || ''}
                 className="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
                 maxLength={700}
               ></textarea>

@@ -10,6 +10,7 @@ import Trock from "./trock/Trock";
 import Evenements from "./section/evenements/Evenements";
 import Messages from "./auth/Inscription";
 import Carte from "./auth/Inscription";
+import Map from "./section/carte/Carte";
 import UserHeader from "./UI/head";
 import Navbar from "./UI/navbar";
 import ProfilePage from "./profile/Profile";
@@ -41,7 +42,7 @@ createRoot(document.getElementById("root")!).render(
             <Route path="/trock" element={<Trock />} />
             <Route path="/evenements" element={<Evenements />} />
             <Route path="/messages" element={<Messages />} />
-            <Route path="/carte" element={<Carte />} />
+            <Route path="/carte" element={<Map />} />
           </>
         ) : (
           <Route path="*" element={<Navigate to="/connexion" replace />} />
