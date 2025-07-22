@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Rectangle?>
+
+<Pane prefHeight="700.0" prefWidth="1000.0" style="-fx-background-color: linear-gradient(to bottom, #1a1a2e 0%, #16213e 50%, #0f3460 100%);" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <!-- Background decorative elements -->
+        <Rectangle arcHeight="50.0" arcWidth="50.0" fill="#ffffff08" height="120.0" layoutX="850.0" layoutY="550.0" rotate="15.0" width="120.0" />
+        <Rectangle arcHeight="30.0" arcWidth="30.0" fill="#ffffff05" height="80.0" layoutX="50.0" layoutY="580.0" rotate="-20.0" width="80.0" />
+        <Rectangle arcHeight="40.0" arcWidth="40.0" fill="#ffffff06" height="100.0" layoutX="900.0" layoutY="100.0" rotate="25.0" width="100.0" />
+        <Rectangle arcHeight="60.0" arcWidth="60.0" fill="#ffffff06" height="140.0" layoutX="100.0" layoutY="150.0" rotate="-10.0" width="140.0" />
+
+        <!-- Header with dark glassmorphism effect -->
+        <Pane layoutY="0.0" prefHeight="80.0" prefWidth="1000.0" style="-fx-background-color: #00000040; -fx-border-color: #ffffff15; -fx-border-width: 0 0 1 0;">
+            <children>
+                <!-- Logo container with hover effect -->
+                <Pane layoutX="20.0" layoutY="15.0" onMouseClicked="#retourAccueil" style="-fx-cursor: hand; -fx-background-color: #ffffff10; -fx-background-radius: 25; -fx-padding: 10;">
+                    <children>
+                        <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="@../../assets/icone.png" />
+                            </image>
+                        </ImageView>
+                    </children>
+                    <effect>
+                        <DropShadow color="#00000060" radius="10.0" />
+                    </effect>
+                </Pane>
+
+                <!-- Title with modern typography -->
+                <Label layoutX="90.0" layoutY="20.0" style="-fx-font-family: sans-serif; -fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-font-size: 32px;" text="Actualités Ma Ville">
+                    <effect>
+                        <DropShadow color="#00000040" radius="3.0" />
+                    </effect>
+                </Label>
+
+                <!-- Subtitle -->
+                <Label fx:id="villeSelectionnee" layoutX="90.0" layoutY="50.0" opacity="0.8" style="-fx-font-family: sans-serif; -fx-text-fill: #cccccc; -fx-font-size: 14px;" text="Articles pour Paris">
+                </Label>
+
+                <!-- Back button -->
+                <Pane layoutX="840.0" layoutY="10.0" onMouseClicked="#retourDashboard" prefHeight="60.0" prefWidth="60.0" style="-fx-cursor: hand; -fx-background-color: #4a69bd40; -fx-background-radius: 25; -fx-padding: 10;">
+                    <children>
+                        <ImageView fitHeight="40.0" fitWidth="40.0" layoutX="10.0" layoutY="10.0" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="@../../assets/back.png" />
+                            </image>
+                        </ImageView>
+                    </children>
+                    <effect>
+                        <DropShadow color="#00000060" radius="10.0" />
+                    </effect>
+                </Pane>
+
+                <!-- Logout button -->
+                <Pane layoutX="920.0" layoutY="10.0" onMouseClicked="#deconnexion" prefHeight="60.0" prefWidth="60.0" style="-fx-cursor: hand; -fx-background-color: #4a69bd40; -fx-background-radius: 25; -fx-padding: 10;">
+                    <children>
+                        <ImageView fitHeight="40.0" fitWidth="40.0" layoutX="10.0" layoutY="10.0" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="@../../assets/logout.png" />
+                            </image>
+                        </ImageView>
+                    </children>
+                    <effect>
+                        <DropShadow color="#00000060" radius="10.0" />
+                    </effect>
+                </Pane>
+            </children>
+        </Pane>
+
+        <!-- Main content area with city title and articles -->
+        <VBox alignment="TOP_CENTER" fillWidth="false" layoutY="90.0" prefHeight="600.0" prefWidth="1000.0" spacing="20.0">
+            <children>
+                <!-- City title section -->
+                <Pane prefHeight="120.0" prefWidth="950.0" style="-fx-background-color: #1e1e2e90; -fx-background-radius: 20;">
+                    <children>
+                        <VBox alignment="CENTER" fillWidth="false" prefHeight="120.0" prefWidth="950.0" spacing="10.0">
+                            <children>
+                                <!-- City icon and title -->
+                                <HBox alignment="CENTER" spacing="20.0">
+                                    <children>
+                                        <ImageView fitHeight="60.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true">
+                                            <image>
+                                                <Image url="@../../assets/loc.png" />
+                                            </image>
+                                        </ImageView>
+                                        <VBox alignment="CENTER_LEFT" spacing="5.0">
+                                            <children>
+                                                <Label fx:id="nomVilleTitre" style="-fx-font-family: sans-serif; -fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-font-size: 32px;" text="Actualités de Paris">
+                                                </Label>
+                                                <HBox alignment="CENTER_LEFT" spacing="15.0">
+                                                    <children>
+                                                        <Label fx:id="nombreArticles" style="-fx-font-family: sans-serif; -fx-text-fill: #cccccc; -fx-font-size: 14px;" text="12 articles trouvés">
+                                                        </Label>
+                                                        <Label fx:id="derniereMAJ" style="-fx-font-family: sans-serif; -fx-text-fill: #cccccc; -fx-font-size: 14px;" text="Dernière mise à jour : il y a 5 min">
+                                                        </Label>
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+                    </children>
+                    <effect>
+                        <DropShadow color="#00000040" radius="15.0" />
+                    </effect>
+                </Pane>
+
+                <!-- Articles scroll container -->
+                <ScrollPane fitToWidth="true" prefHeight="460.0" prefWidth="950.0" style="-fx-background: #1a1a2e40; -fx-background-color: #1a1a2e40; -fx-background-radius: 15;">
+                    <content>
+                        <VBox fx:id="articlesContainer" alignment="TOP_CENTER" spacing="15.0" style="-fx-padding: 10px; -fx-background-color: transparent;">
+                            <children>
+
+                            </children>
+                        </VBox>
+                    </content>
+                </ScrollPane>
+            </children>
+        </VBox>
+    </children>
+</Pane>

@@ -8,29 +8,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.time.LocalDateTime;
 
-/**
- * Repository pour la gestion des utilisateurs
- * Utilise PostgreSQL via le module Bdd et BCrypt pour les mots de passe
- */
+
 public class UserRepository {
 
     private static final String DATABASE = "postgres";
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final int MAX_TAG_LENGTH = 20;
 
-    /**
-     * Méthode de connexion - vérifie email et mot de passe
-     * @param email Email de l'utilisateur
-     * @param password Mot de passe en clair
-     * @return User si connexion réussie, null sinon
-     */
     public static User connect(String email, String password) {
         if (email == null || password == null || email.trim().isEmpty() || password.trim().isEmpty()) {
             return null;
         }
 
         try {
-            // Requête pour récupérer l'utilisateur par email
             String query = String.format(
                     "SELECT * FROM users WHERE email = '%s' AND isActive = TRUE AND deletedAt IS NULL",
                     email.replace("'", "''")
@@ -39,18 +29,17 @@ public class UserRepository {
             String result = Bdd.request(DATABASE, query);
             System.out.println("retour: "+result);
 
-            if (result == null || result.contains("Erreur") || result.trim().isEmpty() || result.equals("[]")) {
+            if (result == null || result.contains("erreur") || result.trim().isEmpty() || result.equals("[]")) {
                 return null;
             }
 
-            // Parser le résultat JSON
+            // parser le résultat JSON
             System.out.println("parsage du json en cours");
             JsonNode jsonResult = objectMapper.readTree(result);
             if (jsonResult.isArray() && jsonResult.size() > 0) {
                 JsonNode userNode = jsonResult.get(0);
                 String storedHash = userNode.get("password").asText();
 
-                // Vérifier le mot de passe avec BCrypt
                 System.out.println("verrification du mot de passe: "+password+"avec le hash: "+storedHash);
                 if (Security.checkBcrypt(password, storedHash)) {
                     System.out.println("mot de passe correct");
@@ -60,6 +49,8 @@ public class UserRepository {
                     updateLastLogin(user.getId());
                     user.setLastLogin(LocalDateTime.now());
 
+                    updateLastLogin(user.getId());
+
                     return user;
                 }
                 System.out.println("mot de passe incorrect");
@@ -68,7 +59,7 @@ public class UserRepository {
             return null;
 
         } catch (Exception e) {
-            System.err.println("Erreur lors de la connexion: " + e.getMessage());
+            System.out.println("erreur lors de la connexion: " + e.getMessage());
             return null;
         }
     }
@@ -87,7 +78,7 @@ public class UserRepository {
             System.out.println(query);
             Bdd.request(DATABASE, query);
         } catch (Exception e) {
-            System.err.println("Erreur lors de la mise à jour de lastLogin: " + e.getMessage());
+            System.out.println("erreur lors de la mise à jour de lastLogin: " + e.getMessage());
         }
     }
 
@@ -151,7 +142,7 @@ public class UserRepository {
                 }
             }
         } catch (Exception e) {
-            System.err.println("Erreur lors du parsing des dates: " + e.getMessage());
+            System.out.println("erreur lors du parsing des dates: " + e.getMessage());
         }
 
         return user;

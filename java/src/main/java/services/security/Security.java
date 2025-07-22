@@ -30,9 +30,7 @@ public class Security {
         }
     }
 
-    public static String encrypt(String value) {
-        return encrypt(value, defaultKey);
-    }
+    public static String encrypt(String value) {return encrypt(value, defaultKey);}
 
     public static String decrypt(String encryptedValue, String key) {
         try {
@@ -46,13 +44,9 @@ public class Security {
         }
     }
 
-    public static String decrypt(String value) {
-        return decrypt(value, defaultKey);
-    }
+    public static String decrypt(String value) {return decrypt(value, defaultKey);}
 
-    public static void setDefaultKey(String defaultKey) {
-        Security.defaultKey = defaultKey;
-    }
+    public static void setDefaultKey(String defaultKey) {Security.defaultKey = defaultKey;}
 
     private static String generateSalt() {
         SecureRandom secureRandom = new SecureRandom();
@@ -85,9 +79,7 @@ public class Security {
         }
     }
 
-    public static String getSaltOfHash(String hash) {
-        return hash.substring(hash.length() - (Integer.parseInt(Env.dotenv.get("SALT_SIZE")) * 2));
-    }
+    public static String getSaltOfHash(String hash) {return hash.substring(hash.length() - (Integer.parseInt(Env.dotenv.get("SALT_SIZE")) * 2));}
 
     public static boolean textEqualHash(String text, String hash) {
         String salt = getSaltOfHash(hash);
@@ -104,31 +96,10 @@ public class Security {
         return code.toString();
     }
 
-    /**
-     * Crée un hash bcrypt pour un mot de passe
-     * @param password le mot de passe à hasher
-     * @return le hash bcrypt
-     */
-    public static String hashBcrypt(String password) {
-        return BCrypt.hashpw(password, BCrypt.gensalt());
-    }
+    public static String hashBcrypt(String password) {return BCrypt.hashpw(password, BCrypt.gensalt());}
 
-    /**
-     * Crée un hash bcrypt pour un mot de passe avec un coût spécifique
-     * @param password le mot de passe à hasher
-     * @param rounds le nombre de rounds (coût) pour bcrypt (entre 4 et 31)
-     * @return le hash bcrypt
-     */
-    public static String hashBcrypt(String password, int rounds) {
-        return BCrypt.hashpw(password, BCrypt.gensalt(rounds));
-    }
+    public static String hashBcrypt(String password, int rounds) {return BCrypt.hashpw(password, BCrypt.gensalt(rounds));}
 
-    /**
-     * Compare un mot de passe en clair avec un hash bcrypt
-     * @param password le mot de passe en clair à vérifier
-     * @param hash le hash bcrypt stocké
-     * @return true si le mot de passe correspond au hash, false sinon
-     */
     public static boolean checkBcrypt(String password, String hash) {
         try {
             // Vérifications de base
@@ -153,7 +124,7 @@ public class Security {
             return BCrypt.checkpw(password, hash);
 
         } catch (Exception e) {
-            System.out.println("Erreur BCrypt: " + e.getMessage());
+            System.out.println("erreur BCrypt: " + e.getMessage());
             return false;
         }
     }
