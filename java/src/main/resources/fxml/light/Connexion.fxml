@@ -27,7 +27,7 @@
                     <children>
                         <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
                             <image>
-                                <Image url="@../assets/icone.png" />
+                                <Image url="@../../assets/icone.png" />
                             </image>
                         </ImageView>
                     </children>
@@ -37,14 +37,14 @@
                 </Pane>
 
                 <!-- Title with modern typography -->
-                <Label layoutX="90.0" layoutY="20.0" text="Actualités Ma Ville" style="-fx-text-fill: #333333; -fx-font-weight: bold; -fx-font-size: 32px;">
+                <Label layoutX="90.0" layoutY="20.0" style="-fx-text-fill: #333333; -fx-font-weight: bold; -fx-font-size: 32px;" text="Actualités Ma Ville">
                     <effect>
                         <DropShadow color="#00000020" radius="3.0" />
                     </effect>
                 </Label>
 
                 <!-- Subtitle -->
-                <Label layoutX="90.0" layoutY="50.0" opacity="0.8" text="Portail de connexion" style="-fx-text-fill: #555555; -fx-font-size: 14px;">
+                <Label layoutX="90.0" layoutY="50.0" opacity="0.8" style="-fx-text-fill: #555555; -fx-font-size: 14px;" text="Portail de connexion">
                 </Label>
 
                 <!-- Login icon with modern styling -->
@@ -52,7 +52,7 @@
                     <children>
                         <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
                             <image>
-                                <Image url="@../assets/login.png" />
+                                <Image url="@../../assets/login.png" />
                             </image>
                         </ImageView>
                     </children>
@@ -70,17 +70,17 @@
                     <children>
                         <VBox alignment="CENTER" fillWidth="false" prefHeight="450.0" prefWidth="330.0" spacing="20.0">
                             <children>
-                                <Label alignment="CENTER" prefHeight="30.0" prefWidth="240.0" text="Bienvenue !" style="-fx-text-fill: #fefefe; -fx-font-weight: bold; -fx-font-size: 26px;">
+                                <Label alignment="CENTER" prefHeight="30.0" prefWidth="240.0" style="-fx-text-fill: #fefefe; -fx-font-weight: bold; -fx-font-size: 26px;" text="Bienvenue !">
                                 </Label>
-                                <Label alignment="CENTER" prefHeight="100.0" prefWidth="240.0" text="Connectez-vous pour accéder aux dernières actualités de votre ville et rester informé des événements locaux." textAlignment="CENTER" wrapText="true" style="-fx-text-fill: #fefefe; -fx-font-size: 16px;">
+                                <Label alignment="CENTER" prefHeight="100.0" prefWidth="240.0" style="-fx-text-fill: #fefefe; -fx-font-size: 16px;" text="Connectez-vous pour accéder aux dernières actualités de votre ville et rester informé des événements locaux." textAlignment="CENTER" wrapText="true">
                                 </Label>
                                 <ImageView fitHeight="102.0" fitWidth="127.0" pickOnBounds="true" preserveRatio="true">
                                     <image>
-                                        <Image url="@../assets/icone.png" />
+                                        <Image url="@../../assets/icone.png" />
                                     </image>
                                 </ImageView>
 
-                                <Label alignment="CENTER" prefHeight="80.0" prefWidth="240.0" text="• Actualités en temps réel&#10;• Événements communautaires&#10;• Alertes importantes" textAlignment="CENTER" wrapText="true" style="-fx-text-fill: #fefefe; -fx-font-size: 14px;">
+                                <Label alignment="CENTER" prefHeight="80.0" prefWidth="240.0" style="-fx-text-fill: #fefefe; -fx-font-size: 14px;" text="• Actualités en temps réel&#10;• Événements communautaires&#10;• Alertes importantes" textAlignment="CENTER" wrapText="true">
                                 </Label>
                             </children>
                         </VBox>
@@ -96,11 +96,11 @@
                         <VBox alignment="CENTER" fillWidth="false" prefHeight="450.0" prefWidth="330.0" spacing="15.0">
                             <children>
                                 <!-- Login title -->
-                                <Label alignment="CENTER" prefHeight="40.0" prefWidth="330.0" text="Connexion" style="-fx-text-fill: #333333; -fx-font-weight: bold; -fx-font-size: 28px;">
+                                <Label alignment="CENTER" prefHeight="40.0" prefWidth="330.0" style="-fx-text-fill: #333333; -fx-font-weight: bold; -fx-font-size: 28px;" text="Connexion">
                                 </Label>
 
                                 <!-- Welcome subtitle -->
-                                <Label alignment="CENTER" opacity="0.7" prefHeight="20.0" prefWidth="330.0" text="Accédez à votre compte" style="-fx-text-fill: #666666; -fx-font-size: 14px;">
+                                <Label alignment="CENTER" opacity="0.7" prefHeight="20.0" prefWidth="330.0" style="-fx-text-fill: #666666; -fx-font-size: 14px;" text="Accédez à votre compte">
                                 </Label>
 
                                 <!-- Email field with modern styling -->
@@ -109,7 +109,7 @@
                                         <DropShadow color="#00000010" radius="5.0" />
                                     </effect>
                                     <children>
-                                        <Label layoutX="15.0" layoutY="5.0" text="E-mail" style="-fx-text-fill: #6c757d; -fx-font-size: 12px;">
+                                        <Label layoutX="15.0" layoutY="5.0" style="-fx-text-fill: #6c757d; -fx-font-size: 12px;" text="E-mail">
                                         </Label>
                                         <TextField fx:id="email" layoutX="10.0" layoutY="20.0" prefHeight="30.0" prefWidth="220.0" promptText="votre.email@exemple.com" style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 5px; -fx-font-size: 14px;">
                                         </TextField>
@@ -119,7 +119,7 @@
                                 <!-- Password field with modern styling -->
                                 <Pane prefHeight="60.0" prefWidth="240.0" style="-fx-background-color: #f8f9fa; -fx-background-radius: 10; -fx-border-color: #e9ecef; -fx-border-radius: 10; -fx-border-width: 1;">
                                     <children>
-                                        <Label layoutX="15.0" layoutY="5.0" text="Mot de passe" style="-fx-text-fill: #6c757d; -fx-font-size: 12px;">
+                                        <Label layoutX="15.0" layoutY="5.0" style="-fx-text-fill: #6c757d; -fx-font-size: 12px;" text="Mot de passe">
                                         </Label>
                                         <PasswordField fx:id="mdp" layoutX="10.0" layoutY="20.0" prefHeight="30.0" prefWidth="220.0" promptText="Votre mot de passe" style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 5px; -fx-font-size: 14px;">
                                         </PasswordField>
@@ -130,39 +130,18 @@
                                 </Pane>
 
                                 <!-- Login button -->
-                                <Button onMouseClicked="#connexion" prefHeight="50.0" prefWidth="240.0" text="Se connecter"
-                                        style="-fx-background-color: linear-gradient(to right, #667eea, #764ba2);
-                                           -fx-background-radius: 25;
-                                           -fx-border-radius: 25;
-                                           -fx-cursor: hand;
-                                           -fx-font-weight: bold;
-                                           -fx-text-fill: white;
-                                           -fx-font-size: 16px;">
+                                <Button onMouseClicked="#connexion" prefHeight="50.0" prefWidth="240.0" style="-fx-background-color: linear-gradient(to right, #667eea, #764ba2);                                            -fx-background-radius: 25;                                            -fx-border-radius: 25;                                            -fx-cursor: hand;                                            -fx-font-weight: bold;                                            -fx-text-fill: white;                                            -fx-font-size: 16px;" text="Se connecter">
                                     <effect>
                                         <DropShadow color="#667eea60" radius="15.0" />
                                     </effect>
                                 </Button>
 
                                 <!-- Register button -->
-                                <Button prefHeight="40.0" prefWidth="240.0" text="Créer un compte"
-                                        style="-fx-background-color: transparent;
-                                           -fx-border-color: #667eea;
-                                           -fx-border-width: 2;
-                                           -fx-border-radius: 20;
-                                           -fx-background-radius: 20;
-                                           -fx-cursor: hand;
-                                           -fx-text-fill: #667eea;
-                                           -fx-font-weight: bold;
-                                           -fx-font-size: 14px;">
+                                <Button onMouseClicked="#inscription" prefHeight="50.0" prefWidth="240.0" style="-fx-background-color: transparent;                                            -fx-border-color: #667eea;                                            -fx-border-width: 2;                                            -fx-border-radius: 20;                                            -fx-background-radius: 20;                                            -fx-cursor: hand;                                            -fx-text-fill: #667eea;                                            -fx-font-weight: bold;                                            -fx-font-size: 14px;" text="Créer un compte">
                                 </Button>
 
                                 <!-- Forgot password button -->
-                                <Button onAction="#forgotpass" prefHeight="35.0" prefWidth="200.0" text="Mot de passe oublié ?"
-                                        style="-fx-background-color: transparent;
-                                           -fx-cursor: hand;
-                                           -fx-underline: true;
-                                           -fx-text-fill: #667eea;
-                                           -fx-font-size: 12px;">
+                                <Button onAction="#forgotpass" prefHeight="35.0" prefWidth="200.0" style="-fx-background-color: transparent;                                            -fx-cursor: hand;                                            -fx-underline: true;                                            -fx-text-fill: #667eea;                                            -fx-font-size: 12px;" text="Mot de passe oublié ?">
                                 </Button>
                             </children>
                         </VBox>

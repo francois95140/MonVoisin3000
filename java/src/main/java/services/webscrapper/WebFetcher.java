@@ -35,23 +35,20 @@ public class WebFetcher {
                     requestBuilder.header(key, value);
                 }
             } catch (IllegalArgumentException e) {
-                // Ignorer silencieusement les headers restreints
-                System.out.println("⚠️ Header restreint ignoré: " + key);
+                System.out.println("Header restreint ignoré: " + key);
             }
         });
 
         HttpRequest request = requestBuilder.build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        // Gestion des codes de statut HTTP
         int statusCode = response.statusCode();
         if (statusCode >= 200 && statusCode < 300) {
             return response.body();
         } else if (statusCode >= 300 && statusCode < 400) {
-            // Redirection non gérée automatiquement
             String location = response.headers().firstValue("Location").orElse("");
             if (!location.isEmpty()) {
-                System.out.println("🔄 Redirection vers: " + location);
+                System.out.println("Redirection vers: " + location);
                 return fetch(location, headers);
             }
             throw new IOException("HTTP " + statusCode + " - Redirection sans location");
@@ -64,9 +61,6 @@ public class WebFetcher {
         }
     }
 
-    /**
-     * Version simplifiée avec headers par défaut
-     */
     public String fetch(String url) throws IOException, InterruptedException {
         Map<String, String> defaultHeaders = Map.of(
                 "User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -76,16 +70,13 @@ public class WebFetcher {
         return fetch(url, defaultHeaders);
     }
 
-    /**
-     * Fetch avec retry automatique
-     */
     public String fetchWithRetry(String url, Map<String, String> headers, int maxRetries) throws IOException, InterruptedException {
         IOException lastException = null;
 
         for (int attempt = 1; attempt <= maxRetries; attempt++) {
             try {
                 if (attempt > 1) {
-                    System.out.println("🔄 Tentative " + attempt + "/" + maxRetries + " pour: " + url);
+                    System.out.println("Tentative " + attempt + "/" + maxRetries + " pour: " + url);
                     // Délai exponentiel entre les tentatives
                     Thread.sleep(1000 * attempt);
                 }
@@ -94,7 +85,7 @@ public class WebFetcher {
 
             } catch (IOException e) {
                 lastException = e;
-                System.err.println("❌ Tentative " + attempt + " échouée: " + e.getMessage());
+                System.out.println("❌ Tentative " + attempt + " échouée: " + e.getMessage());
 
                 if (attempt == maxRetries) {
                     break;
@@ -108,7 +99,7 @@ public class WebFetcher {
         }
 
         throw new IOException("Échec après " + maxRetries + " tentatives: " +
-                (lastException != null ? lastException.getMessage() : "Erreur inconnue"));
+                (lastException != null ? lastException.getMessage() : "erreur inconnue"));
     }
 
     public Document parseHtml(String html) {
@@ -118,9 +109,6 @@ public class WebFetcher {
         return Jsoup.parse(html);
     }
 
-    /**
-     * Parse HTML avec options Jsoup personnalisées
-     */
     public Document parseHtml(String html, String baseUri) {
         if (html == null || html.trim().isEmpty()) {
             throw new IllegalArgumentException("HTML content is null or empty");
@@ -128,14 +116,10 @@ public class WebFetcher {
         return Jsoup.parse(html, baseUri);
     }
 
-    /**
-     * Vérifie si un header HTTP est autorisé par HttpClient
-     */
+
     private boolean isAllowedHeader(String headerName) {
         // Headers restreints par HttpClient (liste non exhaustive)
-        String[] restrictedHeaders = {
-                "connection", "content-length", "expect", "host", "upgrade"
-        };
+        String[] restrictedHeaders = {"connection", "content-length", "expect", "host", "upgrade"};
 
         String lowerCaseHeader = headerName.toLowerCase();
 
@@ -147,16 +131,9 @@ public class WebFetcher {
         }
 
         // Headers commençant par "sec-" sont souvent restreints
-        if (lowerCaseHeader.startsWith("sec-")) {
-            return false;
-        }
-
-        return true;
+        return !lowerCaseHeader.startsWith("sec-");
     }
 
-    /**
-     * Retourne un message descriptif pour les codes de statut HTTP
-     */
     private String getStatusMessage(int statusCode) {
         return switch (statusCode) {
             case 400 -> "Bad Request";
@@ -173,10 +150,6 @@ public class WebFetcher {
         };
     }
 
-
-    /**
-     * Headers HTTP essentiels
-     */
     public static Map<String, String> createHeaders() {
         Map<String, String> headers = new HashMap<>();
         headers.put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
@@ -185,11 +158,4 @@ public class WebFetcher {
         return headers;
     }
 
-    /**
-     * Ferme le client HTTP (optionnel, pour nettoyage des ressources)
-     */
-    public void close() {
-        // HttpClient ne nécessite pas de fermeture explicite
-        // mais cette méthode est disponible pour la compatibilité
-    }
 }

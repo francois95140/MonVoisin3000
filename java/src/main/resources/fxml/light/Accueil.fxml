@@ -24,7 +24,7 @@
                <children>
                   <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
                      <image>
-                        <Image url="@../assets/icone.png" />
+                        <Image url="@../../assets/icone.png" />
                      </image>
                   </ImageView>
                </children>
@@ -49,7 +49,7 @@
                <children>
                   <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
                      <image>
-                        <Image url="@../assets/login.png" />
+                        <Image url="@../../assets/login.png" />
                      </image>
                   </ImageView>
                </children>
@@ -68,7 +68,7 @@
                <children>
                   <ImageView fitHeight="300.0" fitWidth="449.0" layoutX="15.0" layoutY="15.0" pickOnBounds="true" preserveRatio="true" style="-fx-background-radius: 10;">
                      <image>
-                        <Image url="@../assets/banner.png" />
+                        <Image url="@../../assets/banner.png" />
                      </image>
                   </ImageView>
                </children>

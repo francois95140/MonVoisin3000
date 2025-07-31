@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Rectangle?>
+
+<Pane prefHeight="700.0" prefWidth="1000.0" style="-fx-background-color: linear-gradient(to bottom, #1a1a2e 0%, #16213e 50%, #0f3460 100%);" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <!-- Background decorative elements -->
+        <Rectangle arcHeight="50.0" arcWidth="50.0" fill="#ffffff08" height="120.0" layoutX="850.0" layoutY="550.0" rotate="15.0" width="120.0" />
+        <Rectangle arcHeight="30.0" arcWidth="30.0" fill="#ffffff05" height="80.0" layoutX="50.0" layoutY="580.0" rotate="-20.0" width="80.0" />
+        <Rectangle arcHeight="40.0" arcWidth="40.0" fill="#ffffff06" height="100.0" layoutX="900.0" layoutY="100.0" rotate="25.0" width="100.0" />
+        <Rectangle arcHeight="60.0" arcWidth="60.0" fill="#ffffff06" height="140.0" layoutX="100.0" layoutY="150.0" rotate="-10.0" width="140.0" />
+
+        <!-- Header with dark glassmorphism effect -->
+        <Pane layoutY="0.0" prefHeight="80.0" prefWidth="1000.0" style="-fx-background-color: #00000040; -fx-border-color: #ffffff15; -fx-border-width: 0 0 1 0;">
+            <children>
+                <!-- Logo container with hover effect -->
+                <Pane layoutX="20.0" layoutY="15.0" onMouseClicked="#retourAccueil" style="-fx-cursor: hand; -fx-background-color: #ffffff10; -fx-background-radius: 25; -fx-padding: 10;">
+                    <children>
+                        <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="@../../assets/icone.png" />
+                            </image>
+                        </ImageView>
+                    </children>
+                    <effect>
+                        <DropShadow color="#00000060" radius="10.0" />
+                    </effect>
+                </Pane>
+
+                <!-- Title with modern typography -->
+                <Label layoutX="90.0" layoutY="20.0" style="-fx-font-family: sans-serif; -fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-font-size: 32px;" text="Actualités Ma Ville">
+                    <effect>
+                        <DropShadow color="#00000040" radius="3.0" />
+                    </effect>
+                </Label>
+
+                <!-- Subtitle -->
+                <Label layoutX="90.0" layoutY="50.0" opacity="0.8" style="-fx-font-family: sans-serif; -fx-text-fill: #cccccc; -fx-font-size: 14px;" text="Recherche par ville">
+                </Label>
+
+                <!-- Back button -->
+                <Pane layoutX="840.0" layoutY="10.0" onMouseClicked="#retourDashboard" prefHeight="60.0" prefWidth="60.0" style="-fx-cursor: hand; -fx-background-color: #4a69bd40; -fx-background-radius: 25; -fx-padding: 10;">
+                    <children>
+                        <ImageView fitHeight="40.0" fitWidth="40.0" layoutX="10.0" layoutY="10.0" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="@../../assets/back.png" />
+                            </image>
+                        </ImageView>
+                    </children>
+                    <effect>
+                        <DropShadow color="#00000060" radius="10.0" />
+                    </effect>
+                </Pane>
+
+                <!-- Logout button -->
+                <Pane layoutX="920.0" layoutY="10.0" onMouseClicked="#deconnexion" prefHeight="60.0" prefWidth="60.0" style="-fx-cursor: hand; -fx-background-color: #4a69bd40; -fx-background-radius: 25; -fx-padding: 10;">
+                    <children>
+                        <ImageView fitHeight="40.0" fitWidth="40.0" layoutX="10.0" layoutY="10.0" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="@../../assets/logout.png" />
+                            </image>
+                        </ImageView>
+                    </children>
+                    <effect>
+                        <DropShadow color="#00000060" radius="10.0" />
+                    </effect>
+                </Pane>
+            </children>
+        </Pane>
+
+        <!-- Main content area -->
+        <HBox alignment="CENTER" fillHeight="false" layoutY="80.0" prefHeight="620.0" prefWidth="1000.0" spacing="50.0">
+            <children>
+                <!-- Search form container -->
+                <Pane prefHeight="500.0" prefWidth="450.0" style="-fx-background-color: #1e1e2e90; -fx-background-radius: 20;">
+                    <children>
+                        <VBox alignment="CENTER" fillWidth="false" prefHeight="500.0" prefWidth="450.0" spacing="25.0">
+                            <children>
+                                <!-- Search icon -->
+                                <ImageView fitHeight="100.0" fitWidth="100.0" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                        <Image url="@../../assets/scrap.png" />
+                                    </image>
+                                    <effect>
+                                        <DropShadow color="#4a69bd80" radius="15.0" />
+                                    </effect>
+                                </ImageView>
+
+                                <!-- Title -->
+                                <Label alignment="CENTER" style="-fx-font-family: sans-serif; -fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-font-size: 28px;" text="Recherche d'Actualités">
+                                </Label>
+
+                                <!-- City input field -->
+                                <VBox alignment="CENTER" spacing="10.0">
+                                    <children>
+                                        <Label style="-fx-font-family: sans-serif; -fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-font-size: 16px;" text="Nom de la ville">
+                                        </Label>
+                                        <Pane prefHeight="60.0" prefWidth="350.0" style="-fx-background-color: #2a2a3e; -fx-background-radius: 15; -fx-border-color: #404052; -fx-border-radius: 15; -fx-border-width: 2;">
+                                            <children>
+                                                <TextField fx:id="champVille" layoutX="15.0" layoutY="15.0" prefHeight="30.0" prefWidth="320.0" promptText="Ex: Paris, Lyon, Marseille..." style="-fx-font-family: sans-serif; -fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 5px; -fx-font-size: 16px; -fx-text-fill: #ffffff; -fx-prompt-text-fill: #9ca3af;">
+                                                </TextField>
+                                            </children>
+                                            <effect>
+                                                <DropShadow color="#00000020" radius="8.0" />
+                                            </effect>
+                                        </Pane>
+                                    </children>
+                                </VBox>
+
+                                <!-- Search button -->
+                                <Button fx:id="boutonRechercher" onMouseClicked="#rechercherActualites" prefHeight="55.0" prefWidth="300.0" style="-fx-font-family: sans-serif;                                                -fx-background-color: linear-gradient(to right, #4a69bd, #6c5ce7);                                                -fx-background-radius: 30;                                                -fx-border-radius: 30;                                                -fx-cursor: hand;                                                -fx-font-weight: bold;                                                -fx-text-fill: white;                                                -fx-font-size: 16px;" text="Rechercher les Actualités" textAlignment="CENTER">
+                                    <effect>
+                                        <DropShadow color="#4a69bd80" radius="20.0" />
+                                    </effect>
+                                </Button>
+
+                                <!-- Quick access buttons -->
+                                <VBox alignment="CENTER" spacing="10.0">
+                                    <children>
+                                        <Label style="-fx-font-family: sans-serif; -fx-text-fill: #9ca3af; -fx-font-size: 14px;" text="Accès rapide">
+                                        </Label>
+                                        <HBox alignment="CENTER" spacing="15.0">
+                                            <children>
+                                                <Button onMouseClicked="#villeRapide1" prefHeight="35.0" prefWidth="100.0" style="-fx-font-family: sans-serif;                                                                -fx-background-color: transparent;                                                                -fx-border-color: #4a69bd;                                                                -fx-border-width: 1;                                                                -fx-border-radius: 18;                                                                -fx-background-radius: 18;                                                                -fx-cursor: hand;                                                                -fx-text-fill: #4a69bd;                                                                -fx-font-size: 12px;" text="Paris">
+                                                </Button>
+                                                <Button onMouseClicked="#villeRapide2" prefHeight="35.0" prefWidth="100.0" style="-fx-font-family: sans-serif;                                                                -fx-background-color: transparent;                                                                -fx-border-color: #4a69bd;                                                                -fx-border-width: 1;                                                                -fx-border-radius: 18;                                                                -fx-background-radius: 18;                                                                -fx-cursor: hand;                                                                -fx-text-fill: #4a69bd;                                                                -fx-font-size: 12px;" text="Lyon">
+                                                </Button>
+                                                <Button onMouseClicked="#villeRapide3" prefHeight="35.0" prefWidth="100.0" style="-fx-font-family: sans-serif;                                                                -fx-background-color: transparent;                                                                -fx-border-color: #4a69bd;                                                                -fx-border-width: 1;                                                                -fx-border-radius: 18;                                                                -fx-background-radius: 18;                                                                -fx-cursor: hand;                                                                -fx-text-fill: #4a69bd;                                                                -fx-font-size: 12px;" text="Marseille">
+                                                </Button>
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+                            </children>
+                        </VBox>
+                    </children>
+                    <effect>
+                        <DropShadow color="#00000040" radius="25.0" />
+                    </effect>
+                </Pane>
+
+                <!-- Information panel -->
+                <Pane prefHeight="500.0" prefWidth="400.0" style="-fx-background-color: #ffffff10; -fx-background-radius: 20;">
+                    <children>
+                        <VBox alignment="CENTER" fillWidth="false" prefHeight="500.0" prefWidth="400.0" spacing="30.0">
+                            <children>
+                                <!-- Info icon -->
+                                <Pane prefHeight="80.0" prefWidth="80.0" style="-fx-background-color: #ffffff20; -fx-background-radius: 40;">
+                                    <children>
+                                        <Label alignment="CENTER" prefHeight="80.0" prefWidth="80.0" style="-fx-font-family: sans-serif; -fx-text-fill: white; -fx-font-size: 36px;" text="ℹ️">
+                                        </Label>
+                                    </children>
+                                </Pane>
+
+                                <!-- Title -->
+                                <Label alignment="CENTER" style="-fx-font-family: sans-serif; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 24px;" text="Recherche Intelligente">
+                                </Label>
+
+                                <!-- Features list -->
+                                <VBox alignment="CENTER_LEFT" spacing="15.0">
+                                    <children>
+                                        <HBox alignment="CENTER_LEFT" spacing="15.0">
+                                            <children>
+                                                <Label style="-fx-font-family: sans-serif; -fx-text-fill: white; -fx-font-size: 20px;" text="🎯">
+                                                </Label>
+                                                <Label prefWidth="280.0" style="-fx-font-family: sans-serif; -fx-text-fill: #e0e0e0; -fx-font-size: 14px;" text="Actualités locales en temps réel" wrapText="true">
+                                                </Label>
+                                            </children>
+                                        </HBox>
+
+                                        <HBox alignment="CENTER_LEFT" spacing="15.0">
+                                            <children>
+                                                <Label style="-fx-font-family: sans-serif; -fx-text-fill: white; -fx-font-size: 20px;" text="📰">
+                                                </Label>
+                                                <Label prefWidth="280.0" style="-fx-font-family: sans-serif; -fx-text-fill: #e0e0e0; -fx-font-size: 14px;" text="Sources multiples et fiables" wrapText="true">
+                                                </Label>
+                                            </children>
+                                        </HBox>
+
+                                        <HBox alignment="CENTER_LEFT" spacing="15.0">
+                                            <children>
+                                                <Label style="-fx-font-family: sans-serif; -fx-text-fill: white; -fx-font-size: 20px;" text="🔔">
+                                                </Label>
+                                                <Label prefWidth="280.0" style="-fx-font-family: sans-serif; -fx-text-fill: #e0e0e0; -fx-font-size: 14px;" text="Alertes pour événements importants" wrapText="true">
+                                                </Label>
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+
+                                <!-- Tips -->
+                                <VBox alignment="CENTER" spacing="8.0">
+                                    <children>
+                                        <Label style="-fx-font-family: sans-serif; -fx-text-fill: #fbbf24; -fx-font-weight: bold; -fx-font-size: 14px;" text="💡 Conseil">
+                                        </Label>
+                                        <Label alignment="CENTER" prefWidth="320.0" style="-fx-font-family: sans-serif; -fx-text-fill: #d0d0d0; -fx-font-size: 12px;" text="Vous pouvez rechercher par nom de ville, code postal ou région pour des résultats plus précis" textAlignment="CENTER" wrapText="true">
+                                        </Label>
+                                    </children>
+                                </VBox>
+                            </children>
+                        </VBox>
+                    </children>
+                    <effect>
+                        <DropShadow color="#00000030" radius="20.0" />
+                    </effect>
+                </Pane>
+            </children>
+        </HBox>
+    </children>
+</Pane>

@@ -1,20 +1,21 @@
 package controller;
 
 import application.Main;
-import javafx.application.Platform;
-import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
+import model.Article;
 import services.bdd.Bdd;
+import services.alert.Alert;
+import services.webscrapper.News;
 
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class MainController implements Initializable {
@@ -24,246 +25,54 @@ public class MainController implements Initializable {
 
     private boolean bddStatusChecked = false;
 
+    private List<Article> articles;
+
+    private final News newsService;
+
+    private final int LIMITE_ARTICLES = 10;
+
+
+    public MainController(){
+        this.newsService = new News();
+    }
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // Initialiser l'affichage de la dernière collecte
-        updateDerniereCollecte();
-
-        // Vérifier le statut de la BDD
-        checkBddStatusOnInit();
-    }
-
-    /**
-     * Vérifie le statut de la BDD au chargement de la page
-     */
-    private void checkBddStatusOnInit() {
-        if (!bddStatusChecked) {
-            Task<Boolean> bddCheckTask = new Task<Boolean>() {
-                @Override
-                protected Boolean call() throws Exception {
-                    // Attendre que la BDD soit prête (maximum 30 secondes)
-                    int attempts = 0;
-                    while (!Main.isBddReady() && attempts < 60) {
-                        Thread.sleep(500);
-                        attempts++;
-                    }
-                    return Main.isBddReady();
-                }
-
-                @Override
-                protected void succeeded() {
-                    Platform.runLater(() -> {
-                        if (getValue()) {
-                            System.out.println("✅ BDD prête pour le MainController");
-                        } else {
-                            showWarningAlert("Base de données",
-                                    "La base de données n'est pas encore prête. Certaines fonctionnalités peuvent être limitées.");
-                        }
-                        bddStatusChecked = true;
-                    });
-                }
-
-                @Override
-                protected void failed() {
-                    Platform.runLater(() -> {
-                        showErrorAlert("Erreur BDD", "Impossible de vérifier l'état de la base de données");
-                        bddStatusChecked = true;
-                    });
-                }
-            };
-
-            Thread bddThread = new Thread(bddCheckTask);
-            bddThread.setDaemon(true);
-            bddThread.start();
+        // Initialisation spécifique du MainController
+        if (derniereCollecte != null) {
+            derniereCollecte.setText("Dernière collecte: " +
+                    LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
         }
     }
 
-    /**
-     * Met à jour l'affichage de la dernière collecte
-     */
-    private void updateDerniereCollecte() {
-        Task<String> updateTask = new Task<String>() {
-            @Override
-            protected String call() throws Exception {
-                if (Main.isBddReady()) {
-                    try {
-                        // Requête pour récupérer la dernière date de collecte
-                        String result = Bdd.request("mongo",
-                                "SELECT MAX(date_collecte) as derniere_date FROM scraping_log");
-
-                        // Parser la réponse JSON et extraire la date
-                        // Pour l'exemple, utilisation d'une date fictive
-                        return getDerniereCollecteFromBdd(result);
-
-                    } catch (Exception e) {
-                        System.err.println("Erreur lors de la récupération de la dernière collecte: " + e.getMessage());
-                        return getDateFictive();
-                    }
-                } else {
-                    return "BDD non disponible";
-                }
-            }
-
-            @Override
-            protected void succeeded() {
-                Platform.runLater(() -> {
-                    derniereCollecte.setText(getValue());
-                });
-            }
-
-            @Override
-            protected void failed() {
-                Platform.runLater(() -> {
-                    derniereCollecte.setText(getDateFictive());
-                });
-            }
-        };
-
-        Thread updateThread = new Thread(updateTask);
-        updateThread.setDaemon(true);
-        updateThread.start();
-    }
-
-    /**
-     * Extrait la date de dernière collecte depuis la réponse BDD
-     */
-    private String getDerniereCollecteFromBdd(String bddResponse) {
-        try {
-            // Ici vous pouvez parser la réponse JSON pour extraire la vraie date
-            // Pour l'exemple, retourne une date fictive
-            return getDateFictive();
-        } catch (Exception e) {
-            return getDateFictive();
-        }
-    }
-
-    /**
-     * Génère une date fictive pour l'affichage
-     */
-    private String getDateFictive() {
-        LocalDateTime maintenant = LocalDateTime.now();
-        LocalDateTime derniereDate = maintenant.minusHours(2);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy à HH:mm");
-        return "Le " + derniereDate.format(formatter);
-    }
-
-    /**
-     * Gestionnaire pour le clic sur le logo - retour à l'accueil
-     */
     @FXML
     private void accueil(MouseEvent event) {
-        try {
-            Main.changeScene("Main", new MainController(), "Tableau de bord - Ma Ville");
-        } catch (Exception e) {
-            showErrorAlert("Erreur de navigation", "Impossible de charger la page d'accueil");
-            e.printStackTrace();
-        }
+        Main.changeScene("Main", new MainController(), "Tableau de bord - Ma Ville");
     }
 
-    /**
-     * Gestionnaire pour la déconnexion
-     */
+    @FXML
+    private void theme(MouseEvent event) {
+        Main.swichTheme();
+        Main.changeScene("Main", new MainController(), "Main pannel");
+    }
+
     @FXML
     private void deconnexion(MouseEvent event) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Confirmation");
-        alert.setHeaderText("Déconnexion");
-        alert.setContentText("Êtes-vous sûr de vouloir vous déconnecter ?");
-
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            try {
-                // Nettoyage de la session utilisateur
-                clearUserSession();
-
-                // Redirection vers la page de connexion/accueil
-                Main.changeScene("Accueil", new AccueilController(), "Connexion");
-
-            } catch (Exception e) {
-                showErrorAlert("Erreur de déconnexion", "Impossible de charger la page de connexion");
-                e.printStackTrace();
-            }
+        if (Alert.showConfirmationAlert("Confirmation", "Déconnexion", "Etes vous sur de vouloir vous déconnecter ?")) {
+            Main.changeScene("Accueil", new AccueilController(), "accueil");
         }
     }
 
-    /**
-     * Lance le scraping complet de toutes les sources
-     */
     @FXML
     private void lancerScrapingComplet(MouseEvent event) {
-        // Vérifier d'abord que la BDD est prête
-        if (!Main.isBddReady()) {
-            showWarningAlert("Base de données non prête",
-                    "La base de données n'est pas encore initialisée. Veuillez patienter et réessayer.");
-            return;
-        }
 
-        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmAlert.setTitle("Lancer le Scraping Complet");
-        confirmAlert.setHeaderText("Collecte d'actualités");
-        confirmAlert.setContentText("Cette opération peut prendre plusieurs minutes. Continuer ?");
+        this.chargerArticles();
 
-        Optional<ButtonType> result = confirmAlert.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-
-            Task<Void> scrapingTask = new Task<Void>() {
-                @Override
-                protected Void call() throws Exception {
-                    Platform.runLater(() -> {
-                        showInfoAlert("Scraping en cours", "La collecte d'actualités a commencé...");
-                    });
-
-                    // Exécution du scraping avec logging en BDD
-                    executerScrapingComplet();
-
-                    return null;
-                }
-
-                @Override
-                protected void succeeded() {
-                    Platform.runLater(() -> {
-                        updateDerniereCollecte();
-                        showSuccessAlert("Scraping terminé", "La collecte d'actualités s'est terminée avec succès !");
-                    });
-                }
-
-                @Override
-                protected void failed() {
-                    Platform.runLater(() -> {
-                        Throwable exception = getException();
-                        String errorMessage = exception != null ? exception.getMessage() : "Erreur inconnue";
-                        showErrorAlert("Erreur de scraping",
-                                "Une erreur s'est produite pendant la collecte: " + errorMessage);
-                    });
-                }
-            };
-
-            Thread scrapingThread = new Thread(scrapingTask);
-            scrapingThread.setDaemon(true);
-            scrapingThread.start();
-        }
     }
 
-    /**
-     * Ouvre l'outil de scraping personnalisé - CORRIGÉ pour rediriger vers Custom
-     */
     @FXML
     private void ouvrirOutilScraping(MouseEvent event) {
-        try {
-            // Vérifier que la BDD est prête avant d'ouvrir l'outil
-            if (!Main.isBddReady()) {
-                showWarningAlert("Base de données non prête",
-                        "La base de données n'est pas encore initialisée. L'outil sera ouvert mais certaines fonctionnalités peuvent être limitées.");
-            }
-
-            // Redirection vers Custom.fxml avec CustomController
-            Main.changeScene("Custom", new CustomController(), "Outil de WebScraping Personnalisé");
-
-        } catch (Exception e) {
-            showErrorAlert("Erreur d'ouverture",
-                    "Impossible de charger l'outil de scraping personnalisé: " + e.getMessage());
-            e.printStackTrace();
-        }
+        Main.changeScene("Custom", new CustomController(), "Outil de WebScraping Personnalisé");
     }
 
     /**
@@ -372,80 +181,86 @@ public class MainController implements Initializable {
      * Force la réinitialisation de la BDD depuis l'interface
      */
     @FXML
-    private void reinitialiserBdd(MouseEvent event) {
-        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmAlert.setTitle("Réinitialisation BDD");
-        confirmAlert.setHeaderText("Attention");
-        confirmAlert.setContentText("Cette opération va réinitialiser complètement la base de données. Continuer ?");
+    private void ouvrirGestionnairePlugins(MouseEvent event) {
+        //Main.changeScene("Plugins", new PluginController(), "Gestion des plugins");
+    }
 
-        Optional<ButtonType> result = confirmAlert.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
 
-            Task<Void> resetTask = new Task<Void>() {
-                @Override
-                protected Void call() throws Exception {
-                    Platform.runLater(() -> {
-                        showInfoAlert("Réinitialisation en cours", "Réinitialisation de la base de données...");
-                    });
+    private void chargerArticles() {
+        try {
+            List<String> villes = getVillesDistinctFromUsers();
+            StringBuilder jsonBuilder = new StringBuilder("{\"news\":{");
 
-                    Main.resetBdd();
-                    return null;
+            boolean premierVille = true;
+            for (String ville : villes) {
+                System.out.println(ville);
+                articles = newsService.getNews(ville, LIMITE_ARTICLES);
+                if (articles != null && !articles.isEmpty()) {
+                    if (!premierVille) jsonBuilder.append(",");
+                    premierVille = false;
+
+                    jsonBuilder.append("\"").append(ville.toLowerCase()).append("\":[");
+                    for (int i = 0; i < articles.size(); i++) {
+                        Article article = articles.get(i);
+                        if (i > 0) jsonBuilder.append(",");
+                        jsonBuilder.append("{")
+                                .append("\"titre\":\"").append(escapeJson(article.getTitre())).append("\",")
+                                .append("\"description\":\"").append(escapeJson(article.getDescription())).append("\",")
+                                .append("\"url\":\"").append(escapeJson(article.getUrl())).append("\",")
+                                .append("\"source\":\"").append(escapeJson(article.getSource())).append("\",")
+                                .append("\"datePublication\":\"").append(escapeJson(article.getDatePublication())).append("\",")
+                                .append("\"imageUrl\":\"").append(escapeJson(article.getImageUrl())).append("\",")
+                                .append("\"tags\":[");
+
+                        List<String> tags = article.getTags();
+                        if (tags != null) {
+                            for (int j = 0; j < tags.size(); j++) {
+                                if (j > 0) jsonBuilder.append(",");
+                                jsonBuilder.append("\"").append(escapeJson(tags.get(j))).append("\"");
+                            }
+                        }
+                        jsonBuilder.append("],\"sentiment\":").append(article.getSentiment()).append("}");
+                    }
+                    jsonBuilder.append("]");
                 }
+            }
+            jsonBuilder.append("}}");
 
-                @Override
-                protected void succeeded() {
-                    Platform.runLater(() -> {
-                        bddStatusChecked = false;
-                        checkBddStatusOnInit();
-                        showSuccessAlert("Réinitialisation terminée", "La base de données a été réinitialisée avec succès !");
-                    });
-                }
-
-                @Override
-                protected void failed() {
-                    Platform.runLater(() -> {
-                        showErrorAlert("Erreur de réinitialisation", "Impossible de réinitialiser la base de données");
-                    });
-                }
-            };
-
-            Thread resetThread = new Thread(resetTask);
-            resetThread.setDaemon(true);
-            resetThread.start();
+            String mongoResult = Bdd.request("mongo", "INSERT INTO news_collection VALUES ('" + jsonBuilder.toString().replace("'", "\\'") + "')");
+            if (mongoResult != null && !mongoResult.startsWith("erreur:")) {
+                Alert.showSuccessAlert("Succès", "Articles sauvegardés dans MongoDB");
+            }
+        } catch (Exception e) {
+            Alert.showErrorAlert("erreur", "erreur lors du chargement des articles.");
         }
     }
 
-    // === MÉTHODES UTILITAIRES POUR LES ALERTES ===
-
-    private void showSuccessAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+    private String escapeJson(String text) {
+        if (text == null) return "";
+        return text.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n");
     }
 
-    private void showErrorAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+    private List<String> getVillesDistinctFromUsers() {
+        try {
+            String usersResult = Bdd.request("postgres", "SELECT * FROM users");
+            if (usersResult == null || usersResult.startsWith("erreur:")) return new ArrayList<>();
+
+            ArrayList<String> toutesLesVilles = new ArrayList<>();
+            String[] lignes = usersResult.split("\n");
+            for (String ligne : lignes) {
+                if (ligne.contains("\"ville\":")) {
+                    int debut = ligne.indexOf("\"", ligne.indexOf("\"ville\":") + 9) + 1;
+                    int fin = ligne.indexOf("\"", ligne.indexOf("\"", ligne.indexOf("\"ville\":") + 9) + 1);
+                    if (debut > 0 && fin > debut) {
+                        String ville = ligne.substring(debut, fin);
+                        if (!ville.trim().isEmpty()) toutesLesVilles.add(ville);
+                    }
+                }
+            }
+            return new ArrayList<>(new HashSet<>(toutesLesVilles));
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
     }
 
-    private void showWarningAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
-    private void showInfoAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.show(); // Non-bloquant
-    }
 }

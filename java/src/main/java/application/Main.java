@@ -11,116 +11,97 @@ import plugin.PluginManager;
 import services.bdd.Bdd;
 import services.security.Security;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ServiceLoader;
 
 public class Main extends Application {
     public static Stage stage;
-    private static boolean bddInitialized = false;
+    public static boolean theme = false;
+
+
+    public static void swichTheme() {
+        Main.theme = !Main.theme;
+        saveThemeConfig();
+    }
+
+    private static void saveThemeConfig() {
+        try {
+            Files.write(Paths.get("theme.config"), String.valueOf(Main.theme).getBytes());
+        } catch (Exception e) {
+            System.err.println("Erreur sauvegarde: " + e.getMessage());
+        }
+    }
+
+    public static void loadThemeConfig() {
+        try {
+            if (Files.exists(Paths.get("theme.config"))) {
+                String content = Files.readString(Paths.get("theme.config"));
+                Main.theme = Boolean.parseBoolean(content.trim());
+            }
+        } catch (Exception e) {
+            Main.theme = false;
+        }
+    }
 
     @Override
     public void start(Stage stage) throws IOException {
         Main.stage = stage;
         changeScene("Accueil", new AccueilController(), "Bienvenue");
     }
-
+    
     public static void changeScene(String fxml, Object controller, String title) {
         try {
             // Notifier les plugins du changement de page
             PluginManager.getInstance().notifyPageChanged(fxml);
             
-            FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/fxml/" + fxml + ".fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/fxml/" + (theme?"dark/":"light/") + fxml + ".fxml"));
             fxmlLoader.setController(controller);
             fxmlLoader.setCharset(StandardCharsets.UTF_8);
             Scene scene = new Scene(fxmlLoader.load());
-            scene.getStylesheets().add(Main.class.getResource("/style/main.css").toExternalForm());
+            
             stage.setTitle(title);
             stage.setScene(scene);
             stage.show();
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    /**
-     * Initialise la BDD de manière asynchrone pour ne pas bloquer l'interface
-     */
+
     public static void initBddAsync() {
-        if (bddInitialized) {
-            System.out.println("✅ BDD déjà initialisée");
-            return;
-        }
+
 
         Task<Void> bddTask = new Task<Void>() {
             @Override
             protected Void call() throws Exception {
-                System.out.println("🔄 Initialisation BDD en arrière-plan...");
                 Bdd.initBdd();
-                bddInitialized = true;
                 System.out.println("✅ BDD initialisée avec succès");
                 return null;
             }
-
             @Override
             protected void failed() {
-                System.err.println("❌ Échec de l'initialisation BDD: " + getException().getMessage());
-                getException().printStackTrace();
+                System.out.println("Mince alors, la mise en place du microlangage pour la bdd est un echec:\n " + getException().getMessage());
             }
         };
 
         // Exécuter en arrière-plan
         Thread bddThread = new Thread(bddTask);
-        bddThread.setDaemon(true); // Thread daemon pour que l'app puisse se fermer proprement
+        bddThread.setDaemon(true);
         bddThread.setName("BDD-Init-Thread");
         bddThread.start();
     }
 
-    /**
-     * Initialise la BDD de manière synchrone (bloquante)
-     */
-    public static void initBddSync() {
-        if (bddInitialized) {
-            System.out.println("✅ BDD déjà initialisée");
-            return;
-        }
-
-        System.out.println("🔄 Initialisation BDD...");
-        long startTime = System.currentTimeMillis();
-
-        try {
-            Bdd.initBdd();
-            bddInitialized = true;
-            long duration = System.currentTimeMillis() - startTime;
-            System.out.println("✅ BDD initialisée en " + duration + "ms");
-        } catch (Exception e) {
-            System.err.println("❌ Échec de l'initialisation BDD: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Vérifie si la BDD est prête à être utilisée
-     */
-    public static boolean isBddReady() {
-        return bddInitialized && Bdd.isEnvironmentReady();
-    }
-
-    /**
-     * Force la réinitialisation de la BDD (en cas de problème)
-     */
-    public static void resetBdd() {
-        System.out.println("🔄 Réinitialisation forcée de la BDD...");
-        bddInitialized = false;
-        Bdd.forceReinit();
-        bddInitialized = true;
-    }
-
     public static void main(String[] args) {
-        // Configuration de sécurité (rapide)
         Security.setDefaultKey("adupngrx3GXZThd7");
-
-        // Initialiser les plugins
-        PluginInitializer.initializeDefaultPlugins();
 
         // Choix du mode d'initialisation BDD
         boolean asyncInit = true; // Changez en false si vous voulez une init synchrone
@@ -135,10 +116,8 @@ public class Main extends Application {
             initBddSync();
         }
 
-        // Ajouter un hook de fermeture pour nettoyer les plugins
-        Runtime.getRuntime().addShutdownHook(new Thread(PluginInitializer::shutdownPlugins));
-
         // Lancement de l'interface JavaFX
         launch(args);
+        
     }
 }
