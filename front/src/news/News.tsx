@@ -1,9 +1,6 @@
 import React from 'react';
-
-// Composant pour les icônes Ionicons
-const IonIcon: React.FC<{ name: string; className?: string }> = ({ name, className = "" }) => (
-  <ion-icon name={name} class={className}></ion-icon>
-);
+import NewsHeader from './components/NewsHeader';
+import ArticleCard from './components/ArticleCard';
 
 interface ArticleTag {
   label: string;
@@ -116,19 +113,6 @@ const News: React.FC = () => {
     }
   ];
 
-  const getSentimentClass = (sentiment: string) => {
-    switch (sentiment) {
-      case 'positive':
-        return 'sentiment-positive';
-      case 'negative':
-        return 'sentiment-negative';
-      case 'neutral':
-        return 'sentiment-neutral';
-      default:
-        return 'sentiment-neutral';
-    }
-  };
-
   const handleShare = (title: string) => {
     console.log(`Partage de l'article: ${title}`);
     
@@ -157,176 +141,22 @@ const News: React.FC = () => {
 
   return (
     <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        
-        * {
-            font-family: 'Inter', sans-serif;
-        }
-
-        .glass-card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .accent-text {
-            color: #ffffff;
-            font-weight: 800;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        }
-
-        .btn-primary {
-            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
-            transition: all 0.3s ease;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-        }
-
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            transition: all 0.3s ease;
-        }
-
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.25);
-            transform: translateY(-1px);
-        }
-
-        .article-card {
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .article-card:hover {
-            transform: translateY(-4px);
-        }
-
-        .category-tag {
-            padding: 0.25rem 0.75rem;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            border-width: 1px;
-        }
-
-        .sentiment-positive {
-            background: rgba(34, 197, 94, 0.1);
-            border: 1px solid rgba(34, 197, 94, 0.3);
-            color: #00ff5e;
-        }
-
-        .sentiment-negative {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            color: #ff3a3a;
-        }
-
-        .sentiment-neutral {
-            background: rgba(156, 163, 175, 0.1);
-            border: 1px solid rgba(156, 163, 175, 0.3);
-            color: #003caa;
-        }
-
-        .fade-in {
-            animation: fadeIn 0.8s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-      `}</style>
-
       {/* Script pour charger Ionicons */}
       <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
       <script noModule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 
-      <div 
-        className="min-h-screen antialiased"
-        style={{background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'}}
-      >
-        {/* Titre principal */}
-        <div className="px-6 mb-6 pt-6 fade-in">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-3xl font-bold text-white mb-2">
-                <span className="accent-text">Actualités</span> de la ville
-              </h2>
-              <p className="text-white/70">
-                Restez informé de tout ce qui se passe près de chez vous
-              </p>
-            </div>
-          </div>
-        </div>
+      <div className="news-container antialiased">
+        <NewsHeader />
 
-        {/* Liste des actualités */}
         <main className="px-6 pb-8">
           <div className="space-y-6">
             {articles.map((article) => (
-              <article 
+              <ArticleCard
                 key={article.id}
-                className="glass-card article-card rounded-2xl p-6 fade-in"
-                style={{animationDelay: article.animationDelay}}
-                onClick={() => handleArticleClick(article.title)}
-              >
-                {/* Titre */}
-                <h3 className="text-2xl font-bold text-white mb-3">{article.title}</h3>
-                
-                {/* Sentiment */}
-                <div className="flex items-center space-x-2 mb-4">
-                  <div className={`${getSentimentClass(article.sentiment)} rounded-full px-3 py-1 flex items-center space-x-2`}>
-                    <IonIcon name={article.sentimentIcon} className="text-lg" />
-                    <span className="text-sm font-medium">{article.sentimentLabel}</span>
-                  </div>
-                </div>
-                
-                {/* Tags */}
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {article.tags.map((tag, index) => (
-                    <span key={index} className={`category-tag ${tag.color}`}>
-                      {tag.label}
-                    </span>
-                  ))}
-                </div>
-                
-                {/* Date et Source */}
-                <div className="mb-4 space-y-2">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-white/60 text-sm">Publié le:</span>
-                    <span className="text-white/80 text-sm font-medium">{article.publishDate}</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-white/60 text-sm">Source:</span>
-                    <span className="text-white/80 text-sm font-medium">{article.source}</span>
-                  </div>
-                </div>
-                
-                {/* Boutons d'action */}
-                <div className="flex items-center space-x-3">
-                  <button 
-                    className="btn-secondary px-4 py-2 rounded-xl text-white/80 text-sm flex items-center space-x-2"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleShare(article.title);
-                    }}
-                  >
-                    <IonIcon name="share-social" className="text-base" />
-                    <span>Partager</span>
-                  </button>
-                </div>
-              </article>
+                article={article}
+                onShare={handleShare}
+                onArticleClick={handleArticleClick}
+              />
             ))}
           </div>
         </main>

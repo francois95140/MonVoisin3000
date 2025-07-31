@@ -267,6 +267,22 @@ public class MainController implements Initializable {
     }
 
     /**
+     * Ouvre la gestion des plugins
+     */
+    @FXML
+    private void ouvrirGestionPlugins(MouseEvent event) {
+        try {
+            // Redirection vers Plugin.fxml avec PluginController
+            Main.changeScene("Plugin", new PluginController(), "Gestion des Plugins");
+
+        } catch (Exception e) {
+            showErrorAlert("Erreur d'ouverture",
+                    "Impossible de charger la gestion des plugins: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * Exécute le processus de scraping complet avec logging en BDD
      */
     private void executerScrapingComplet() {

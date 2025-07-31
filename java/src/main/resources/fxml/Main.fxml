@@ -168,6 +168,23 @@
                                 <DropShadow color="#00000015" radius="10.0" />
                             </effect>
                         </Pane>
+                        
+                        <!-- Plugin management button -->
+                        <Pane prefHeight="120.0" prefWidth="200.0" style="-fx-background-color: #ffffff25; -fx-background-radius: 15; -fx-cursor: hand;" onMouseClicked="#ouvrirGestionPlugins">
+                            <children>
+                                <VBox alignment="CENTER" fillWidth="false" prefHeight="120.0" prefWidth="200.0" spacing="10.0">
+                                    <children>
+                                        <Label alignment="CENTER" style="-fx-font-family: sans-serif; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 16px;" text="🔌 Plugins">
+                                        </Label>
+                                        <Label alignment="CENTER" style="-fx-font-family: sans-serif; -fx-text-fill: #CCCCCC; -fx-font-size: 12px;" text="Gérer les extensions">
+                                        </Label>
+                                    </children>
+                                </VBox>
+                            </children>
+                            <effect>
+                                <DropShadow color="#00000020" radius="10.0" />
+                            </effect>
+                        </Pane>
                     </children>
                 </HBox>
             </children>

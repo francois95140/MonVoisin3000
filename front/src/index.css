@@ -1175,3 +1175,17 @@ body {
                 transform: translateY(0);
             }
         }
+
+/* News specific styles */
+.news-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.category-tag {
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-width: 1px;
+}

@@ -6,6 +6,8 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import plugin.PluginInitializer;
+import plugin.PluginManager;
 import services.bdd.Bdd;
 import services.security.Security;
 
@@ -24,6 +26,9 @@ public class Main extends Application {
 
     public static void changeScene(String fxml, Object controller, String title) {
         try {
+            // Notifier les plugins du changement de page
+            PluginManager.getInstance().notifyPageChanged(fxml);
+            
             FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/fxml/" + fxml + ".fxml"));
             fxmlLoader.setController(controller);
             fxmlLoader.setCharset(StandardCharsets.UTF_8);
@@ -114,6 +119,9 @@ public class Main extends Application {
         // Configuration de sécurité (rapide)
         Security.setDefaultKey("adupngrx3GXZThd7");
 
+        // Initialiser les plugins
+        PluginInitializer.initializeDefaultPlugins();
+
         // Choix du mode d'initialisation BDD
         boolean asyncInit = true; // Changez en false si vous voulez une init synchrone
 
@@ -126,6 +134,9 @@ public class Main extends Application {
             System.out.println("🚀 Lancement en mode synchrone");
             initBddSync();
         }
+
+        // Ajouter un hook de fermeture pour nettoyer les plugins
+        Runtime.getRuntime().addShutdownHook(new Thread(PluginInitializer::shutdownPlugins));
 
         // Lancement de l'interface JavaFX
         launch(args);
