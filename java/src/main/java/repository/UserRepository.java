@@ -65,9 +65,6 @@ public class UserRepository {
     }
 
 
-    /**
-     * Met à jour la date de dernière connexion
-     */
     private static void updateLastLogin(Long userId) {
         try {
             String query = String.format(
@@ -82,9 +79,6 @@ public class UserRepository {
         }
     }
 
-    /**
-     * Mappe un JsonNode vers un objet User
-     */
     private static User mapJsonToUser(JsonNode node) {
         User user = new User();
 

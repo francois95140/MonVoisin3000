@@ -47,7 +47,7 @@ public class CustomController implements Initializable {
     private void rechercherActualites(MouseEvent event) {executerRechercheActualites(champVille.getText().trim());}
 
     @FXML
-    private void villeRapide1(MouseEvent event) {executerRechercheActualites("Paris actualités");}
+    private void villeRapide1(MouseEvent event) {executerRechercheActualites("Paris");}
 
     @FXML
     private void villeRapide2(MouseEvent event) {executerRechercheActualites("Lyon");}

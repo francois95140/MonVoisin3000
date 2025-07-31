@@ -33,7 +33,7 @@ import java.util.logging.Logger;
 public class ViewController implements Initializable {
 
     private static final Logger LOGGER = Logger.getLogger(ViewController.class.getName());
-    private static final int LIMITE_ARTICLES = 50;
+    private static final int LIMITE_ARTICLES = 5;
 
     @FXML private Label villeSelectionnee;
     @FXML private Label nomVilleTitre;
