@@ -103,18 +103,18 @@ public class Main extends Application {
     public static void main(String[] args) {
         Security.setDefaultKey("adupngrx3GXZThd7");
 
-        // Choix du mode d'initialisation BDD
-        boolean asyncInit = true; // Changez en false si vous voulez une init synchrone
+        // Initialiser les plugins
+        PluginInitializer.initializeDefaultPlugins();
 
-        if (asyncInit) {
-            // Mode asynchrone : l'interface se lance rapidement, la BDD s'initialise en arrière-plan
-            System.out.println("🚀 Lancement en mode asynchrone");
-            initBddAsync();
-        } else {
-            // Mode synchrone : attend que la BDD soit prête avant de lancer l'interface
-            System.out.println("🚀 Lancement en mode synchrone");
-            initBddSync();
-        }
+        // Charger la configuration du thème
+        loadThemeConfig();
+
+        // Initialisation BDD en arrière-plan
+        System.out.println("🚀 Lancement en mode asynchrone");
+        initBddAsync();
+
+        // Ajouter un hook de fermeture pour nettoyer les plugins
+        Runtime.getRuntime().addShutdownHook(new Thread(PluginInitializer::shutdownPlugins));
 
         // Lancement de l'interface JavaFX
         launch(args);

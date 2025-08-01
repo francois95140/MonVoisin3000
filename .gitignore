@@ -34,9 +34,48 @@ Thumbs.db
 *.swp
 *.bak
 
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+pnpm-lock.yaml
+.pnpm-debug.log*
+
+# Build outputs
+dist/
+build/
+out/
+
+# Frontend specific
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Vite
+.vite/
+
+# TypeScript
+*.tsbuildinfo
+
+# Configuration files
+.claude/
+
 # microlangage
 venv/
 parser.out
 parsetab.py
 __pycache__/
 tgpt
+
+# Plugins
+plugins/
+
+# Theme config
+theme.config
+
+# Docker
+.dockerignore

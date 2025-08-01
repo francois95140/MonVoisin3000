@@ -5,7 +5,9 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 import model.Article;
+import plugin.PluginManager;
 import services.bdd.Bdd;
 import services.alert.Alert;
 import services.webscrapper.News;
@@ -22,6 +24,12 @@ public class MainController implements Initializable {
 
     @FXML
     private Label derniereCollecte;
+    
+    @FXML
+    private HBox menuContainer;
+    
+    @FXML
+    private HBox pluginContainer;
 
     private boolean bddStatusChecked = false;
 
@@ -43,6 +51,9 @@ public class MainController implements Initializable {
             derniereCollecte.setText("Dernière collecte: " +
                     LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
         }
+        
+        // Intégration des plugins
+        integratePlugins();
     }
 
     @FXML
@@ -75,114 +86,15 @@ public class MainController implements Initializable {
         Main.changeScene("Custom", new CustomController(), "Outil de WebScraping Personnalisé");
     }
 
-    /**
-     * Ouvre la gestion des plugins
-     */
     @FXML
-    private void ouvrirGestionPlugins(MouseEvent event) {
+    private void ouvrirGestionnairePlugins(MouseEvent event) {
         try {
-            // Redirection vers Plugin.fxml avec PluginController
-            Main.changeScene("Plugin", new PluginController(), "Gestion des Plugins");
-
+            Main.changeScene("Plugin", new PluginController(), "Gestion des plugins");
         } catch (Exception e) {
-            showErrorAlert("Erreur d'ouverture",
+            Alert.showErrorAlert("Erreur d'ouverture",
                     "Impossible de charger la gestion des plugins: " + e.getMessage());
             e.printStackTrace();
         }
-    }
-
-    /**
-     * Exécute le processus de scraping complet avec logging en BDD
-     */
-    private void executerScrapingComplet() {
-        try {
-            System.out.println("🚀 Début du scraping complet...");
-
-            // Log du début de scraping en BDD
-            logScrapingEvent("DEBUT", "Démarrage du scraping complet");
-
-            String[] sources = {
-                    "Site actualités local 1",
-                    "Site actualités local 2",
-                    "Réseaux sociaux",
-                    "Flux RSS"
-            };
-
-            int totalSources = sources.length;
-            int sourcesTraitees = 0;
-
-            for (String source : sources) {
-                System.out.println("📡 Scraping de: " + source);
-
-                try {
-                    // Simulation du scraping de la source
-                    Thread.sleep(2000);
-
-                    // Log du succès de la source
-                    logScrapingEvent("SOURCE_SUCCESS", "Scraping réussi pour: " + source);
-                    sourcesTraitees++;
-
-                    System.out.println("✅ " + source + " traité (" + sourcesTraitees + "/" + totalSources + ")");
-
-                } catch (Exception e) {
-                    // Log de l'erreur pour cette source
-                    logScrapingEvent("SOURCE_ERROR", "Erreur pour " + source + ": " + e.getMessage());
-                    System.err.println("❌ Erreur pour " + source + ": " + e.getMessage());
-                }
-            }
-
-            // Log de fin de scraping
-            logScrapingEvent("FIN", "Scraping terminé. Sources traitées: " + sourcesTraitees + "/" + totalSources);
-            System.out.println("✅ Scraping complet terminé ! (" + sourcesTraitees + "/" + totalSources + " sources)");
-
-        } catch (Exception e) {
-            logScrapingEvent("ERROR", "Erreur générale de scraping: " + e.getMessage());
-            throw new RuntimeException("Erreur lors du scraping: " + e.getMessage(), e);
-        }
-    }
-
-    /**
-     * Log un événement de scraping en base de données
-     */
-    private void logScrapingEvent(String type, String message) {
-        try {
-            if (Main.isBddReady()) {
-                String timestamp = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-                String query = String.format(
-                        "INSERT INTO scraping_log (timestamp, type, message) VALUES ('%s', '%s', '%s')",
-                        timestamp, type, message.replace("'", "''") // Échapper les guillemets
-                );
-
-                Bdd.request("mongo", query);
-            }
-        } catch (Exception e) {
-            System.err.println("Erreur lors du logging: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Nettoie la session utilisateur
-     */
-    private void clearUserSession() {
-        System.out.println("🧹 Nettoyage de la session utilisateur...");
-
-        // Log de déconnexion
-        logScrapingEvent("LOGOUT", "Déconnexion utilisateur");
-
-        // Ici vous pouvez ajouter d'autres nettoyages :
-        // - Suppression des tokens
-        // - Nettoyage du cache
-        // - Fermeture des connexions
-
-        System.out.println("✅ Session utilisateur nettoyée");
-    }
-
-    /**
-     * Force la réinitialisation de la BDD depuis l'interface
-     */
-    @FXML
-    private void ouvrirGestionnairePlugins(MouseEvent event) {
-        //Main.changeScene("Plugins", new PluginController(), "Gestion des plugins");
     }
 
 
@@ -260,6 +172,36 @@ public class MainController implements Initializable {
             return new ArrayList<>(new HashSet<>(toutesLesVilles));
         } catch (Exception e) {
             return new ArrayList<>();
+        }
+    }
+    
+    /**
+     * Intègre les boutons et widgets des plugins dans l'interface
+     */
+    private void integratePlugins() {
+        try {
+            PluginManager pluginManager = PluginManager.getInstance();
+            
+            // Pour chaque plugin actif, essayer d'obtenir ses éléments UI
+            for (plugin.Plugin plugin : pluginManager.getActivePlugins()) {
+                try {
+                    // Si le plugin a une méthode pour obtenir un bouton
+                    if (plugin.getClass().getMethod("getGameButton") != null) {
+                        Object button = plugin.getClass().getMethod("getGameButton").invoke(plugin);
+                        if (button instanceof javafx.scene.control.Button && pluginContainer != null) {
+                            pluginContainer.getChildren().add((javafx.scene.control.Button) button);
+                            System.out.println("✅ Bouton ajouté pour le plugin: " + plugin.getName());
+                        }
+                    }
+                } catch (NoSuchMethodException e) {
+                    // Le plugin n'a pas de méthode getGameButton, c'est normal
+                } catch (Exception e) {
+                    System.err.println("Erreur lors de l'intégration du plugin " + plugin.getName() + ": " + e.getMessage());
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Erreur lors de l'intégration des plugins: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 

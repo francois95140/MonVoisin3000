@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.text.Font?>
+
+<Pane prefHeight="700.0" prefWidth="1000.0" style="-fx-background-color: linear-gradient(to bottom, #1a1a2e 0%, #16213e 50%, #0f3460 100%);" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <!-- Background decorative elements -->
+        <Rectangle arcHeight="50.0" arcWidth="50.0" fill="#ffffff08" height="120.0" layoutX="850.0" layoutY="550.0" rotate="15.0" width="120.0" />
+        <Rectangle arcHeight="30.0" arcWidth="30.0" fill="#ffffff05" height="80.0" layoutX="50.0" layoutY="580.0" rotate="-20.0" width="80.0" />
+        <Rectangle arcHeight="40.0" arcWidth="40.0" fill="#ffffff06" height="100.0" layoutX="900.0" layoutY="100.0" rotate="25.0" width="100.0" />
+        <Rectangle arcHeight="60.0" arcWidth="60.0" fill="#ffffff06" height="140.0" layoutX="100.0" layoutY="150.0" rotate="-10.0" width="140.0" />
+
+        <!-- Header with dark glassmorphism effect -->
+        <Pane layoutY="0.0" prefHeight="80.0" prefWidth="1000.0" style="-fx-background-color: #00000040; -fx-border-color: #ffffff15; -fx-border-width: 0 0 1 0;">
+            <children>
+                <!-- Logo container with hover effect -->
+                <Pane layoutX="20.0" layoutY="15.0" onMouseClicked="#retourMain" style="-fx-cursor: hand; -fx-background-color: #ffffff10; -fx-background-radius: 25; -fx-padding: 10;">
+                    <children>
+                        <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="@../../assets/icone.png" />
+                            </image>
+                        </ImageView>
+                    </children>
+                    <effect>
+                        <DropShadow color="#00000060" radius="10.0" />
+                    </effect>
+                </Pane>
+
+                <!-- Title with modern typography -->
+                <Label layoutX="90.0" layoutY="20.0" style="-fx-font-family: sans-serif; -fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-font-size: 32px;" text="Actualités Ma Ville">
+                    <effect>
+                        <DropShadow color="#00000040" radius="3.0" />
+                    </effect>
+                </Label>
+
+                <!-- Subtitle -->
+                <Label layoutX="90.0" layoutY="50.0" opacity="0.8" style="-fx-font-family: sans-serif; -fx-text-fill: #cccccc; -fx-font-size: 14px;" text="Gestionnaire de plugins">
+                </Label>
+
+                <!-- Back button -->
+                <Pane layoutX="840.0" layoutY="10.0" onMouseClicked="#retourMain" prefHeight="60.0" prefWidth="60.0" style="-fx-cursor: hand; -fx-background-color: #4a69bd40; -fx-background-radius: 25; -fx-padding: 10;">
+                    <children>
+                        <ImageView fitHeight="40.0" fitWidth="40.0" layoutX="10.0" layoutY="10.0" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="@../../assets/back.png" />
+                            </image>
+                        </ImageView>
+                    </children>
+                    <effect>
+                        <DropShadow color="#00000060" radius="10.0" />
+                    </effect>
+                </Pane>
+
+                <!-- Plugin icon -->
+                <Pane layoutX="920.0" layoutY="15.0" style="-fx-background-color: #4a69bd40; -fx-background-radius: 25; -fx-padding: 10;">
+                    <children>
+                        <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="@../../assets/puzzle.png" />
+                            </image>
+                        </ImageView>
+                    </children>
+                    <effect>
+                        <DropShadow color="#00000060" radius="10.0" />
+                    </effect>
+                </Pane>
+            </children>
+        </Pane>
+
+        <!-- Main content area -->
+        <HBox alignment="TOP_CENTER" fillHeight="false" layoutY="100.0" prefHeight="580.0" prefWidth="1000.0" spacing="20.0">
+            <children>
+                <!-- Left panel - Plugin list -->
+                <Pane prefHeight="603.0" prefWidth="580.0" style="-fx-background-color: #1e1e2e90; -fx-background-radius: 20;">
+                    <children>
+                        <VBox alignment="TOP_CENTER" fillWidth="false" prefHeight="562.0" prefWidth="580.0" spacing="15.0">
+                            <children>
+                                <!-- List header -->
+                                <HBox alignment="CENTER_LEFT" prefHeight="60.0" prefWidth="560.0" spacing="15.0" style="-fx-padding: 20 20 0 20;">
+                                    <children>
+                                        <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
+                                            <image>
+                                                <Image url="@../../assets/puzzle.png" />
+                                            </image>
+                                        </ImageView>
+                                        <VBox prefHeight="42.0" prefWidth="607.0" spacing="2.0">
+                                            <children>
+                                                <Label style="-fx-font-family: sans-serif; -fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-font-size: 20px;" text="Plugins Installés">
+                                                </Label>
+                                                <Label style="-fx-font-family: sans-serif; -fx-text-fill: #cccccc; -fx-font-size: 12px;" text="Gérez vos extensions et modules">
+                                                </Label>
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </HBox>
+
+                                <!-- Action buttons -->
+                                <HBox alignment="CENTER" prefHeight="50.0" prefWidth="560.0" spacing="10.0" style="-fx-padding: 0 20 0 20;">
+                                    <children>
+                                        <!-- Zone de glissé-déposé cliquable -->
+                                        <Button fx:id="dragDropArea" onMouseClicked="#chargerJarPlugin" prefHeight="35.0" prefWidth="154.0" style="-fx-font-family: sans-serif; -fx-background-color: linear-gradient(to right, #8e44ad, #7d3c98); -fx-background-radius: 18; -fx-border-radius: 18; -fx-cursor: hand; -fx-font-weight: bold; -fx-text-fill: white; -fx-font-size: 11px;" text="📁 Charger JAR" textAlignment="CENTER">
+                                        </Button>
+                                        <Button fx:id="refreshButton" onMouseClicked="#refreshPlugins" prefHeight="35.0" prefWidth="100.0" style="-fx-font-family: sans-serif; -fx-background-color: linear-gradient(to right, #3498db, #2980b9); -fx-background-radius: 18; -fx-border-radius: 18; -fx-cursor: hand; -fx-font-weight: bold; -fx-text-fill: white; -fx-font-size: 12px;" text="Actualiser" textAlignment="CENTER">
+                                        </Button>
+                                        <Button fx:id="enableAllButton" onMouseClicked="#enableAllPlugins" prefHeight="35.0" prefWidth="125.0" style="-fx-font-family: sans-serif; -fx-background-color: linear-gradient(to right, #27ae60, #229954); -fx-background-radius: 18; -fx-border-radius: 18; -fx-cursor: hand; -fx-font-weight: bold; -fx-text-fill: white; -fx-font-size: 11px;" text="Activer Tous" textAlignment="CENTER">
+                                        </Button>
+                                        <Button fx:id="disableAllButton" onMouseClicked="#disableAllPlugins" prefHeight="35.0" prefWidth="125.0" style="-fx-font-family: sans-serif; -fx-background-color: linear-gradient(to right, #e67e22, #d35400); -fx-background-radius: 18; -fx-border-radius: 18; -fx-cursor: hand; -fx-font-weight: bold; -fx-text-fill: white; -fx-font-size: 11px;" text="Désactiver Tous" textAlignment="CENTER">
+                                        </Button>
+                                    </children>
+                                </HBox>
+
+                                <!-- Plugin table -->
+                                <Pane prefHeight="420.0" prefWidth="540.0" style="-fx-background-color: #2c3e50; -fx-background-radius: 15; -fx-padding: 15;">
+                                    <children>
+                                        <TableView fx:id="pluginTable" layoutX="15.0" layoutY="12.0" prefHeight="390.0" prefWidth="510.0" style="-fx-background-color: transparent; -fx-border-color: transparent;">
+                                            <columns>
+                                                <TableColumn fx:id="enabledColumn" prefWidth="80.0" text="Actif" />
+                                                <TableColumn fx:id="nameColumn" prefWidth="200.0" text="Plugin" />
+                                                <TableColumn fx:id="versionColumn" prefWidth="100.0" text="Version" />
+                                                <TableColumn fx:id="descriptionColumn" prefWidth="130.0" text="Description" />
+                                            </columns>
+                                        </TableView>
+                                    </children>
+                                    <effect>
+                                        <DropShadow color="#00000040" radius="8.0" />
+                                    </effect>
+                                </Pane>
+                            </children>
+                        </VBox>
+                    </children>
+                    <effect>
+                        <DropShadow color="#00000040" radius="25.0" />
+                    </effect>
+                </Pane>
+
+                <!-- Right panel - Plugin details -->
+                <Pane prefHeight="606.0" prefWidth="380.0" style="-fx-background-color: #ffffff15; -fx-background-radius: 20;">
+                    <children>
+                        <VBox alignment="CENTER" fillWidth="false" prefHeight="580.0" prefWidth="380.0" spacing="30.0">
+                            <children>
+                                <!-- Details header -->
+                                <HBox alignment="CENTER_LEFT" prefHeight="60.0" prefWidth="360.0" spacing="15.0" style="-fx-padding: 20 20 0 20;">
+                                    <children>
+                                        <Pane prefHeight="40.0" prefWidth="40.0" style="-fx-background-color: #ffffff20; -fx-background-radius: 20;">
+                                            <children>
+                                                <Label alignment="CENTER" prefHeight="40.0" prefWidth="40.0" style="-fx-font-family: sans-serif; -fx-text-fill: white; -fx-font-size: 20px;" text="ℹ️">
+                                                </Label>
+                                            </children>
+                                        </Pane>
+                                        <VBox spacing="2.0">
+                                            <children>
+                                                <Label style="-fx-font-family: sans-serif; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 18px;" text="Détails du Plugin">
+                                                </Label>
+                                                <Label style="-fx-font-family: sans-serif; -fx-text-fill: #d0d0d0; -fx-font-size: 12px;" text="Informations et contrôles">
+                                                </Label>
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </HBox>
+
+                                <!-- Plugin info card -->
+                                <Pane prefHeight="300.0" prefWidth="340.0" style="-fx-background-color: #ffffff10; -fx-background-radius: 15; -fx-padding: 20;">
+                                    <children>
+                                        <VBox alignment="TOP_LEFT" fillWidth="false" layoutX="20.0" layoutY="20.0" prefHeight="260.0" prefWidth="300.0" spacing="15.0">
+                                            <children>
+                                                <!-- Plugin title -->
+                                                <Label fx:id="selectedPluginTitle" style="-fx-font-family: sans-serif; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 18px;" text="Aucun plugin sélectionné" wrapText="true">
+                                                </Label>
+
+                                                <!-- Plugin description -->
+                                                <Label fx:id="selectedPluginDescription" prefHeight="80.0" prefWidth="300.0" style="-fx-font-family: sans-serif; -fx-text-fill: #d0d0d0; -fx-font-size: 13px;" text="Sélectionnez un plugin dans la liste pour voir ses détails et options de configuration." wrapText="true">
+                                                </Label>
+
+                                                <!-- Plugin metadata -->
+                                                <VBox spacing="8.0">
+                                                    <children>
+                                                        <Label fx:id="selectedPluginVersion" style="-fx-font-family: sans-serif; -fx-text-fill: #9CA3AF; -fx-font-size: 12px;" text="">
+                                                        </Label>
+                                                    </children>
+                                                </VBox>
+
+                                                <!-- Action buttons for selected plugin -->
+                                                <VBox alignment="CENTER" spacing="10.0">
+                                                    <children>
+                                                        <Button fx:id="toggleButton" onMouseClicked="#toggleSelectedPlugin" prefHeight="45.0" prefWidth="200.0" style="-fx-font-family: sans-serif; -fx-background-color: #555555; -fx-background-radius: 22; -fx-border-radius: 22; -fx-cursor: hand; -fx-font-weight: bold; -fx-text-fill: white; -fx-font-size: 14px;" text="Activer/Désactiver">
+                                                        </Button>
+                                                    </children>
+                                                </VBox>
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                    <effect>
+                                        <DropShadow color="#00000030" radius="10.0" />
+                                    </effect>
+                                </Pane>
+
+                                <!-- Statistics card -->
+                                <Pane prefHeight="120.0" prefWidth="340.0" style="-fx-background-color: #ffffff10; -fx-background-radius: 15; -fx-padding: 15;">
+                                    <children>
+                                        <VBox alignment="CENTER" fillWidth="false" layoutY="15.0" prefHeight="90.0" prefWidth="340.0" spacing="10.0">
+                                            <children>
+                                                <Label style="-fx-font-family: sans-serif; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px;" text="📊 Statistiques">
+                                                </Label>
+                                                <HBox alignment="CENTER" spacing="30.0">
+                                                    <children>
+                                                        <VBox alignment="CENTER" spacing="5.0">
+                                                            <children>
+                                                                <Label fx:id="activePluginsCount" style="-fx-font-family: sans-serif; -fx-text-fill: #27ae60; -fx-font-weight: bold; -fx-font-size: 18px;" text="0">
+                                                                </Label>
+                                                                <Label style="-fx-font-family: sans-serif; -fx-text-fill: #d0d0d0; -fx-font-size: 10px;" text="Actifs">
+                                                                </Label>
+                                                            </children>
+                                                        </VBox>
+                                                        <VBox alignment="CENTER" spacing="5.0">
+                                                            <children>
+                                                                <Label fx:id="inactivePluginsCount" style="-fx-font-family: sans-serif; -fx-text-fill: #e67e22; -fx-font-weight: bold; -fx-font-size: 18px;" text="0">
+                                                                </Label>
+                                                                <Label style="-fx-font-family: sans-serif; -fx-text-fill: #d0d0d0; -fx-font-size: 10px;" text="Inactifs">
+                                                                </Label>
+                                                            </children>
+                                                        </VBox>
+                                                        <VBox alignment="CENTER" spacing="5.0">
+                                                            <children>
+                                                                <Label fx:id="totalPluginsCount" style="-fx-font-family: sans-serif; -fx-text-fill: #3498db; -fx-font-weight: bold; -fx-font-size: 18px;" text="0">
+                                                                </Label>
+                                                                <Label style="-fx-font-family: sans-serif; -fx-text-fill: #d0d0d0; -fx-font-size: 10px;" text="Total">
+                                                                </Label>
+                                                            </children>
+                                                        </VBox>
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                    <effect>
+                                        <DropShadow color="#00000030" radius="10.0" />
+                                    </effect>
+                                </Pane>
+                            </children>
+                        </VBox>
+                    </children>
+                    <effect>
+                        <DropShadow color="#00000040" radius="25.0" />
+                    </effect>
+                </Pane>
+            </children>
+        </HBox>
+    </children>
+</Pane>

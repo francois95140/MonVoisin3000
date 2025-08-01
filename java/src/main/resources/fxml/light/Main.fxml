@@ -56,7 +56,7 @@
                     <children>
                         <ImageView fitHeight="40.0" fitWidth="40.0" layoutX="10.0" layoutY="10.0" pickOnBounds="true" preserveRatio="true">
                             <image>
-                                <Image url="@../../assets/plugin.png" />
+                                <Image url="@../../assets/puzzle.png" />
                             </image>
                         </ImageView>
                     </children>
@@ -208,7 +208,7 @@
                         </Pane>
                         
                         <!-- Plugin management button -->
-                        <Pane prefHeight="120.0" prefWidth="200.0" style="-fx-background-color: #ffffff25; -fx-background-radius: 15; -fx-cursor: hand;" onMouseClicked="#ouvrirGestionPlugins">
+                        <Pane prefHeight="120.0" prefWidth="200.0" style="-fx-background-color: #ffffff25; -fx-background-radius: 15; -fx-cursor: hand;" onMouseClicked="#ouvrirGestionnairePlugins">
                             <children>
                                 <VBox alignment="CENTER" fillWidth="false" prefHeight="120.0" prefWidth="200.0" spacing="10.0">
                                     <children>

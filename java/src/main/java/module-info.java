@@ -14,6 +14,8 @@ module com.MonVoisin {
     requires org.seleniumhq.selenium.chrome_driver;
     requires io.github.bonigarcia.webdrivermanager;
 
+    uses plugin.Plugin;
+
     opens application to javafx.fxml;
     exports application;
     opens controller to javafx.fxml;
@@ -22,4 +24,6 @@ module com.MonVoisin {
     exports model;
     opens services.webscrapper to javafx.fxml;  // ✅ Si vous l'utilisez dans FXML
     exports services.webscrapper;
+    exports plugin;
+    opens plugin to javafx.fxml;
 }
