@@ -1,0 +1,11 @@
+// Composants vraiment partagés utilisés dans plusieurs pages
+export { default as IonIcon } from './IonIcon';
+export { default as Button } from './Button';
+export { default as FormField } from './FormField';
+export { default as TextArea } from './TextArea';
+export { default as GlassCard } from './GlassCard';
+export { default as ToggleSwitch } from './ToggleSwitch';
+export { default as LoadingSpinner } from './LoadingSpinner';
+export { default as ErrorMessage } from './ErrorMessage';  
+export { default as EmptyState } from './EmptyState';
+export { default as Modal } from './Modal';

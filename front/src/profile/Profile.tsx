@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
-
-// Composant pour les icônes Ionicons
-const IonIcon: React.FC<{ name: string; className?: string }> = ({ name, className = "" }) => (
-  <ion-icon name={name} class={className}></ion-icon>
-);
+import { IonIcon, GlassCard, ToggleSwitch, Button } from '../components/shared';
+import { AvatarUpload } from '../auth/components';
 
 interface ProfilePageProps {}
 
@@ -133,81 +130,49 @@ const ProfilePage: React.FC<ProfilePageProps> = () => {
 
           {/* État de chargement */}
           {loading && (
-            <div className="glass-card rounded-3xl p-6 fade-in text-center">
+            <GlassCard className="text-center">
               <div className="flex items-center justify-center space-x-2">
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
                 <span className="text-white">Chargement des informations...</span>
               </div>
-            </div>
+            </GlassCard>
           )}
 
           {/* Affichage d'erreur */}
           {error && (
-            <div className="glass-card rounded-3xl p-6 fade-in">
+            <GlassCard>
               <div className="bg-red-500/20 border border-red-500/30 rounded-xl p-4">
                 <div className="flex items-center space-x-2">
-                  <ion-icon name="alert-circle" className="text-red-400 text-xl"></ion-icon>
+                  <IonIcon name="alert-circle" className="text-red-400 text-xl" />
                   <span className="text-red-400 font-medium">Erreur de chargement</span>
                 </div>
                 <p className="text-red-300 mt-2 text-sm">{error}</p>
                 <div className="flex space-x-2 mt-3">
-                  <button 
+                  <Button 
                     onClick={() => window.location.reload()}
-                    className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm transition-colors"
+                    variant="danger"
+                    size="sm"
                   >
                     Réessayer
-                  </button>
+                  </Button>
                   {error.includes('authentification') || error.includes('Session expirée') ? (
-                    <NavLink 
-                      to="/login"
-                      className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm transition-colors"
-                    >
-                      Se connecter
+                    <NavLink to="/login">
+                      <Button variant="primary" size="sm">
+                        Se connecter
+                      </Button>
                     </NavLink>
                   ) : null}
                 </div>
               </div>
-            </div>
+            </GlassCard>
           )}
           
           {/* Informations personnelles */}
           {!loading && !error && (
-          <div className="glass-card rounded-3xl p-6 fade-in">
+          <GlassCard>
           <div className="relative mb-4 flex justify-center">
               
-              <div
-                id="photoback"
-                className="h-32 w-32 bg-indigo-500 overflow-hidden rounded-full photo cursor-pointer"
-              >
-                <input
-                  type="file"
-                  id="photo"
-                  name="photo"
-                  className="opacity-0 h-full w-full"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
-                      const base64String = event.target?.result as string;
-                      const photoback = document.getElementById("photoback");
-                      if (photoback) {
-                        photoback.style.backgroundImage = `url(${base64String})`;
-                        photoback.style.backgroundSize = "cover";
-                        photoback.style.backgroundPosition = "center";
-                        photoback.classList.remove("bg-indigo-500");
-                      }
-                    };
-
-                    if (e.target.files && e.target.files[0]) {
-                      reader.readAsDataURL(e.target.files[0]);
-                    }
-                  }}
-                />
-                <ion-icon
-                  name="camera"
-                  className="text-6xl absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-20 photoicon"
-                ></ion-icon>
-              </div>
+                  <AvatarUpload id="photoback" />
             </div>
             
             <div className="space-y-4">
@@ -251,16 +216,18 @@ const ProfilePage: React.FC<ProfilePageProps> = () => {
                     codePostal: formData.address?.match(/\d{5}/) ? formData.address.match(/\d{5}/)[0] : ''
                   }
                 }}
-                className="w-full flex items-center justify-center py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-xl font-semibold transition-all duration-200 transform hover:scale-105"
+                className="w-full"
               >
-                Modifier mes informations
+                <Button variant="success" className="w-full transform hover:scale-105">
+                  Modifier mes informations
+                </Button>
               </NavLink>
             </div>
-          </div>
+          </GlassCard>
           )}
 
           {/* Sécurité et mot de passe */}
-          <div className="glass-card rounded-3xl p-6 fade-in">
+          <GlassCard>
             <div className="flex items-center space-x-4 mb-6">
               <IonIcon name="lock-closed" className="w-6 h-6 text-white flex-shrink-0" />
               <h2 className="text-xl font-semibold text-white">Sécurité</h2>
@@ -271,17 +238,16 @@ const ProfilePage: React.FC<ProfilePageProps> = () => {
                 Modifiez votre mot de passe pour sécuriser votre compte
               </p>
 
-              <NavLink 
-                to="/changepassword"
-                className="w-full flex items-center justify-center py-3 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white rounded-xl font-semibold transition-all duration-200"
-              >
-                Modifier le mot de passe
+              <NavLink to="/changepassword" className="w-full">
+                <Button className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600">
+                  Modifier le mot de passe
+                </Button>
               </NavLink>
             </div>
-          </div>
+          </GlassCard>
 
           {/* Paramètres de géolocalisation */}
-          <div className="glass-card rounded-3xl p-6 fade-in">
+          <GlassCard>
             <div className="flex items-center space-x-4 mb-6">
               <IonIcon name="location" className="w-6 h-6 text-white flex-shrink-0" />
               <h2 className="text-xl font-semibold text-white">Géolocalisation</h2>
@@ -319,10 +285,10 @@ const ProfilePage: React.FC<ProfilePageProps> = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </GlassCard>
 
           {/* Paramètres de notifications */}
-          <div className="glass-card rounded-3xl p-6 fade-in">
+          <GlassCard>
             <div className="flex items-center space-x-4 mb-6">
               <IonIcon name="notifications" className="w-6 h-6 text-white flex-shrink-0" />
               <h2 className="text-xl font-semibold text-white">Notifications</h2>
@@ -334,10 +300,7 @@ const ProfilePage: React.FC<ProfilePageProps> = () => {
                   <h3 className="text-white font-medium">Messages privés</h3>
                   <p className="text-white/60 text-sm">Recevoir les notifications des nouveaux messages</p>
                 </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" className="sr-only peer" defaultChecked />
-                  <div className="w-11 h-6 bg-white/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
-                </label>
+                <ToggleSwitch defaultChecked={true} />
               </div>
 
               <div className="flex items-center justify-between">
@@ -345,10 +308,7 @@ const ProfilePage: React.FC<ProfilePageProps> = () => {
                   <h3 className="text-white font-medium">Événements du quartier</h3>
                   <p className="text-white/60 text-sm">Être notifié des nouveaux événements près de chez vous</p>
                 </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" className="sr-only peer" defaultChecked />
-                  <div className="w-11 h-6 bg-white/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
-                </label>
+                <ToggleSwitch defaultChecked={true} />
               </div>
 
               <div className="flex items-center justify-between">
@@ -356,10 +316,7 @@ const ProfilePage: React.FC<ProfilePageProps> = () => {
                   <h3 className="text-white font-medium">Troc & Services</h3>
                   <p className="text-white/60 text-sm">Recevoir les notifications des nouveaux trocs et services disponibles</p>
                 </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" className="sr-only peer" defaultChecked />
-                  <div className="w-11 h-6 bg-white/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
-                </label>
+                <ToggleSwitch defaultChecked={true} />
               </div>
 
               <div className="flex items-center justify-between">
@@ -367,16 +324,13 @@ const ProfilePage: React.FC<ProfilePageProps> = () => {
                   <h3 className="text-white font-medium">Nouvelles demandes d'amis</h3>
                   <p className="text-white/60 text-sm">Recevoir les notifications des demandes d'amis</p>
                 </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" className="sr-only peer" />
-                  <div className="w-11 h-6 bg-white/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
-                </label>
+                <ToggleSwitch defaultChecked={false} />
               </div>
             </div>
-          </div>
+          </GlassCard>
 
           {/* Liens rapides */}
-          <div className="glass-card rounded-3xl p-6 fade-in">
+          <GlassCard>
             <div className="flex items-center space-x-4 mb-6">
               <IonIcon name="people" className="w-6 h-6 text-white flex-shrink-0" />
               <h2 className="text-xl font-semibold text-white">Liens rapides</h2>
@@ -415,17 +369,17 @@ const ProfilePage: React.FC<ProfilePageProps> = () => {
                 <span className="text-white font-medium">Aide & Support</span>
               </NavLink>
             </div>
-          </div>
+          </GlassCard>
 
           {/* Actions de compte */}
           <div className="space-y-4 fade-in">
-            <button 
+            <Button 
               onClick={handleLogout}
-              className="w-full flex items-center justify-center space-x-3 py-4 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white rounded-xl font-semibold transition-all duration-200"
+              className="w-full bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 space-x-3 py-4"
+              icon="log-out"
             >
-              <IonIcon name="log-out" className="w-5 h-5" />
-              <span>Se déconnecter</span>
-            </button>
+              Se déconnecter
+            </Button>
 
             <div className="danger-zone rounded-xl p-6">
               <div className="flex items-center space-x-4 mb-4">
@@ -437,12 +391,13 @@ const ProfilePage: React.FC<ProfilePageProps> = () => {
                 Une fois supprimé, votre compte ne pourra pas être récupéré. Cette action est irréversible.
               </p>
               
-              <button 
+              <Button 
                 onClick={handleDeleteAccount}
-                className="w-full py-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-xl font-semibold transition-all duration-200"
+                variant="danger"
+                className="w-full py-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700"
               >
                 Supprimer mon compte
-              </button>
+              </Button>
             </div>
           </div>
 

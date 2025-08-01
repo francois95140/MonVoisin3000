@@ -1,4 +1,6 @@
 import { NavLink } from "react-router-dom";
+import { FormField, Button, IonIcon } from '../components/shared';
+import { SocialButtons, Separator } from './components';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -72,54 +74,20 @@ function Connexion() {
             <h2 className="text-gray-900 text-lg font-medium title-font mb-5">
               Se connecter à un compte
             </h2>
-            <div className="grid grid-cols-2 gap-6 my-4">
-              <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2">
-                <ion-icon name="logo-github" className="text-2xl"></ion-icon>
-                GitHub
-              </button>
-              <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2">
-                <ion-icon name="logo-google" className="text-2xl"></ion-icon>
-                Google
-              </button>
-            </div>
-            <div className="relative my-4">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t"></span>
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-gray-100 px-2 text-muted-foreground">
-                  Ou continuer avec
-                </span>
-              </div>
-            </div>
-            <div className="relative mb-4">
-              <label
-                htmlFor="tag"
-                className="leading-7 text-sm text-gray-600"
-              >
-                Tag ou Email
-              </label>
-              <input
-                type="text"
-                id="tag"
-                name="tag"
-                className="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
-              />
-            </div>
-            <div className="relative mb-4">
-              <label
-                htmlFor="motdepasse"
-                className="leading-7 text-sm text-gray-600"
-              >
-                Mot de passe
-              </label>
-              <input
-                type="password"
-                id="motdepasse"
-                name="motdepasse"
-                className="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
-              />
-            </div>
+            <SocialButtons />
+            <Separator />
+            <FormField
+              id="tag"
+              name="tag"
+              label="Tag ou Email"
+              type="text"
+            />
+            <FormField
+              id="motdepasse"
+              name="motdepasse"
+              label="Mot de passe"
+              type="password"
+            />
             <div className="relative mb-4">
               <input
                 type="checkbox"
@@ -131,17 +99,19 @@ function Connexion() {
                 Rester connecté
               </label>
             </div>
-            <button type="submit"  className="text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg">
+            <Button type="submit" variant="primary">
               Connexion
-            </button>
+            </Button>
             <div className="flex my-4">
-              <NavLink to="/inscription" className="mr-2 flex-2/3 text-white bg-indigo-400 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-500 rounded text-lg text-center">
-                Inscription
+              <NavLink to="/inscription" className="mr-2 flex-2/3">
+                <Button variant="secondary" className="w-full">
+                  Inscription
+                </Button>
               </NavLink>
-              <NavLink to="/" className="ml-2 flex-1/3 .text-gray-700 bg-gray-200 border-0 py-2 px-8 focus:outline-none hover:bg-gray-300 rounded text-lg text-center">
-                <span className="h-full flex items-center text-2xl text-center justify-center">
-                  <ion-icon name="arrow-back-outline"></ion-icon>
-                </span>
+              <NavLink to="/" className="ml-2 flex-1/3">
+                <Button variant="ghost" className="w-full">
+                  <IonIcon name="arrow-back-outline" className="text-2xl" />
+                </Button>
               </NavLink>
             </div>
           </form>
