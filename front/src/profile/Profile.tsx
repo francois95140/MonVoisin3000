@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { IonIcon, GlassCard, ToggleSwitch, Button } from '../components/shared';
-import { AvatarUpload } from '../auth/components';
 
 interface ProfilePageProps {}
 
@@ -20,6 +19,7 @@ const ProfilePage: React.FC<ProfilePageProps> = () => {
     address: '',
     bio: '',
     tag:'',
+    avatar: '',
     geoPermission: 'friends-only'
   });
 
@@ -39,7 +39,7 @@ const ProfilePage: React.FC<ProfilePageProps> = () => {
           throw new Error('Token d\'authentification manquant. Veuillez vous reconnecter.');
         }
         
-        const response = await fetch(`${apiUrl}/users/me`, {
+        const response = await fetch(`${apiUrl}/api/users/me`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -65,6 +65,7 @@ const ProfilePage: React.FC<ProfilePageProps> = () => {
           address: userData.address || '',
           bio: userData.bio || '',
           tag: userData.tag || '',
+          avatar: userData.avatar || '',
           geoPermission: userData.geoPermission || 'friends-only'
         });
       } catch (err) {
@@ -101,8 +102,14 @@ const ProfilePage: React.FC<ProfilePageProps> = () => {
 
   const handleLogout = () => {
     if (window.confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
-      console.log('Déconnexion');
-      // Redirection vers login
+      // Supprimer les tokens de connexion
+      localStorage.removeItem('authToken');
+      sessionStorage.removeItem('authToken');
+      localStorage.removeItem('user');
+      sessionStorage.removeItem('user');
+      
+      // Redirection vers la page de connexion
+      window.location.href = '/connexion';
     }
   };
 
@@ -171,8 +178,20 @@ const ProfilePage: React.FC<ProfilePageProps> = () => {
           {!loading && !error && (
           <GlassCard>
           <div className="relative mb-4 flex justify-center">
-              
-                  <AvatarUpload id="photoback" />
+              <div className="h-32 w-32 overflow-hidden rounded-full bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center">
+                {formData.avatar ? (
+                  <img 
+                    src={formData.avatar} 
+                    alt="Avatar" 
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <IonIcon 
+                    name="person" 
+                    className="text-white text-4xl"
+                  />
+                )}
+              </div>
             </div>
             
             <div className="space-y-4">
@@ -210,10 +229,12 @@ const ProfilePage: React.FC<ProfilePageProps> = () => {
                     address: formData.address,
                     bio: formData.bio,
                     tag: formData.tag,
-                    // Extraction des composants d'adresse si disponibles
+                    avatar: formData.avatar,
+                    // Extraction des composants d'adresse si disponibles  
                     rue: formData.address?.split(',')[0] || '',
                     ville: formData.address?.split(',').pop()?.trim() || '',
-                    codePostal: formData.address?.match(/\d{5}/) ? formData.address.match(/\d{5}/)[0] : ''
+                    codePostal: formData.address?.match(/\d{5}/) ? formData.address.match(/\d{5}/)[0] : '',
+                    cp: formData.address?.match(/\d{5}/) ? formData.address.match(/\d{5}/)[0] : ''
                   }
                 }}
                 className="w-full"

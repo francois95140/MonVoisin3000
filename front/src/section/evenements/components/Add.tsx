@@ -114,7 +114,7 @@ export default function Add() {
                 imageUrl: selectedIcon?.value || undefined
             };
 
-            const response = await fetch(`${apiUrl}/events`, {
+            const response = await fetch(`${apiUrl}/api/events`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -140,7 +140,8 @@ export default function Add() {
         
         // Fermer la modal et réinitialiser le formulaire
         toggleModal();
-        event.currentTarget.reset();
+        const form = document.getElementById('eventForm') as HTMLFormElement;
+        if (form) form.reset();
         const selectedIconInput = document.getElementById('selectedIcon') as HTMLInputElement;
         if (selectedIconInput) selectedIconInput.value = '';
         setSelectedIcon('');

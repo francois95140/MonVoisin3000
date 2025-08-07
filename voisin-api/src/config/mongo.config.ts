@@ -11,8 +11,9 @@ export const getMongoConfig = async (
   const database = configService.get<string>('MONGODB_DATABASE', 'monvoisin3000');
 
   const uri = username && password
-    ? `mongodb://${username}:${password}@${host}:${port}/${database}`
+    ? `mongodb://${username}:${password}@${host}:${port}/${database}?authSource=admin`
     : `mongodb://${host}:${port}/${database}`;
 
+  console.log('MongoDB URI:', uri);
   return { uri };
 }; 

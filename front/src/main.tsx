@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route, Outlet, Navigate, useLocation } from "react-router-dom";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import "./index.css";
 import Home from "./home/Home";
 import Connexion from "./auth/Connexion";
@@ -23,7 +25,7 @@ const basename = '/';
 // Composant pour gérer l'affichage conditionnel
 function AppLayout() {
   const location = useLocation();
-  const hasUserToken = sessionStorage.getItem("UserToken");
+  const hasUserToken = sessionStorage.getItem("authToken") || localStorage.getItem("authToken");
   const profileImage = sessionStorage.getItem("UserImage");
   const pseudo = sessionStorage.getItem("UserPseudo") || "Utilisateur";
   
@@ -65,6 +67,20 @@ function AppLayout() {
       </Routes>
       
       {hasUserToken && !isPublicRoute && <Navbar />}
+      
+      {/* Toast notifications */}
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </>
   );
 }

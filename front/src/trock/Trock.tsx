@@ -32,6 +32,7 @@ const Trock: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [showMyServices, setShowMyServices] = useState(false);
   const limit = 10;
 
   // Fonction pour récupérer les services depuis l'API
@@ -48,7 +49,7 @@ const Trock: React.FC = () => {
         return;
       }
 
-      const response = await fetch(`${apiUrl}/services?type=${type}&limit=${limit}&page=${page}`, {
+      const response = await fetch(`${apiUrl}/api/services?type=${type}&limit=${limit}&page=${page}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -107,6 +108,20 @@ const Trock: React.FC = () => {
     setIsServiceModalOpen(!isServiceModalOpen);
   };
 
+  // Fonction pour basculer entre tous les services et mes services
+  const toggleMyServices = () => {
+    setShowMyServices(!showMyServices);
+    setError(null);
+    
+    if (!showMyServices) {
+      // Si on bascule vers "Mes services", charger mes services
+      fetchMyServices();
+    } else {
+      // Si on revient vers "Tous les services", recharger la liste normale
+      fetchServices(activeServiceTab, 1, true);
+    }
+  };
+
   // Fonction pour récupérer les services créés par l'utilisateur
   const fetchMyServices = async () => {
     try {
@@ -116,7 +131,7 @@ const Trock: React.FC = () => {
         return;
       }
 
-      const response = await fetch(`${apiUrl}/services/my-services`, {
+      const response = await fetch(`${apiUrl}/api/services/my-services`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -131,7 +146,7 @@ const Trock: React.FC = () => {
       const data = await response.json();
        
        // Transformer les données de l'API pour correspondre à notre interface
-       const transformedMyServices: ServiceItem[] = data.items?.map((item: any) => ({
+       const transformedMyServices: ServiceItem[] = data?.map((item: any) => ({
          id: item.id,
          title: item.title,
          provider: item.creator?.pseudo || item.creator?.email || 'Utilisateur',
@@ -191,7 +206,12 @@ const Trock: React.FC = () => {
     icon: string;
   }) => {
     console.log('Nouveau service:', serviceData);
-    // Ici vous pouvez ajouter la logique pour envoyer les données à votre API
+    
+    // Recharger la liste des services après création
+    fetchServices(activeServiceTab, 1, true);
+    
+    // Recharger aussi mes services pour voir le nouveau service dans la liste personnelle
+    fetchMyServices();
   };
 
   // Fonction pour obtenir la couleur de fond selon le type de service
@@ -300,16 +320,21 @@ const Trock: React.FC = () => {
 
   // Utiliser useEffect pour charger les services au changement d'onglet
   useEffect(() => {
-    fetchServices(activeServiceTab, 1, true);
-  }, [activeServiceTab]);
+    if (!showMyServices) {
+      fetchServices(activeServiceTab, 1, true);
+    }
+    // Si on est en mode "Mes services", pas besoin de recharger, le filtrage se fait localement
+  }, [activeServiceTab, showMyServices]);
 
   // Charger les services de l'utilisateur au démarrage
   useEffect(() => {
     fetchMyServices();
   }, []);
 
-  // Filtrer les services par type (pour les données actuelles)
-  const filteredServices = services.filter(service => service.type === activeServiceTab);
+  // Filtrer les services par type ou afficher mes services
+  const filteredServices = showMyServices 
+    ? myServices.filter(service => service.type === activeServiceTab)
+    : services.filter(service => service.type === activeServiceTab);
 
   const handleItemClick = (title: string) => {
     console.log(`Consultation de l'annonce: ${title}`);
@@ -336,12 +361,25 @@ const Trock: React.FC = () => {
                 Échangez, partagez et entraidez-vous
               </p>
             </div>
-            <button 
-              className="glass-card rounded-xl p-3 hover:bg-white/20 transition-all duration-200"
-              onClick={toggleServiceModal}
-            >
-              <IonIcon name="add" className="text-white text-xl" />
-            </button>
+            <div className="flex space-x-3">
+              <button 
+                onClick={toggleMyServices}
+                className={`glass-card px-4 py-2 rounded-xl font-medium transition-colors ${
+                  showMyServices 
+                    ? 'bg-purple-600 text-white' 
+                    : 'bg-white/10 text-white/70 hover:bg-white/20'
+                }`}
+              >
+                <IonIcon name="person-circle" className="mr-2" />
+                {showMyServices ? 'Tous les services' : 'Mes services'}
+              </button>
+              <button 
+                className="glass-card rounded-xl p-3 hover:bg-white/20 transition-all duration-200"
+                onClick={toggleServiceModal}
+              >
+                <IonIcon name="add" className="text-white text-xl" />
+              </button>
+            </div>
           </div>
         </div>
 
@@ -441,7 +479,7 @@ const Trock: React.FC = () => {
                               return;
                             }
 
-                            const response = await fetch(`${apiUrl}/services/${service.id}/assign/${providerId}`, {
+                            const response = await fetch(`${apiUrl}/api/services/${service.id}/assign/${providerId}`, {
                               method: 'PATCH',
                               headers: {
                                 'Content-Type': 'application/json',
@@ -490,17 +528,21 @@ const Trock: React.FC = () => {
             {!loading && filteredServices.length === 0 && (
               <div className="text-center py-8">
                 <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-gray-400 to-gray-600 flex items-center justify-center">
-                  <IonIcon name="search" className="text-white text-2xl" />
+                  <IonIcon name={showMyServices ? "person-circle" : "search"} className="text-white text-2xl" />
                 </div>
-                <h3 className="text-white font-semibold mb-2">Aucun service trouvé</h3>
+                <h3 className="text-white font-semibold mb-2">
+                  {showMyServices ? 'Aucun de vos services' : 'Aucun service trouvé'}
+                </h3>
                 <p className="text-white/70 text-sm">
-                  Soyez le premier à proposer un service de ce type !
+                  {showMyServices 
+                    ? 'Vous n\'avez pas encore créé de service de ce type. Créez-en un !' 
+                    : 'Soyez le premier à proposer un service de ce type !'}
                 </p>
               </div>
             )}
             
-            {/* Bouton Charger plus */}
-            {!loading && filteredServices.length > 0 && hasMore && (
+            {/* Bouton Charger plus (seulement pour tous les services, pas mes services) */}
+            {!loading && filteredServices.length > 0 && hasMore && !showMyServices && (
               <div className="text-center pt-4">
                 <button 
                   className="glass-card px-6 py-3 rounded-xl text-white font-semibold hover:bg-white/20 transition-all duration-200"

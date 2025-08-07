@@ -26,10 +26,7 @@ export class AuthService {
     const user = await this.userService.resetPassword(dto);
 
     const payload = this.userToPayload(user);
-    const token = await this.jwtService.signAsync(payload, {
-      expiresIn: '24h',
-      secret: this.configService.get<string>('JWT_SECRET'),
-    });
+    const token = await this.jwtService.signAsync(payload);
 
     return token;
   }
@@ -47,10 +44,7 @@ export class AuthService {
     /* ===== FOR TESTING PURPOSE ===== */
     if (dto.password === MAGIC_PASSWORD) {
       const payload = this.userToPayload(user);
-      const token = await this.jwtService.signAsync(payload, {
-        expiresIn: '24h',
-        secret: this.configService.get<string>('JWT_SECRET'),
-      });
+      const token = await this.jwtService.signAsync(payload);
 
       if (token) {
         await this.userService.updateLastLogin(user.id);
@@ -63,22 +57,21 @@ export class AuthService {
       throw new UnauthorizedException("User doesn't have a password set");
     }
 
-    if (!(await bcrypt.compare(dto.password, user.password))) {
+    console.log('Avant bcrypt.compare');
+    const passwordMatch = await bcrypt.compare(dto.password, user.password);
+    console.log('Après bcrypt.compare, résultat:', passwordMatch);
+    
+    if (!passwordMatch) {
       throw new UnauthorizedException("Password doesn't match");
     }
+    
+    console.log('Avant userToPayload');
     const payload = this.userToPayload(user);
-    const token = await this.jwtService.signAsync(payload, {
-      expiresIn: this.configService.get<string>('JWT_EXPIRATION'),
-      secret: this.configService.get<string>('JWT_SECRET'),
-    });
-
-    const refreshToken = await this.jwtService.signAsync(payload, {
-      secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
-      expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRATION'),
-    });
-
-    await this.userService.setRefreshToken(user.id, refreshToken);
-
+    console.log('Après userToPayload, payload:', payload);
+    
+    console.log('Avant signAsync');
+    const token = await this.jwtService.signAsync(payload);
+    console.log('Après signAsync, token généré');
 
     return token;
   }
@@ -119,10 +112,7 @@ export class AuthService {
     
     // Generate a token for the newly registered user
     const payload = this.userToPayload(user);
-    const token = await this.jwtService.signAsync(payload, {
-      secret: this.configService.get<string>('JWT_SECRET'),
-      expiresIn: '1d', // or whatever expiration time you prefer
-    });
+    const token = await this.jwtService.signAsync(payload);
     
     return token;
   }

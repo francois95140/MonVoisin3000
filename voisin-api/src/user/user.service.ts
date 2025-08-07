@@ -60,14 +60,20 @@ export class UserService {
 
     const user = await this.userRepository.save(creatingUser);
 
-    const query = `
-      CREATE (u:User {pseudo: $pseudo, tag: $tag, userPgId: $userId})
-      RETURN u
-    `;
+    // Temporary: Disable Neo4j to test if it's causing the 500 error
+    try {
+      const query = `
+        CREATE (u:User {pseudo: $pseudo, tag: $tag, userPgId: $userId})
+        RETURN u
+      `;
 
-    const params = {pseudo : user.pseudo, tag : user.tag, userId : user.id};
+      const params = {pseudo : user.pseudo, tag : user.tag, userId : user.id};
 
-    await this.neo4jService.write(query, params);
+      await this.neo4jService.write(query, params);
+    } catch (error) {
+      console.log('Neo4j error (non-blocking):', error.message);
+      // Don't throw, allow user creation to continue
+    }
 
     /* this.eventEmitter.emit(
       'user.created',

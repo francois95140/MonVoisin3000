@@ -37,7 +37,7 @@ export default function Evenements() {
                     return;
                 }
 
-                const response = await fetch(`${apiUrl}/users/me`, {
+                const response = await fetch(`${apiUrl}/api/users/me`, {
                     method: "GET",
                     headers: {
                         'Authorization': `Bearer ${token}`
@@ -71,7 +71,7 @@ export default function Evenements() {
                     throw new Error('Vous devez être connecté pour voir les événements');
                 }
                 
-                const response = await fetch(`${apiUrl}/events`, {
+                const response = await fetch(`${apiUrl}/api/events`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${authToken}`,
@@ -115,7 +115,7 @@ export default function Evenements() {
                 return;
             }
             
-            const response = await fetch(`${apiUrl}/events/registered/my-registrations`, {
+            const response = await fetch(`${apiUrl}/api/events/registered/my-registrations`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${authToken}`,
@@ -142,7 +142,7 @@ export default function Evenements() {
                 throw new Error('Vous devez être connecté pour voir vos événements');
             }
             
-            const response = await fetch(`${apiUrl}/events/my-events`, {
+            const response = await fetch(`${apiUrl}/api/events/my-events`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${authToken}`,
@@ -183,7 +183,7 @@ export default function Evenements() {
                     const authToken = sessionStorage.getItem('authToken') || localStorage.getItem('authToken');
                     if (!authToken) return;
                     
-                    const response = await fetch(`${apiUrl}/events`, {
+                    const response = await fetch(`${apiUrl}/api/events`, {
                         method: 'GET',
                         headers: {
                             'Authorization': `Bearer ${authToken}`,
@@ -219,7 +219,7 @@ export default function Evenements() {
                 return;
             }
 
-            const response = await fetch(`${apiUrl}/events/${eventId}/register`, {
+            const response = await fetch(`${apiUrl}/api/events/${eventId}/register`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -257,7 +257,7 @@ export default function Evenements() {
                 return;
             }
 
-            const response = await fetch(`${apiUrl}/events/${eventId}/unregister`, {
+            const response = await fetch(`${apiUrl}/api/events/${eventId}/unregister`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`,

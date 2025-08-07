@@ -65,7 +65,7 @@ const ServiceModal: React.FC<ServiceModalProps> = ({ isOpen, onClose, onSubmit }
       }
 
       // Envoi des données à l'API
-      const response = await fetch(`${apiUrl}/services`, {
+      const response = await fetch(`${apiUrl}/api/services`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
