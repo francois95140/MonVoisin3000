@@ -77,6 +77,7 @@ const Conversations: React.FC = () => {
     }
   }, [currentUserId]); // Connexion unique par utilisateur
 
+
   // Filtrer les conversations selon le terme de recherche
   const filteredConversations = conversations.filter(conv =>
     conv.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -90,6 +91,8 @@ const Conversations: React.FC = () => {
 
   const handleBackToList = () => {
     setSelectedConversation(null);
+    // Rafraîchir les conversations pour mettre à jour les compteurs
+    refetch();
   };
 
   const handleNewConversation = () => {
@@ -157,11 +160,13 @@ const Conversations: React.FC = () => {
         conversation={selectedConversation}
         currentUserId={currentUserId}
         onBack={handleBackToList}
+        onConversationUpdate={refetch}
       />
     );
   }
 
   // Sinon, afficher la liste des conversations
+  
   return (
     <div 
       className="min-h-screen pt-6 pb-24 antialiased"

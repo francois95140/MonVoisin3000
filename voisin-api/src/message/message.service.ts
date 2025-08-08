@@ -172,4 +172,104 @@ export class MessageService {
       deletedAt: { $exists: false },
     });
   }
+
+  /**
+   * Compter les messages non lus dans une conversation spécifique
+   */
+  async getUnreadCountByConversation(userId: string, fromUserId: string): Promise<number> {
+    return await this.messageModel.countDocuments({
+      recipientId: userId,
+      senderId: fromUserId,
+      isRead: false,
+      deletedAt: { $exists: false },
+    });
+  }
+
+  /**
+   * Récupérer la liste des conversations avec le nombre de messages non lus
+   */
+  async getConversationsWithUnreadCount(userId: string): Promise<{ senderId: string; unreadCount: number }[]> {
+    const result = await this.messageModel.aggregate([
+      {
+        $match: {
+          recipientId: userId,
+          isRead: false,
+          deletedAt: { $exists: false },
+        },
+      },
+      {
+        $group: {
+          _id: '$senderId',
+          unreadCount: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          senderId: '$_id',
+          unreadCount: 1,
+          _id: 0,
+        },
+      },
+    ]);
+
+    return result;
+  }
+
+  /**
+   * Marquer tous les messages d'une conversation comme lus
+   */
+  async markConversationAsRead(userId: string, fromUserId: string): Promise<{ modifiedCount: number }> {
+    const result = await this.messageModel.updateMany(
+      {
+        recipientId: userId,
+        senderId: fromUserId,
+        isRead: false,
+        deletedAt: { $exists: false },
+      },
+      {
+        $set: { isRead: true },
+      }
+    );
+
+    return { modifiedCount: result.modifiedCount };
+  }
+
+  /**
+   * Récupérer tous les IDs d'utilisateurs avec qui on a eu des conversations
+   */
+  async getConversationParticipants(userId: string): Promise<string[]> {
+    const result = await this.messageModel.aggregate([
+      {
+        $match: {
+          $or: [
+            { senderId: userId },
+            { recipientId: userId }
+          ],
+          deletedAt: { $exists: false },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          participants: {
+            $addToSet: {
+              $cond: [
+                { $eq: ['$senderId', userId] },
+                '$recipientId',
+                '$senderId'
+              ]
+            }
+          }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          participants: 1
+        }
+      }
+    ]);
+
+    return result.length > 0 ? result[0].participants : [];
+  }
 }

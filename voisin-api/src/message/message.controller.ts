@@ -215,4 +215,99 @@ export class MessageController {
       );
     }
   }
+
+  /**
+   * Compter les messages non lus dans une conversation spécifique
+   */
+  @Get('unread-count/:userId/:fromUserId')
+  async getUnreadCountByConversation(
+    @Param('userId') userId: string,
+    @Param('fromUserId') fromUserId: string,
+  ) {
+    try {
+      const count = await this.messageService.getUnreadCountByConversation(userId, fromUserId);
+      return {
+        success: true,
+        data: { count },
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          success: false,
+          message: error.message,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  /**
+   * Récupérer la liste des conversations avec le nombre de messages non lus
+   */
+  @Get('conversations-unread/:userId')
+  async getConversationsWithUnreadCount(@Param('userId') userId: string) {
+    try {
+      const conversations = await this.messageService.getConversationsWithUnreadCount(userId);
+      return {
+        success: true,
+        data: conversations,
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          success: false,
+          message: error.message,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  /**
+   * Marquer tous les messages d'une conversation comme lus
+   */
+  @Patch('conversation/:userId/:fromUserId/read')
+  async markConversationAsRead(
+    @Param('userId') userId: string,
+    @Param('fromUserId') fromUserId: string,
+  ) {
+    try {
+      const result = await this.messageService.markConversationAsRead(userId, fromUserId);
+      return {
+        success: true,
+        data: result,
+        message: 'Messages marqués comme lus',
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          success: false,
+          message: error.message,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  /**
+   * Récupérer tous les IDs d'utilisateurs avec qui on a eu des conversations
+   */
+  @Get('conversation-participants/:userId')
+  async getConversationParticipants(@Param('userId') userId: string) {
+    try {
+      const participants = await this.messageService.getConversationParticipants(userId);
+      return {
+        success: true,
+        data: participants,
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          success: false,
+          message: error.message,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
 }

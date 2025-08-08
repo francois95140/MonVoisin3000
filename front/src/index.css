@@ -311,7 +311,6 @@ body {
     background: #22c55e;
     border: 2px solid rgba(255, 255, 255, 0.8);
     border-radius: 50%;
-    animation: pulse 2s infinite;
 }
 
 .status-offline {

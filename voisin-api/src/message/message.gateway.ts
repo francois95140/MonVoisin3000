@@ -23,6 +23,9 @@ export class MessageGateway {
   @WebSocketServer()
   server: Server;
 
+  // Map pour tracker les utilisateurs connectés
+  private connectedUsers = new Map<string, string>(); // userId -> socketId
+
   constructor(private readonly messageService: MessageService) {}
 
   @SubscribeMessage('createMessage')
@@ -224,6 +227,15 @@ export class MessageGateway {
     console.log(`Client déconnecté: ${client.id}`);
     if (client.userId) {
       client.leave(`user_${client.userId}`);
+      // Supprimer l'utilisateur de la liste des connectés
+      this.connectedUsers.delete(client.userId);
+      console.log(`👋 Utilisateur ${client.userId} maintenant hors ligne`);
+      
+      // Notifier les autres utilisateurs du changement de statut
+      this.server.emit('userStatusChanged', {
+        userId: client.userId,
+        isOnline: false
+      });
     }
   }
 
@@ -235,9 +247,50 @@ export class MessageGateway {
   ) {
     client.userId = data.userId;
     client.join(`user_${data.userId}`);
+    
+    // Ajouter l'utilisateur à la liste des connectés
+    this.connectedUsers.set(data.userId, client.id);
+    console.log(`✅ Utilisateur ${data.userId} maintenant en ligne`);
+    
+    // Notifier les autres utilisateurs du changement de statut
+    this.server.emit('userStatusChanged', {
+      userId: data.userId,
+      isOnline: true
+    });
+    
     return {
       success: true,
       message: `Utilisateur ${data.userId} rejoint sa room`
+    };
+  }
+
+  // Méthode pour vérifier le statut d'un utilisateur
+  @SubscribeMessage('getUserStatus')
+  getUserStatus(
+    @MessageBody() data: { userId: string },
+    @ConnectedSocket() client: AuthenticatedSocket
+  ) {
+    const isOnline = this.connectedUsers.has(data.userId);
+    return {
+      success: true,
+      data: { userId: data.userId, isOnline }
+    };
+  }
+
+  // Méthode pour récupérer les statuts de plusieurs utilisateurs
+  @SubscribeMessage('getUsersStatus')
+  getUsersStatus(
+    @MessageBody() data: { userIds: string[] },
+    @ConnectedSocket() client: AuthenticatedSocket
+  ) {
+    const statuses = data.userIds.map(userId => ({
+      userId,
+      isOnline: this.connectedUsers.has(userId)
+    }));
+    
+    return {
+      success: true,
+      data: statuses
     };
   }
 }

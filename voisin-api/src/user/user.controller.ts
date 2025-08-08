@@ -53,11 +53,20 @@ export class UserController {
 
   @Get('me')
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Récupérer un utilisateur par ID' })
+  @ApiOperation({ summary: 'Récupérer l\'utilisateur connecté' })
   @ApiResponse({ status: 200, description: 'Utilisateur trouvé.' })
   @ApiResponse({ status: 404, description: 'Utilisateur non trouvé.' })
   async findOne( @GetUser() user: User) {
     return await this.userService.findById(user.id);
+  }
+
+  @Get(':id')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Récupérer un utilisateur par ID' })
+  @ApiResponse({ status: 200, description: 'Utilisateur trouvé.' })
+  @ApiResponse({ status: 404, description: 'Utilisateur non trouvé.' })
+  async findById(@Param('id', ParseUUIDPipe) id: string) {
+    return await this.userService.findById(id);
   }
 
   @Patch('me')

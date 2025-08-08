@@ -36,6 +36,7 @@ interface WebSocketContextType {
   getConversation: (userId1: string, userId2: string, page?: number) => Promise<ConversationData | null>;
   markAsRead: (messageId: string, userId: string) => Promise<void>;
   getUnreadCount: (userId: string) => Promise<number>;
+  getUsersStatus: (userIds: string[]) => Promise<{ userId: string; isOnline: boolean }[]>;
 }
 
 const WebSocketContext = createContext<WebSocketContextType | undefined>(undefined);
@@ -147,6 +148,16 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
       };
       
       setMessages(prev => [...prev, normalizedMessage]);
+      
+      // Émettre un événement personnalisé pour notifier les composants
+      const conversationUpdateEvent = new CustomEvent('conversationUpdate', {
+        detail: {
+          type: 'newMessage',
+          message: normalizedMessage,
+          conversationParticipant: normalizedMessage.senderId
+        }
+      });
+      window.dispatchEvent(conversationUpdateEvent);
     });
 
     // Écouter les messages mis à jour
@@ -183,6 +194,17 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
           msg.id === data.id ? { ...msg, isRead: true } : msg
         )
       );
+    });
+
+    // Écouter les changements de statut des utilisateurs
+    newSocket.on('userStatusChanged', (data: { userId: string; isOnline: boolean }) => {
+      console.log('👤 Changement de statut utilisateur:', data);
+      
+      // Émettre un événement personnalisé pour les composants
+      const statusChangeEvent = new CustomEvent('userStatusChanged', {
+        detail: data
+      });
+      window.dispatchEvent(statusChangeEvent);
     });
 
   }, []);
@@ -234,6 +256,17 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
           };
           
           setMessages(prev => [...prev, newMessage]);
+          
+          // Émettre un événement pour mettre à jour les conversations
+          const conversationUpdateEvent = new CustomEvent('conversationUpdate', {
+            detail: {
+              type: 'newMessage',
+              message: newMessage,
+              conversationParticipant: newMessage.recipientId // Le destinataire pour les messages qu'on envoie
+            }
+          });
+          window.dispatchEvent(conversationUpdateEvent);
+          
           resolve();
         } else {
           console.error('❌ Erreur lors de l\'envoi du message:', response?.error || 'Erreur inconnue');
@@ -343,6 +376,31 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
     });
   }, []);
 
+  const getUsersStatus = useCallback(async (userIds: string[]): Promise<{ userId: string; isOnline: boolean }[]> => {
+    if (!socketRef.current) {
+      throw new Error('WebSocket non connecté');
+    }
+
+    return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(new Error('Timeout lors de la récupération des statuts utilisateurs'));
+      }, 10000);
+
+      socketRef.current!.emit('getUsersStatus', {
+        userIds
+      }, (response: any) => {
+        clearTimeout(timeout);
+        if (response && response.success) {
+          console.log('✅ Statuts des utilisateurs:', response.data);
+          resolve(response.data);
+        } else {
+          console.error('❌ Erreur lors de la récupération des statuts:', response?.error || 'Erreur inconnue');
+          reject(new Error(response?.error || 'Erreur lors de la récupération des statuts'));
+        }
+      });
+    });
+  }, []);
+
   // Nettoyage lors du démontage du provider
   useEffect(() => {
     return () => {
@@ -359,7 +417,8 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
     sendMessage,
     getConversation,
     markAsRead,
-    getUnreadCount
+    getUnreadCount,
+    getUsersStatus
   };
 
   return (

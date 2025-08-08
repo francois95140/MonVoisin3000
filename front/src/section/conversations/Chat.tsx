@@ -3,9 +3,10 @@ import { IonIcon, GlassCard } from '../../components/shared';
 import { ChatProps, Message } from './types';
 import { useWebSocket } from '../../contexts/WebSocketContext';
 
-const Chat: React.FC<ChatProps> = ({ conversation, currentUserId, onBack }) => {
+const Chat: React.FC<ChatProps> = ({ conversation, currentUserId, onBack, onConversationUpdate }) => {
   const [newMessage, setNewMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [userIsOnline, setUserIsOnline] = useState(conversation.isOnline);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -15,7 +16,8 @@ const Chat: React.FC<ChatProps> = ({ conversation, currentUserId, onBack }) => {
     getConversation,
     markAsRead,
     messages,
-    connect
+    connect,
+    getUsersStatus
   } = useWebSocket();
 
   // Le WebSocket est géré par le contexte parent, pas besoin de reconnexion ici
@@ -24,8 +26,27 @@ const Chat: React.FC<ChatProps> = ({ conversation, currentUserId, onBack }) => {
   useEffect(() => {
     if (isConnected && conversation.userId && currentUserId) {
       loadConversation();
+      markConversationAsRead();
+      loadUserStatus();
     }
   }, [isConnected, conversation.userId, currentUserId]);
+
+  // Écouter les changements de statut de l'utilisateur
+  useEffect(() => {
+    const handleUserStatusChange = (event: CustomEvent) => {
+      const { userId, isOnline } = event.detail;
+      if (userId === conversation.userId) {
+        console.log('👤 Statut utilisateur chat mis à jour:', userId, isOnline);
+        setUserIsOnline(isOnline);
+      }
+    };
+
+    window.addEventListener('userStatusChanged', handleUserStatusChange as EventListener);
+    
+    return () => {
+      window.removeEventListener('userStatusChanged', handleUserStatusChange as EventListener);
+    };
+  }, [conversation.userId]);
 
   // Auto-scroll vers le bas quand de nouveaux messages arrivent
   useEffect(() => {
@@ -45,8 +66,53 @@ const Chat: React.FC<ChatProps> = ({ conversation, currentUserId, onBack }) => {
     }
   };
 
+  const loadUserStatus = async () => {
+    if (!conversation.userId || !isConnected) return;
+    
+    try {
+      const statuses = await getUsersStatus([conversation.userId]);
+      if (statuses.length > 0) {
+        setUserIsOnline(statuses[0].isOnline);
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement du statut utilisateur:', error);
+    }
+  };
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const markConversationAsRead = async () => {
+    if (!conversation.userId) return;
+    
+    try {
+      const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+      if (!token) return;
+
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+      
+      const response = await fetch(`${apiUrl}/api/messages/conversation/${currentUserId}/${conversation.userId}/read`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        // Émettre un événement pour remettre à jour les compteurs de messages non lus
+        const conversationUpdateEvent = new CustomEvent('conversationUpdate', {
+          detail: {
+            type: 'messagesRead',
+            conversationParticipant: conversation.userId
+          }
+        });
+        window.dispatchEvent(conversationUpdateEvent);
+      }
+    } catch (error) {
+      console.error('Erreur lors du marquage comme lu:', error);
+    }
   };
 
   const handleSendMessage = async (e: React.FormEvent) => {
@@ -62,6 +128,11 @@ const Chat: React.FC<ChatProps> = ({ conversation, currentUserId, onBack }) => {
       // Redimensionner le textarea
       if (textareaRef.current) {
         textareaRef.current.style.height = 'auto';
+      }
+      
+      // Notifier la liste des conversations qu'il faut se rafraîchir
+      if (onConversationUpdate) {
+        onConversationUpdate();
       }
     } catch (error) {
       console.error('Erreur lors de l\'envoi du message:', error);
@@ -135,14 +206,19 @@ const Chat: React.FC<ChatProps> = ({ conversation, currentUserId, onBack }) => {
 
   return (
     <div 
-      className="min-h-screen flex flex-col antialiased"
-      style={{background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'}}
+      className="flex flex-col antialiased"
+      style={{
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
+        height: 'calc(100vh - ( 4.2rem + 0.4rem ) - ( 6.6rem ) )',
+        overflow: 'hidden'
+      }}
     >
       {/* Header */}
       <div className="flex items-center space-x-4 p-4 glass-card border-0 rounded-none">
         <button 
           onClick={onBack}
           className="p-2 hover:bg-white/10 rounded-xl transition-colors"
+          title="Retour aux conversations"
         >
           <IonIcon name="arrow-back" className="text-white text-xl" />
         </button>
@@ -152,13 +228,14 @@ const Chat: React.FC<ChatProps> = ({ conversation, currentUserId, onBack }) => {
         <div className="flex-1">
           <h2 className="text-white font-semibold">{conversation.name}</h2>
           <div className="flex items-center space-x-2">
-            <div className={`w-2 h-2 rounded-full ${conversation.isOnline ? 'bg-green-400' : 'bg-gray-400'}`} />
+            <div className={`w-2 h-2 rounded-full ${userIsOnline ? 'bg-green-400' : 'bg-gray-400'}`} />
             <span className="text-white/60 text-sm">
-              {conversation.isOnline ? 'En ligne' : 'Hors ligne'}
+              {userIsOnline ? 'En ligne' : 'Hors ligne'}
             </span>
           </div>
         </div>
 
+        {/*
         <button className="p-2 hover:bg-white/10 rounded-xl transition-colors">
           <IonIcon name="call" className="text-white text-xl" />
         </button>
@@ -166,6 +243,7 @@ const Chat: React.FC<ChatProps> = ({ conversation, currentUserId, onBack }) => {
         <button className="p-2 hover:bg-white/10 rounded-xl transition-colors">
           <IonIcon name="videocam" className="text-white text-xl" />
         </button>
+        */}
       </div>
 
       {/* Messages */}

@@ -45,6 +45,7 @@ export interface ChatProps {
   conversation: Conversation;
   currentUserId: string;
   onBack: () => void;
+  onConversationUpdate?: () => void;
 }
 
 export interface User {

@@ -4,12 +4,14 @@ interface GlassCardProps {
   children: React.ReactNode;
   className?: string;
   padding?: 'sm' | 'md' | 'lg';
+  onClick?: () => void;
 }
 
 const GlassCard: React.FC<GlassCardProps> = ({ 
   children, 
   className = '', 
-  padding = 'md' 
+  padding = 'md',
+  onClick 
 }) => {
   const paddingClasses = {
     sm: 'p-4',
@@ -18,7 +20,10 @@ const GlassCard: React.FC<GlassCardProps> = ({
   };
 
   return (
-    <div className={`glass-card rounded-3xl fade-in ${paddingClasses[padding]} ${className}`}>
+    <div 
+      className={`glass-card rounded-3xl fade-in ${paddingClasses[padding]} ${className}`}
+      onClick={onClick}
+    >
       {children}
     </div>
   );
