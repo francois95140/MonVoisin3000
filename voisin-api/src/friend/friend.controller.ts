@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, Param } from '@nestjs/common';
 import { FriendService } from './friend.service';
 import { GetUser } from '../auth/decorators/user.decorator';
 import { FriendGateway } from './friend.gateway';
@@ -69,5 +69,18 @@ export class FriendController {
   ) {
     const suggestionLimit = limit ? parseInt(limit, 10) : 10;
     return this.friendService.getFriendSuggestions(user.id, suggestionLimit);
+  }
+
+  // ✅ Vérifier le statut d'amitié avec un utilisateur
+  @Get('status/:userId')
+  async getFriendshipStatus(
+    @GetUser() user: User,
+    @Param('userId') userId: string
+  ) {
+    const status = await this.friendService.getFriendshipStatus(user.id, userId);
+    return {
+      success: true,
+      status: status
+    };
   }
 }

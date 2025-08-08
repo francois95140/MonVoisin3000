@@ -11,4 +11,8 @@ export class UpdateUserDto implements UpdateUserInput {
   location?: string ;
   timezone?: string ;
   language?: string ;
+  rue?: string;
+  cp?: string;
+  ville?: string;
+  address?: string;
 } 

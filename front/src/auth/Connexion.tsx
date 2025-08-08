@@ -40,13 +40,35 @@ async function handleConnexion(event: React.FormEvent<HTMLFormElement>) {
       
       // Stockage du token si fourni
       if (data.token) {
-        if (formValues.rememberMe) {
-          localStorage.setItem("authToken", data.token);
-        } else {
-          sessionStorage.setItem("authToken", data.token);
+        const storage = formValues.rememberMe ? localStorage : sessionStorage;
+        storage.setItem("authToken", data.token);
+        
+        // Récupérer les informations utilisateur
+        try {
+          const userResponse = await fetch(`${apiUrl}/api/users/me`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${data.token}`
+            }
+          });
+          
+          if (userResponse.ok) {
+            const userData = await userResponse.json();
+            
+            // Stocker les informations utilisateur
+            storage.setItem("UserPseudo", userData.pseudo || userData.tag || "Utilisateur");
+            if (userData.avatar) {
+              storage.setItem("UserImage", userData.avatar);
+            }
+            
+            console.log("Données utilisateur récupérées:", userData);
+          }
+        } catch (userError) {
+          console.error("Erreur lors de la récupération des données utilisateur:", userError);
+          // Ne pas bloquer la connexion si la récupération des données échoue
         }
       }
-      
       
       toast.success("Connexion réussie !");
       

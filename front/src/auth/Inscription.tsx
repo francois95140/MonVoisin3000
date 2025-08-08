@@ -80,7 +80,8 @@ async function handleInscription(event: React.FormEvent<HTMLFormElement>, isInsc
       if (hasChanged(formValues.phoneNumber, initialUserData.phone)) bodyData.phoneNumber = formValues.phoneNumber;
       if (hasChanged(formValues.rue, initialUserData.rue)) bodyData.rue = formValues.rue;
       if (hasChanged(formValues.codePostal, initialUserData.codePostal)) bodyData.cp = formValues.codePostal;
-      if (hasChanged(formValues.adresse, initialUserData.address)) bodyData.fullAddress = formValues.adresse;
+      if (hasChanged(formValues.ville, initialUserData.ville)) bodyData.ville = formValues.ville;
+      if (hasChanged(formValues.adresse, initialUserData.address)) bodyData.address = formValues.adresse;
       
       // Vérification de l'avatar modifié
       if (avatarBase64 && avatarBase64.trim() !== '') {
@@ -123,6 +124,16 @@ async function handleInscription(event: React.FormEvent<HTMLFormElement>, isInsc
       } else {
         // Message de succès pour la modification
         toast.success("Profil modifié avec succès !");
+        
+        // Mettre à jour les données utilisateur en cache
+        const storage = localStorage.getItem('authToken') ? localStorage : sessionStorage;
+        if (formValues.pseudo) {
+          storage.setItem('UserPseudo', formValues.pseudo);
+        }
+        if (avatarBase64) {
+          storage.setItem('UserImage', avatarBase64);
+        }
+        
         // Optionnel: redirection vers le profil
         // window.location.href = "/profile";
       }
@@ -167,6 +178,7 @@ interface UserData {
   tag?: string;
   rue?: string;
   codePostal?: string;
+  ville?: string;
   avatar?: string;
 }
 

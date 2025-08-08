@@ -43,9 +43,20 @@ export const resetPasswordUserSchema = z.object({
 
 });
 
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, 'Le mot de passe actuel est requis'),
+  newPassword: z.string()
+    .min(8, 'Le nouveau mot de passe doit contenir au moins 8 caractères')
+    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 'Le nouveau mot de passe doit contenir au moins une majuscule, une minuscule et un chiffre'),
+  confirmPassword: z.string()
+}).refine((data) => data.newPassword === data.confirmPassword, {
+  message: "Les mots de passe ne correspondent pas",
+  path: ["confirmPassword"],
+});
+
 export const paginationSchema = z.object({
-  page: z.number().int().positive().default(1),
-  limit: z.number().int().positive().max(100).default(10),
+  page: z.string().optional().transform((val) => val ? parseInt(val, 10) : 1).pipe(z.number().int().positive()),
+  limit: z.string().optional().transform((val) => val ? parseInt(val, 10) : 10).pipe(z.number().int().positive().max(100)),
 });
 
 export const searchQuerySchema = z.object({
@@ -80,6 +91,7 @@ export type CreateUserInput = z.infer<typeof createUserSchema>;
 export type UpdateUserInput = z.infer<typeof updateUserSchema>;
 export type LoginUserInput = z.infer<typeof loginUserSchema>;
 export type ResetPasswordUserInput = z.infer<typeof resetPasswordUserSchema>;
+export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
 export type PaginationInput = z.infer<typeof paginationSchema>;
 export type SearchQueryInput = z.infer<typeof searchQuerySchema>;
 export type ToggleStatusInput = z.infer<typeof toggleStatusSchema>;

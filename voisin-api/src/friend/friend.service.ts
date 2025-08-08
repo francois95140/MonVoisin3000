@@ -84,6 +84,38 @@ export class FriendService {
     return result.records.map((record) => record.get('friend').properties);
   }
 
+  // 📌 Vérifier le statut d'amitié entre deux utilisateurs
+  async getFriendshipStatus(userId1: string, userId2: string): Promise<'none' | 'friends' | 'pending' | 'sent'> {
+    const query = `
+      MATCH (a:User {userPgId: $userId1}), (b:User {userPgId: $userId2})
+      OPTIONAL MATCH (a)-[r1:FRIEND]-(b)
+      OPTIONAL MATCH (a)-[r2:FRIEND_REQUEST]->(b)
+      OPTIONAL MATCH (b)-[r3:FRIEND_REQUEST]->(a)
+      RETURN r1, r2, r3
+    `;
+
+    const result = await this.neo4jService.read(query, { userId1, userId2 });
+    
+    if (result.records.length === 0) {
+      return 'none';
+    }
+
+    const record = result.records[0];
+    const friendRelation = record.get('r1');
+    const sentRequest = record.get('r2');
+    const receivedRequest = record.get('r3');
+
+    if (friendRelation) {
+      return 'friends';
+    } else if (sentRequest) {
+      return 'sent';
+    } else if (receivedRequest) {
+      return 'pending';
+    } else {
+      return 'none';
+    }
+  }
+
   // 📌 Suggestions d'amis basées sur un algorithme
   async getFriendSuggestions(userId: string, limit: number = 10) {
     const query = `

@@ -46,14 +46,17 @@ const AddressField: React.FC<AddressFieldProps> = ({
             if (userData) {
               userData.rue = data.features[0].properties.name;
               userData.codePostal = data.features[0].properties.postcode;
+              userData.ville = data.features[0].properties.city;
               userData.address = data.features[0].properties.label;
             }
 
             // Mise à jour des champs cachés
             const rueInput = document.getElementById("rue") as HTMLInputElement;
             const cpInput = document.getElementById("cp") as HTMLInputElement;
+            const villeInput = document.getElementById("ville") as HTMLInputElement;
             if (rueInput) rueInput.value = data.features[0].properties.name;
             if (cpInput) cpInput.value = data.features[0].properties.postcode;
+            if (villeInput) villeInput.value = data.features[0].properties.city;
           }
         });
     }
@@ -64,7 +67,7 @@ const AddressField: React.FC<AddressFieldProps> = ({
       <div className="relative mb-4">
         <label
           htmlFor={id}
-          className="leading-7 text-sm text-gray-600"
+          className="leading-7 text-sm text-white/80 dark:text-white/90"
         >
           {label}
         </label>
@@ -74,15 +77,16 @@ const AddressField: React.FC<AddressFieldProps> = ({
           name={name}
           defaultValue={defaultValue}
           onChange={handleAddressChange}
-          className="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+          className="w-full bg-white/10 dark:bg-white/10 rounded border border-white/20 dark:border-white/20 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-white dark:text-white py-1 px-3 leading-8 transition-colors duration-200 ease-in-out placeholder-white/50"
         />
         <input type="hidden" name="rue" id="rue" defaultValue={userData.rue || ''} />
         <input type="hidden" name="cp" id="cp" defaultValue={userData.codePostal || ''} />
+        <input type="hidden" name="ville" id="ville" defaultValue={userData.ville || ''} />
       </div>
       <div className="mb-4">
         <div
           id="adresseautocomplete"
-          className="font-semibold w-full p-2 bg-indigo-200 text-center"
+          className="font-semibold w-full p-2 bg-white/20 dark:bg-white/10 text-center text-white dark:text-white rounded"
         >
           ...
         </div>

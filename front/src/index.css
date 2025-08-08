@@ -1,4 +1,7 @@
 
+/* MonVoisin3000 - Global Styles */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 /* CSS custom pour les animations */
 @keyframes fadeIn {
   from {
@@ -14,9 +17,6 @@
 .fade-in {
   animation: fadeIn 0.8s ease-out;
 }
-
-/* MonVoisin3000 - Global Styles */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 /* Base styles */
 * {
@@ -900,8 +900,6 @@ body {
         }
 
 
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
 * {
     font-family: 'Inter', sans-serif;
 }
@@ -1040,8 +1038,6 @@ body {
     }
 }
 
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-    
     * {
       font-family: 'Inter', sans-serif;
     }
@@ -1072,8 +1068,6 @@ body {
       }
     }
 
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        
         * {
             font-family: 'Inter', sans-serif;
         }
@@ -1182,10 +1176,133 @@ body {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
+/* Dark theme for news container */
+.dark .news-container {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+}
+
 .category-tag {
     padding: 0.25rem 0.75rem;
     border-radius: 12px;
     font-size: 0.75rem;
     font-weight: 600;
     border-width: 1px;
+}
+
+/* Dark Theme Styles */
+:root {
+    --bg-light: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --bg-dark: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f1419 100%);
+    --glass-light: rgba(255, 255, 255, 0.1);
+    --glass-dark: rgba(255, 255, 255, 0.05);
+    --glass-border-light: rgba(255, 255, 255, 0.2);
+    --glass-border-dark: rgba(255, 255, 255, 0.1);
+    --text-light: #ffffff;
+    --text-dark: #e2e8f0;
+    --text-muted-light: rgba(255, 255, 255, 0.7);
+    --text-muted-dark: rgba(226, 232, 240, 0.6);
+}
+
+/* Dark theme body background */
+html.dark body {
+    background: var(--bg-dark);
+}
+
+/* Dark theme glass cards */
+html.dark .glass-card {
+    background: var(--glass-dark);
+    border: 1px solid var(--glass-border-dark);
+}
+
+html.dark .dark-glass {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+html.dark .morphism-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+}
+
+/* Dark theme navigation */
+html.dark .navigation {
+    background: rgba(0, 0, 0, 0.9);
+}
+
+/* Dark theme inputs */
+html.dark .input-field,
+html.dark .search-input,
+html.dark .form-input {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-dark);
+}
+
+html.dark .input-field:focus,
+html.dark .search-input:focus,
+html.dark .form-input:focus {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+html.dark .form-input::placeholder {
+    color: rgba(226, 232, 240, 0.4);
+}
+
+/* Dark theme buttons */
+html.dark .btn-secondary {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+html.dark .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+/* Dark theme conversation cards */
+html.dark .conversation-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* Dark theme text colors */
+html.dark {
+    color: var(--text-dark);
+}
+
+html.dark .text-white {
+    color: var(--text-dark);
+}
+
+html.dark .text-white\/70,
+html.dark .text-white\/60 {
+    color: var(--text-muted-dark);
+}
+
+/* General dark theme element colors */
+html.dark * {
+    color: inherit;
+}
+
+html.dark p,
+html.dark h1, html.dark h2, html.dark h3, html.dark h4, html.dark h5, html.dark h6,
+html.dark span,
+html.dark div,
+html.dark label {
+    color: var(--text-dark);
+}
+
+html.dark option {
+    background: #1a1a2e;
+    color: var(--text-dark);
+}
+
+/* Dark theme specific backgrounds */
+html.dark .min-h-screen {
+    background: var(--bg-dark) !important;
+}
+
+/* Dark theme header */
+html.dark .bg-gradient-to-r {
+    background: linear-gradient(to right, rgba(26, 26, 46, 0.95), rgba(22, 33, 62, 0.95)) !important;
 }

@@ -6,7 +6,10 @@ function Navbar() {
   const location = useLocation();
 
   useEffect(() => {
-    if (!location.pathname.startsWith("/evenements")&&!location.pathname.startsWith("/trock")&& !location.pathname.startsWith("/news")) {
+    const navbarRoutes = ["/news", "/trock", "/evenements", "/convs", "/carte"];
+    const isNavbarRoute = navbarRoutes.some(route => location.pathname.startsWith(route));
+    
+    if (!isNavbarRoute) {
       // Enlever la classe active de tous les li
       const allListItems = document.querySelectorAll('.navigation ul li.list');
       allListItems.forEach(li => li.classList.remove('active'));

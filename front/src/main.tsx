@@ -1,8 +1,10 @@
 import { BrowserRouter, Routes, Route, Outlet, Navigate, useLocation } from "react-router-dom";
-import { StrictMode } from "react";
+import { StrictMode, useState, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { ThemeProvider } from './contexts/ThemeContext';
+import { WebSocketProvider } from './contexts/WebSocketContext';
 import "./index.css";
 import Home from "./home/Home";
 import Connexion from "./auth/Connexion";
@@ -17,6 +19,8 @@ import UserHeader from "./UI/head";
 import Navbar from "./UI/navbar";
 import ProfilePage from "./profile/Profile";
 import EditUser from "./auth/Edit";
+import ChangePassword from "./profile/ChangePassword";
+import { Conversations } from "./section/conversations";
 import News from "./news/News";
 
 // Définit le basename pour React Router
@@ -26,8 +30,48 @@ const basename = '/';
 function AppLayout() {
   const location = useLocation();
   const hasUserToken = sessionStorage.getItem("authToken") || localStorage.getItem("authToken");
-  const profileImage = sessionStorage.getItem("UserImage");
-  const pseudo = sessionStorage.getItem("UserPseudo") || "Utilisateur";
+  const [profileImage, setProfileImage] = useState<string | null>(
+    sessionStorage.getItem("UserImage") || localStorage.getItem("UserImage")
+  );
+  const [pseudo, setPseudo] = useState<string>(
+    sessionStorage.getItem("UserPseudo") || localStorage.getItem("UserPseudo") || "Utilisateur"
+  );
+
+  // Récupérer les données utilisateur si elles ne sont pas en cache
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (hasUserToken && pseudo === "Utilisateur") {
+        try {
+          const apiUrl = import.meta.env.VITE_API_URL;
+          const response = await fetch(`${apiUrl}/api/users/me`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${hasUserToken}`
+            }
+          });
+          
+          if (response.ok) {
+            const userData = await response.json();
+            const storage = localStorage.getItem("authToken") ? localStorage : sessionStorage;
+            
+            const newPseudo = userData.pseudo || userData.tag || "Utilisateur";
+            setPseudo(newPseudo);
+            storage.setItem("UserPseudo", newPseudo);
+            
+            if (userData.avatar) {
+              setProfileImage(userData.avatar);
+              storage.setItem("UserImage", userData.avatar);
+            }
+          }
+        } catch (error) {
+          console.error("Erreur lors de la récupération des données utilisateur:", error);
+        }
+      }
+    };
+
+    fetchUserData();
+  }, [hasUserToken, pseudo]);
   
   // Routes publiques (sans basename car useLocation le gère automatiquement)
   const isPublicRoute = location.pathname === "/" || 
@@ -54,10 +98,12 @@ function AppLayout() {
             <Route path="/news" element={<News />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/editprofil" element={<EditUser />} />
+            <Route path="/changepassword" element={<ChangePassword />} />
             <Route path="/actualites" element={<Actualites />} />
             <Route path="/trock" element={<Trock />} />
             <Route path="/evenements" element={<Evenements />} />
             <Route path="/messages" element={<Messages />} />
+            <Route path="/convs" element={<Conversations />} />
             <Route path="/carte" element={<Map />} />
           </>
         ) : (
@@ -87,8 +133,12 @@ function AppLayout() {
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <BrowserRouter basename={basename}>
-      <AppLayout />
-    </BrowserRouter>
+    <ThemeProvider>
+      <WebSocketProvider>
+        <BrowserRouter basename={basename}>
+          <AppLayout />
+        </BrowserRouter>
+      </WebSocketProvider>
+    </ThemeProvider>
   </StrictMode>
 );
