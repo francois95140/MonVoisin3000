@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { IonIcon, GlassCard, Button } from '../../components/shared';
 import { Conversation, User } from './types';
 import { useNewConversations } from '../../hooks/useNewConversations';
@@ -28,6 +29,7 @@ const NewConversations: React.FC = () => {
     }
   }, 10);
 
+  const location = useLocation();
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -36,7 +38,7 @@ const NewConversations: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   const { conversations, loading, error, refetch } = useNewConversations(currentUserId);
-  const { connect, isConnected } = useConversationWebSocket();
+  const { connect, isConnected, createOrGetEventConversation } = useConversationWebSocket();
 
   // Récupérer l'ID de l'utilisateur connecté
   useEffect(() => {
@@ -72,6 +74,48 @@ const NewConversations: React.FC = () => {
       connect(currentUserId);
     }
   }, [currentUserId, connect]);
+
+  // Effet pour créer automatiquement la conversation d'événement si on arrive avec ces paramètres
+  useEffect(() => {
+    const handleEventConversation = async () => {
+      // Vérifier si on a les paramètres d'événement dans l'état de navigation
+      const state = location.state as any;
+      if (state?.openEventChat && state?.eventId && state?.eventTitle && currentUserId && isConnected) {
+        console.log('🎯 Création automatique de conversation événement:', state.eventId, state.eventTitle);
+        
+        try {
+          const conversationData = await createOrGetEventConversation(state.eventId, state.eventTitle);
+          console.log('✅ Conversation événement créée:', conversationData);
+          
+          // Créer la conversation pour l'affichage
+          const eventConversation: Conversation = {
+            id: conversationData._id,
+            name: `💬 ${state.eventTitle}`,
+            avatar: { type: 'icon', value: 'people', gradient: 'from-green-400 to-emerald-600' },
+            lastMessage: 'Bienvenue dans la discussion de l\'événement !',
+            time: 'Now',
+            unread: 0,
+            isOnline: true,
+            isGroup: true,
+            userId: '',
+            conversationId: conversationData._id,
+            participantIds: conversationData.participant_ids
+          };
+          
+          // Ouvrir directement cette conversation
+          setSelectedConversation(eventConversation);
+          
+          // Nettoyer l'état de navigation pour éviter de recréer la conversation
+          window.history.replaceState(null, '', location.pathname);
+          
+        } catch (error) {
+          console.error('❌ Erreur lors de la création de conversation événement:', error);
+        }
+      }
+    };
+    
+    handleEventConversation();
+  }, [location.state, currentUserId, isConnected, createOrGetEventConversation]);
 
   // Déclarations des fonctions avant leur utilisation
   const handleBackToList = () => {

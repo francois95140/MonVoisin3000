@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Inject, forwardRef } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Conversation, ConversationDocument, ConversationType } from './entities/conversation.entity';
@@ -9,12 +9,15 @@ import {
   GetConversationMessagesDto,
   MarkMessagesAsReadDto 
 } from './dto/create-conversation.dto';
+import { EventService } from '../event/event.service';
 
 @Injectable()
 export class ConversationService {
   constructor(
     @InjectModel(Conversation.name) 
     private conversationModel: Model<ConversationDocument>,
+    @Inject(forwardRef(() => EventService))
+    private readonly eventService: EventService,
   ) {}
 
   /**
@@ -60,6 +63,42 @@ export class ConversationService {
       description: createConversationDto.description,
       avatar: createConversationDto.avatar,
       adminIds: createConversationDto.adminIds || [createConversationDto.participant_ids[0]],
+      messages: []
+    });
+
+    return await newConversation.save();
+  }
+
+  /**
+   * Créer ou récupérer une conversation d'événement
+   */
+  async findOrCreateEventConversation(eventId: string, eventTitle: string, eventIcon: string, participantIds: string[]): Promise<ConversationDocument> {
+    // Chercher une conversation d'événement existante
+    const existingConversation = await this.conversationModel.findOne({
+      type: ConversationType.Group,
+      eventId: eventId
+    });
+
+    if (existingConversation) {
+      // Mettre à jour les participants si nécessaire
+      const newParticipants = participantIds.filter(id => !existingConversation.participant_ids.includes(id));
+      if (newParticipants.length > 0) {
+        existingConversation.participant_ids.push(...newParticipants);
+        existingConversation.updatedAt = new Date();
+        await existingConversation.save();
+      }
+      return existingConversation;
+    }
+
+    // Créer une nouvelle conversation d'événement
+    const newConversation = new this.conversationModel({
+      participant_ids: participantIds,
+      type: ConversationType.Group,
+      name: `${eventTitle}`,
+      description: `Discussion pour l'événement: ${eventTitle}`,
+      eventId: eventId,
+      eventIcon: eventIcon,
+      adminIds: [participantIds[0]], // Le premier participant est admin par défaut
       messages: []
     });
 
@@ -293,5 +332,30 @@ export class ConversationService {
     conversation.updatedAt = new Date();
 
     return await conversation.save();
+  }
+
+  /**
+   * Créer ou récupérer une conversation d'événement pour un utilisateur spécifique
+   */
+  async findOrCreateEventConversationForUser(eventId: string, eventTitle: string, userId: string): Promise<ConversationDocument> {
+    try {
+      // Récupérer les détails de l'événement
+      const eventDetails = await this.eventService.getEventForConversation(eventId);
+      
+      // Vérifier que l'utilisateur fait partie des participants
+      if (!eventDetails.participantIds.includes(userId)) {
+        throw new BadRequestException('Vous devez participer à cet événement pour accéder à sa discussion');
+      }
+      
+      // Utiliser la méthode existante pour créer/récupérer la conversation
+      return await this.findOrCreateEventConversation(
+        eventId,
+        eventTitle,
+        eventDetails.eventIcon,
+        eventDetails.participantIds
+      );
+    } catch (error) {
+      throw new BadRequestException(`Impossible d'accéder à la conversation de l'événement: ${error.message}`);
+    }
   }
 }

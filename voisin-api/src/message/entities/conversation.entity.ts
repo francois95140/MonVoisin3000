@@ -63,6 +63,12 @@ export class Conversation {
   adminIds?: string[]; // IDs des administrateurs (pour les groupes)
 
   @Prop()
+  eventId?: string; // ID de l'événement (pour les conversations d'événement)
+
+  @Prop()
+  eventIcon?: string; // Icône de l'événement (pour les conversations d'événement)
+
+  @Prop()
   createdAt?: Date;
 
   @Prop()
@@ -188,3 +194,4 @@ ConversationSchema.index({ participant_ids: 1 });
 ConversationSchema.index({ type: 1 });
 ConversationSchema.index({ updatedAt: -1 });
 ConversationSchema.index({ 'messages.senderId': 1, 'messages.isRead': 1 });
+ConversationSchema.index({ eventId: 1 });

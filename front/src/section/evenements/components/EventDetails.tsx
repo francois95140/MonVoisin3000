@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -31,6 +32,7 @@ interface EventDetailsProps {
     onParticipate?: (eventId: string) => void;
     onUnregister?: (eventId: string) => void;
     onEdit?: (event: Event) => void;
+    onOpenEventChat?: (eventId: string, eventTitle: string) => void;
     isRegistered?: boolean;
     isOwner?: boolean;
 }
@@ -41,9 +43,11 @@ const EventDetails: React.FC<EventDetailsProps> = ({
     onParticipate,
     onUnregister,
     onEdit,
+    onOpenEventChat,
     isRegistered = false,
     isOwner = false
 }) => {
+    const navigate = useNavigate();
     const [event, setEvent] = useState<Event | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -269,43 +273,57 @@ const EventDetails: React.FC<EventDetailsProps> = ({
                     </div>
 
                     {/* Actions */}
-                    <div className="flex space-x-4 pt-6 border-t border-white/10">
-                        {isOwner ? (
+                    <div className="space-y-4 pt-6 border-t border-white/10">
+                        {/* Première ligne - Actions principales */}
+                        <div className="flex space-x-4">
+                            {isOwner ? (
+                                <button 
+                                    onClick={() => onEdit?.(event)}
+                                    className="flex-1 btn-secondary px-6 py-3 rounded-xl text-white font-semibold"
+                                >
+                                    <ion-icon name="create-outline" className="mr-2"></ion-icon>
+                                    Modifier l'événement
+                                </button>
+                            ) : (
+                                <>
+                                    {isRegistered ? (
+                                        <button 
+                                            onClick={async () => {
+                                                await onUnregister?.(event.id!);
+                                                // Rafraîchir les données après l'action
+                                                fetchEventDetails();
+                                            }}
+                                            className="flex-1 btn-secondary px-6 py-3 rounded-xl text-white font-semibold"
+                                        >
+                                            <ion-icon name="remove-circle-outline" className="mr-2"></ion-icon>
+                                            Ne plus participer
+                                        </button>
+                                    ) : (
+                                        <button 
+                                            onClick={async () => {
+                                                await onParticipate?.(event.id!);
+                                                // Rafraîchir les données après l'action
+                                                fetchEventDetails();
+                                            }}
+                                            className="flex-1 btn-primary px-6 py-3 rounded-xl text-white font-semibold"
+                                        >
+                                            <ion-icon name="add-circle-outline" className="mr-2"></ion-icon>
+                                            Participer à l'événement
+                                        </button>
+                                    )}
+                                </>
+                            )}
+                        </div>
+
+                        {/* Deuxième ligne - Discussion (seulement pour les participants ou propriétaires) */}
+                        {(isRegistered || isOwner) && (
                             <button 
-                                onClick={() => onEdit?.(event)}
-                                className="flex-1 btn-secondary px-6 py-3 rounded-xl text-white font-semibold"
+                                onClick={() => onOpenEventChat?.(event.id!, event.titre)}
+                                className="w-full btn-primary px-6 py-3 rounded-xl text-white font-semibold bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
                             >
-                                <ion-icon name="create-outline" className="mr-2"></ion-icon>
-                                Modifier l'événement
+                                <ion-icon name="chatbubbles" className="mr-2"></ion-icon>
+                                Discussion de l'événement
                             </button>
-                        ) : (
-                            <>
-                                {isRegistered ? (
-                                    <button 
-                                        onClick={async () => {
-                                            await onUnregister?.(event.id!);
-                                            // Rafraîchir les données après l'action
-                                            fetchEventDetails();
-                                        }}
-                                        className="flex-1 btn-secondary px-6 py-3 rounded-xl text-white font-semibold"
-                                    >
-                                        <ion-icon name="remove-circle-outline" className="mr-2"></ion-icon>
-                                        Ne plus participer
-                                    </button>
-                                ) : (
-                                    <button 
-                                        onClick={async () => {
-                                            await onParticipate?.(event.id!);
-                                            // Rafraîchir les données après l'action
-                                            fetchEventDetails();
-                                        }}
-                                        className="flex-1 btn-primary px-6 py-3 rounded-xl text-white font-semibold"
-                                    >
-                                        <ion-icon name="add-circle-outline" className="mr-2"></ion-icon>
-                                        Participer à l'événement
-                                    </button>
-                                )}
-                            </>
                         )}
                     </div>
                 </div>

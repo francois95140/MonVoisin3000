@@ -33,8 +33,10 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
           />
         )}
         
-        {/* Status indicator */}
-        <div className={isOnline ? 'status-online' : 'status-offline'}></div>
+        {/* Status indicator - seulement pour les conversations privées */}
+        {!conversation.isGroup && (
+          <div className={isOnline ? 'status-online' : 'status-offline'}></div>
+        )}
       </div>
     );
   };

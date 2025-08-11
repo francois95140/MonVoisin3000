@@ -332,4 +332,40 @@ export class ConversationController {
       };
     }
   }
+
+  /**
+   * Test endpoint pour vérifier que la route fonctionne
+   */
+  @Post('event/test')
+  async testEventRoute() {
+    return {
+      success: true,
+      message: 'Route event accessible'
+    };
+  }
+
+  /**
+   * Créer ou récupérer une conversation d'événement
+   */
+  @Post('event')
+  async findOrCreateEventConversation(
+    @Body() body: { eventId: string; eventTitle: string },
+    @Request() req
+  ) {
+    try {
+      console.log('🚀 Endpoint event atteint avec:', body, 'user:', req.user?.id);
+      
+      // Version simplifiée pour le debug - on utilise le WebSocket Gateway à la place
+      return {
+        success: false,
+        error: 'Utilisez le WebSocket pour créer les conversations d\'événement'
+      };
+    } catch (error) {
+      console.error('❌ Erreur dans endpoint event:', error);
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
 }

@@ -8,6 +8,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { ConversationService } from './conversation.service';
 import { CreateMessageInConversationDto } from './dto/create-conversation.dto';
+import { EventService } from '../event/event.service';
 
 interface AuthenticatedSocket extends Socket {
   userId?: string;
@@ -25,7 +26,10 @@ export class ConversationGateway {
   // Map pour tracker les utilisateurs connectés
   private connectedUsers = new Map<string, string>(); // userId -> socketId
 
-  constructor(private readonly conversationService: ConversationService) {}
+  constructor(
+    private readonly conversationService: ConversationService,
+    private readonly eventService: EventService
+  ) {}
 
   @SubscribeMessage('createMessageInConversation')
   async createMessage(
@@ -247,6 +251,49 @@ export class ConversationGateway {
       const conversation = await this.conversationService.findOrCreatePrivateConversation(
         client.userId,
         data.otherUserId
+      );
+      
+      return {
+        success: true,
+        data: conversation
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  @SubscribeMessage('createOrGetEventConversation')
+  async createOrGetEventConversation(
+    @MessageBody() data: { eventId: string; eventTitle: string },
+    @ConnectedSocket() client: AuthenticatedSocket
+  ) {
+    try {
+      if (!client.userId) {
+        return {
+          success: false,
+          error: 'Utilisateur non authentifié'
+        };
+      }
+
+      // Récupérer tous les participants de l'événement et son icône
+      const eventDetails = await this.eventService.getEventForConversation(data.eventId);
+
+      // Vérifier que l'utilisateur actuel fait partie des participants
+      if (!eventDetails.participantIds.includes(client.userId)) {
+        return {
+          success: false,
+          error: 'Vous devez participer à cet événement pour accéder à sa discussion'
+        };
+      }
+
+      const conversation = await this.conversationService.findOrCreateEventConversation(
+        data.eventId,
+        data.eventTitle,
+        eventDetails.eventIcon,
+        eventDetails.participantIds
       );
       
       return {

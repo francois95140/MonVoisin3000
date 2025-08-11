@@ -198,13 +198,26 @@ export const useNewConversations = (currentUserId: string | null) => {
           ? convData.avatar 
           : otherParticipant?.avatar;
 
-        const avatar = avatarUrl 
-          ? { type: 'image' as const, value: avatarUrl, gradient: 'from-blue-400 to-purple-600' }
-          : { 
-              type: 'initials' as const, 
-              value: name.substring(0, 2).toUpperCase(),
-              gradient: `from-${getRandomColor()}-400 to-${getRandomColor()}-600`
-            };
+        // Pour les conversations d'événement, utiliser l'icône de l'événement
+        let avatar;
+        if (convData.type === 'group' && convData.eventId && convData.eventIcon) {
+          // Conversation d'événement : utiliser l'icône de l'événement
+          avatar = {
+            type: 'icon' as const,
+            value: convData.eventIcon,
+            gradient: 'from-green-400 to-emerald-600'
+          };
+        } else if (avatarUrl) {
+          // Image d'avatar disponible
+          avatar = { type: 'image' as const, value: avatarUrl, gradient: 'from-blue-400 to-purple-600' };
+        } else {
+          // Pas d'image : utiliser les initiales
+          avatar = { 
+            type: 'initials' as const, 
+            value: name.substring(0, 2).toUpperCase(),
+            gradient: `from-${getRandomColor()}-400 to-${getRandomColor()}-600`
+          };
+        }
 
         // Format du temps
         const formatTime = (dateString: string) => {
@@ -349,11 +362,6 @@ export const useNewConversations = (currentUserId: string | null) => {
             conversation.lastMessage = message.content;
             conversation.time = formatTime(message.createdAt);
             
-            // Incrémenter le compteur de messages non lus si c'est pas nous qui avons envoyé
-            if (message.senderId !== currentUserId) {
-              conversation.unread += 1;
-            }
-            
             // Déplacer la conversation en haut de la liste
             updatedConversations.splice(existingIndex, 1);
             updatedConversations.unshift(conversation);
@@ -366,6 +374,23 @@ export const useNewConversations = (currentUserId: string | null) => {
             return prevConversations;
           }
         });
+        
+        // Mettre à jour les compteurs non lus après un court délai
+        setTimeout(async () => {
+          try {
+            if (isConnected) {
+              const unreadCounts = await getUnreadCounts();
+              setConversations(prevConversations => 
+                prevConversations.map(conv => {
+                  const unreadData = unreadCounts.find(uc => uc.conversationId === conv.conversationId);
+                  return unreadData ? { ...conv, unread: unreadData.unreadCount } : conv;
+                })
+              );
+            }
+          } catch (error) {
+            console.warn('Erreur lors de la mise à jour des compteurs:', error);
+          }
+        }, 200);
       } else if (type === 'messagesRead' && currentUserId) {
         console.log('👀 Messages marqués comme lus pour conversation:', conversationId);
         

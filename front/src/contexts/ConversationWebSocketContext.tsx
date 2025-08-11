@@ -16,6 +16,7 @@ interface ConversationWebSocketContextType {
   disconnect: () => void;
   sendMessageToConversation: (conversationId: string, content: string) => Promise<MessageInConversation>;
   createOrGetPrivateConversation: (otherUserId: string) => Promise<ConversationData>;
+  createOrGetEventConversation: (eventId: string, eventTitle: string) => Promise<ConversationData>;
   getConversation: (conversationId: string, page?: number) => Promise<ConversationWithMessages | null>;
   getUserConversations: (page?: number) => Promise<ConversationListItem | null>;
   markConversationAsRead: (conversationId: string, fromSenderId?: string) => Promise<{ markedCount: number }>;
@@ -248,6 +249,38 @@ export const ConversationWebSocketProvider: React.FC<ConversationWebSocketProvid
     });
   }, []);
 
+  const createOrGetEventConversation = useCallback(async (eventId: string, eventTitle: string): Promise<ConversationData> => {
+    console.log('🔥 createOrGetEventConversation appelée avec:', { eventId, eventTitle });
+    console.log('🔥 Socket connecté:', !!socketRef.current, 'isConnected:', isConnected);
+    
+    if (!socketRef.current) {
+      console.error('❌ WebSocket non connecté dans createOrGetEventConversation');
+      throw new Error('WebSocket non connecté');
+    }
+
+    return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(new Error('Timeout lors de la création/récupération de la conversation d\'événement'));
+      }, 10000);
+
+      console.log('🔥 Émission WebSocket createOrGetEventConversation...');
+      socketRef.current!.emit('createOrGetEventConversation', {
+        eventId,
+        eventTitle
+      }, (response: any) => {
+        console.log('🔥 Réponse WebSocket reçue:', response);
+        clearTimeout(timeout);
+        if (response && response.success) {
+          console.log('✅ Conversation d\'événement créée/récupérée:', response.data);
+          resolve(response.data);
+        } else {
+          console.error('❌ Erreur lors de la création/récupération de la conversation d\'événement:', response?.error || 'Erreur inconnue');
+          reject(new Error(response?.error || 'Erreur lors de la création/récupération de la conversation d\'événement'));
+        }
+      });
+    });
+  }, []);
+
   const getConversation = useCallback(async (
     conversationId: string, 
     page = 1
@@ -419,6 +452,7 @@ export const ConversationWebSocketProvider: React.FC<ConversationWebSocketProvid
     disconnect,
     sendMessageToConversation,
     createOrGetPrivateConversation,
+    createOrGetEventConversation,
     getConversation,
     getUserConversations,
     markConversationAsRead,

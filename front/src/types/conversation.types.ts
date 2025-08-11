@@ -17,6 +17,8 @@ export interface ConversationData {
   description?: string;
   avatar?: string;
   adminIds?: string[];
+  eventId?: string;
+  eventIcon?: string;
   createdAt: string;
   updatedAt: string;
 }

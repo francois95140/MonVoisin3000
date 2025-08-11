@@ -9,6 +9,7 @@ import { ConversationService } from './conversation.service';
 import { Message, MessageSchema } from './entities/message.entity';
 import { Conversation, ConversationSchema } from './entities/conversation.entity';
 import { UserModule } from '../user/user.module';
+import { EventModule } from '../event/event.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { UserModule } from '../user/user.module';
       { name: Conversation.name, schema: ConversationSchema },
     ]),
     UserModule,
+    EventModule,
   ],
   controllers: [MessageController, ConversationController],
   providers: [MessageGateway, ConversationGateway, MessageService, ConversationService],

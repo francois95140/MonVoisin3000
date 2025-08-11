@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Card from './components/Card';
 import Add from './components/Add';
 import EventDetails from './components/EventDetails';
@@ -18,6 +19,7 @@ interface Event {
 }
 
 export default function Evenements() {
+    const navigate = useNavigate();
     const [events, setEvents] = useState<Event[]>([]);
     const [myEvents, setMyEvents] = useState<Event[]>([]);
     const [registeredEvents, setRegisteredEvents] = useState<Event[]>([]);
@@ -50,10 +52,16 @@ export default function Evenements() {
                 
                 if (response.ok) {
                     const data = await response.json();
-                    console.log("Utilisateur:", data.user);
+                    console.log("🔍 Réponse API complète:", data);
+                    console.log("🔍 data.user:", data.user);
+                    console.log("🔍 data:", data);
+                    
+                    // L'API pourrait retourner directement l'utilisateur ou dans data.user
+                    const userData = data.user || data;
+                    console.log("🔍 userData final:", userData);
                     
                     // Mise à jour du localStorage avec les nouvelles données
-                    localStorage.setItem("user", JSON.stringify(data.user));
+                    localStorage.setItem("user", JSON.stringify(userData));
                 } else {
                     console.error('Erreur lors de la récupération des données utilisateur:', response.status);
                 }
@@ -108,6 +116,7 @@ export default function Evenements() {
 
         initializeData();
     }, []);
+
 
     const fetchRegisteredEvents = async () => {
         try {
@@ -349,6 +358,26 @@ export default function Evenements() {
         }
     };
 
+    const handleOpenEventChat = async (eventId: string, eventTitle: string) => {
+        try {
+            // Utiliser le WebSocket qui fonctionne déjà pour créer la conversation d'événement
+            console.log('🎯 Création conversation événement via WebSocket:', eventId, eventTitle);
+            
+            // Pour l'instant, on navigue directement vers /convs
+            // Le WebSocket createOrGetEventConversation sera appelé depuis le contexte des conversations
+            navigate('/convs', { 
+                state: { 
+                    eventId, 
+                    eventTitle,
+                    openEventChat: true 
+                } 
+            });
+            
+        } catch (error) {
+            setError(error instanceof Error ? error.message : 'Erreur inconnue');
+        }
+    };
+
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
         return date.toLocaleDateString('fr-FR', {
@@ -385,6 +414,7 @@ export default function Evenements() {
                 onParticipate={handleParticipate}
                 onUnregister={handleUnregister}
                 onEdit={handleEditEvent}
+                onOpenEventChat={handleOpenEventChat}
                 isRegistered={isRegistered}
                 isOwner={isOwner}
             />
@@ -536,12 +566,12 @@ export default function Evenements() {
                                             currentView === 'my' 
                                                 ? () => handleEditEvent(event)
                                                 : currentView === 'participating'
-                                                ? () => handleUnregister(event.id)
+                                                ? () => event.id && handleUnregister(event.id)
                                                 : isRegistered 
-                                                    ? () => handleUnregister(event.id) 
-                                                    : () => handleParticipate(event.id)
+                                                    ? () => event.id && handleUnregister(event.id) 
+                                                    : () => event.id && handleParticipate(event.id)
                                         }
-                                        onCardClick={() => handleEventClick(event.id!)}
+                                        onCardClick={() => event.id && handleEventClick(event.id)}
                                     />
                                 </div>
                             );
