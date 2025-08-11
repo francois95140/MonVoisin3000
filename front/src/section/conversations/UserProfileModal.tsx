@@ -103,14 +103,6 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
     );
   };
 
-  const getFriendButtonText = () => {
-    switch (friendshipStatus) {
-      case 'friends': return 'Déjà ami';
-      case 'sent': return 'Demande envoyée';
-      case 'pending': return 'Accepter la demande';
-      default: return 'Ajouter en ami';
-    }
-  };
 
   const getFriendButtonIcon = () => {
     switch (friendshipStatus) {
@@ -128,8 +120,11 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <GlassCard className="w-full max-w-lg max-h-[90vh] overflow-y-auto">
+    <div 
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+      style={{ paddingBottom: '6.6rem' }}
+    >
+      <GlassCard className="w-full max-w-lg max-h-full overflow-y-auto">
         {/* Header */}
         <div className="relative p-6 text-center">
           <button 
@@ -168,24 +163,22 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
 
         {/* Actions */}
         <div className="px-6 pb-6">
-          <div className="flex space-x-3 mb-6">
+          <div className="flex justify-around mb-6">
             <Button
               onClick={handleSendMessage}
               variant="primary"
-              className="flex-1"
+              className="w-fit"
             >
-              <IonIcon name="chatbubble" className="w-5 h-5 mr-2" />
-              Envoyer un message
+              <IonIcon name="chatbubble" className="w-5 h-5" />
             </Button>
 
             <Button
               onClick={handleSendFriendRequest}
               variant="secondary"
-              className="flex-1"
+              className="w-fit"
               disabled={!canSendFriendRequest() || loading}
             >
-              <IonIcon name={getFriendButtonIcon()} className="w-5 h-5 mr-2" />
-              {loading ? 'Envoi...' : getFriendButtonText()}
+              <IonIcon name={getFriendButtonIcon()} className="w-5 h-5" />
             </Button>
           </div>
 

@@ -5,4 +5,5 @@ export { default as Chat } from './Chat';
 export { default as NewChat } from './NewChat';
 export { default as UserSearchModal } from './UserSearchModal';
 export { default as UserProfileModal } from './UserProfileModal';
+export { default as ConversationDetailsModal } from './ConversationDetailsModal';
 export * from './types';

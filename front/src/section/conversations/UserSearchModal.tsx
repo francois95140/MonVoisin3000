@@ -100,8 +100,11 @@ const UserSearchModal: React.FC<UserSearchModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <GlassCard className="w-full max-w-md max-h-[80vh] flex flex-col">
+    <div 
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+      style={{ paddingBottom: '6.6rem' }}
+    >
+      <GlassCard className="w-full max-w-md max-h-full flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-white/10">
           <h2 className="text-xl font-bold text-white">Nouvelle conversation</h2>

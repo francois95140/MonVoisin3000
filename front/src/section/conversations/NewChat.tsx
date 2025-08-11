@@ -3,11 +3,13 @@ import { IonIcon } from '../../components/shared';
 import { ChatProps } from './types';
 import { useConversationWebSocket } from '../../contexts/ConversationWebSocketContext';
 import { MessageInConversation } from '../../types/conversation.types';
+import ConversationDetailsModal from './ConversationDetailsModal';
 
 const NewChat: React.FC<ChatProps> = ({ conversation, currentUserId, onBack, onConversationUpdate }) => {
   const [newMessage, setNewMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [userIsOnline, setUserIsOnline] = useState(conversation.isOnline);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -208,6 +210,28 @@ const NewChat: React.FC<ChatProps> = ({ conversation, currentUserId, onBack, onC
     }
   };
 
+  const handleLeaveGroup = async (conversationId: string) => {
+    try {
+      // TODO: Implémenter l'API pour quitter un groupe
+      console.log('Quitter le groupe:', conversationId);
+      onBack(); // Retourner à la liste des conversations
+      onConversationUpdate?.(); // Rafraîchir la liste
+    } catch (error) {
+      console.error('Erreur lors de la sortie du groupe:', error);
+    }
+  };
+
+  const handleDeleteConversation = async (conversationId: string) => {
+    try {
+      // TODO: Implémenter l'API pour supprimer une conversation
+      console.log('Supprimer la conversation:', conversationId);
+      onBack(); // Retourner à la liste des conversations
+      onConversationUpdate?.(); // Rafraîchir la liste
+    } catch (error) {
+      console.error('Erreur lors de la suppression de la conversation:', error);
+    }
+  };
+
   const renderAvatar = () => {
     const { avatar } = conversation;
     
@@ -247,24 +271,31 @@ const NewChat: React.FC<ChatProps> = ({ conversation, currentUserId, onBack, onC
           <IonIcon name="arrow-back" className="text-white text-xl" />
         </button>
         
-        {renderAvatar()}
-        
-        <div className="flex-1">
-          <h2 className="text-white font-semibold">{conversation.name}</h2>
-          <div className="flex items-center space-x-2">
-            {!conversation.isGroup && (
-              <>
-                <div className={`w-2 h-2 rounded-full ${userIsOnline ? 'bg-green-400' : 'bg-gray-400'}`} />
+        {/* Section cliquable du header (avatar + infos) */}
+        <div 
+          className="flex items-center space-x-3 flex-1 cursor-pointer hover:bg-white/5 rounded-xl p-2 transition-colors"
+          onClick={() => setShowDetailsModal(true)}
+          title="Voir les détails de la conversation"
+        >
+          {renderAvatar()}
+          
+          <div className="flex-1">
+            <h2 className="text-white font-semibold">{conversation.name}</h2>
+            <div className="flex items-center space-x-2">
+              {!conversation.isGroup && (
+                <>
+                  <div className={`w-2 h-2 rounded-full ${userIsOnline ? 'bg-green-400' : 'bg-gray-400'}`} />
+                  <span className="text-white/60 text-sm">
+                    {userIsOnline ? 'En ligne' : 'Hors ligne'}
+                  </span>
+                </>
+              )}
+              {conversation.isGroup && (
                 <span className="text-white/60 text-sm">
-                  {userIsOnline ? 'En ligne' : 'Hors ligne'}
+                  {conversation.participantIds?.length || 0} participants
                 </span>
-              </>
-            )}
-            {conversation.isGroup && (
-              <span className="text-white/60 text-sm">
-                {conversation.participantIds?.length || 0} participants
-              </span>
-            )}
+              )}
+            </div>
           </div>
         </div>
 
@@ -384,6 +415,16 @@ const NewChat: React.FC<ChatProps> = ({ conversation, currentUserId, onBack, onC
           </button>
         </form>
       </div>
+
+      {/* Modale des détails de la conversation */}
+      <ConversationDetailsModal
+        conversation={conversation}
+        currentUserId={currentUserId}
+        isOpen={showDetailsModal}
+        onClose={() => setShowDetailsModal(false)}
+        onLeaveGroup={handleLeaveGroup}
+        onDeleteConversation={handleDeleteConversation}
+      />
     </div>
   );
 };
