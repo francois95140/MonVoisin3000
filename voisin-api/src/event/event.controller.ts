@@ -32,7 +32,6 @@ export class EventController {
   }
 
   @Get(':id')
-  @Public()
   async findOne(@Param('id') id: string): Promise<Event> {
     return this.eventService.findOne(id);
   }

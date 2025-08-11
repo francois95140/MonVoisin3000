@@ -49,7 +49,7 @@ export class EventService {
   async findOne(id: string): Promise<Event> {
     const event = await this.eventRepository.findOne({
       where: { id },
-      relations: ['createdBy']
+      relations: ['creator', 'participants']
     });
 
     if (!event) {

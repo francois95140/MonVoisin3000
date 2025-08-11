@@ -14,6 +14,8 @@ export interface Conversation {
   isOnline: boolean;
   isGroup: boolean;
   userId?: string; // ID du voisin pour les conversations privées
+  conversationId?: string; // ID de la conversation MongoDB
+  participantIds?: string[]; // IDs de tous les participants
 }
 
 export interface ConversationItemProps {

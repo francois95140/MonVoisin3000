@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Card from './components/Card';
 import Add from './components/Add';
+import EventDetails from './components/EventDetails';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -22,9 +23,10 @@ export default function Evenements() {
     const [registeredEvents, setRegisteredEvents] = useState<Event[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [showMyEvents, setShowMyEvents] = useState(false);
+    const [currentView, setCurrentView] = useState<'all' | 'my' | 'participating'>('all');
     const [eventToEdit, setEventToEdit] = useState<Event | undefined>(undefined);
     const [isEditMode, setIsEditMode] = useState(false);
+    const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -174,8 +176,10 @@ export default function Evenements() {
     const handleEventUpdated = () => {
         setIsEditMode(false);
         setEventToEdit(undefined);
-        if (showMyEvents) {
+        if (currentView === 'my') {
             fetchMyEvents();
+        } else if (currentView === 'participating') {
+            fetchRegisteredEvents();
         } else {
             // Recharger tous les événements
             const fetchEvents = async () => {
@@ -206,19 +210,23 @@ export default function Evenements() {
     const handleEventDeleted = () => {
         setIsEditMode(false);
         setEventToEdit(undefined);
-        if (showMyEvents) {
+        if (currentView === 'my') {
             fetchMyEvents();
+        } else if (currentView === 'participating') {
+            fetchRegisteredEvents();
         }
     };
 
     const handleParticipate = async (eventId: string) => {
         try {
-            const token = sessionStorage.getItem('authToken');
+            const token = sessionStorage.getItem('authToken') || localStorage.getItem('authToken');
+            console.log('🔑 Token trouvé:', token ? 'Oui' : 'Non');
             if (!token) {
                 setError('Vous devez être connecté pour participer à un événement.');
                 return;
             }
 
+            console.log('📤 Envoi requête de participation pour événement:', eventId);
             const response = await fetch(`${apiUrl}/api/events/${eventId}/register`, {
                 method: 'POST',
                 headers: {
@@ -227,19 +235,24 @@ export default function Evenements() {
                 }
             });
 
+            console.log('📥 Réponse API participation:', response.status, response.ok);
+
             if (response.status === 401) {
-                localStorage.removeItem('token');
+                localStorage.removeItem('authToken');
+                sessionStorage.removeItem('authToken');
                 setError('Session expirée. Veuillez vous reconnecter.');
                 return;
             }
 
             if (!response.ok) {
                 const errorData = await response.json();
-                alert(errorData.message || 'Erreur lors de l\'inscription');
+                console.error('❌ Erreur API participation:', errorData);
+                setError(errorData.message || 'Erreur lors de l\'inscription');
                 return;
             }
 
             // Succès - rafraîchir la liste des événements inscrits
+            console.log('✅ Inscription réussie');
             alert('Inscription réussie à l\'événement');
             await fetchRegisteredEvents();
             
@@ -251,7 +264,7 @@ export default function Evenements() {
 
     const handleUnregister = async (eventId: string) => {
         try {
-            const token = sessionStorage.getItem('authToken');
+            const token = sessionStorage.getItem('authToken') || localStorage.getItem('authToken');
             if (!token) {
                 setError('Vous devez être connecté pour vous désinscrire d\'un événement.');
                 return;
@@ -266,7 +279,8 @@ export default function Evenements() {
             });
 
             if (response.status === 401) {
-                localStorage.removeItem('token');
+                localStorage.removeItem('authToken');
+                sessionStorage.removeItem('authToken');
                 setError('Session expirée. Veuillez vous reconnecter.');
                 return;
             }
@@ -287,11 +301,51 @@ export default function Evenements() {
         }
     };
 
-    const toggleView = () => {
-        setShowMyEvents(!showMyEvents);
+    const handleViewChange = (view: 'all' | 'my' | 'participating') => {
+        setCurrentView(view);
         setError(null);
-        if (!showMyEvents) {
+        if (view === 'my') {
             fetchMyEvents();
+        } else if (view === 'participating') {
+            fetchRegisteredEvents();
+        }
+    };
+
+    const handleEventClick = (eventId: string) => {
+        setSelectedEventId(eventId);
+    };
+
+    const handleBackToList = () => {
+        setSelectedEventId(null);
+        // Rafraîchir les données selon la vue actuelle
+        if (currentView === 'my') {
+            fetchMyEvents();
+        } else if (currentView === 'participating') {
+            fetchRegisteredEvents();
+        } else {
+            // Recharger tous les événements
+            const fetchEvents = async () => {
+                try {
+                    const authToken = sessionStorage.getItem('authToken') || localStorage.getItem('authToken');
+                    if (!authToken) return;
+                    
+                    const response = await fetch(`${apiUrl}/api/events`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${authToken}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        setEvents(data);
+                    }
+                } catch (err) {
+                    console.error('Erreur lors du rechargement:', err);
+                }
+            };
+            fetchEvents();
         }
     };
 
@@ -304,6 +358,38 @@ export default function Evenements() {
             day: 'numeric'
         });
     };
+
+    // Si un événement est sélectionné, afficher la vue détails
+    if (selectedEventId) {
+        const getCurrentUserId = () => {
+            const userStr = localStorage.getItem('user') || sessionStorage.getItem('user');
+            if (userStr) {
+                try {
+                    const user = JSON.parse(userStr);
+                    return user.id;
+                } catch (e) {
+                    return null;
+                }
+            }
+            return null;
+        };
+
+        const currentUserId = getCurrentUserId();
+        const isOwner = currentView === 'my'; // Si on est dans "Mes événements", on est le propriétaire
+        const isRegistered = registeredEvents.some(event => event.id === selectedEventId);
+
+        return (
+            <EventDetails
+                eventId={selectedEventId}
+                onBack={handleBackToList}
+                onParticipate={handleParticipate}
+                onUnregister={handleUnregister}
+                onEdit={handleEditEvent}
+                isRegistered={isRegistered}
+                isOwner={isOwner}
+            />
+        );
+    }
 
     return (
     <>
@@ -320,16 +406,6 @@ export default function Evenements() {
                 </div>
                 
                 <div className="flex space-x-3">
-                    <button 
-                        onClick={toggleView}
-                        className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                            showMyEvents 
-                                ? 'bg-purple-600 text-white' 
-                                : 'bg-white/10 text-white/70 hover:bg-white/20'
-                        }`}
-                    >
-                        {showMyEvents ? 'Tous les événements' : 'Mes événements'}
-                    </button>
                     <Add 
                         eventToEdit={eventToEdit}
                         isEditMode={isEditMode}
@@ -337,6 +413,42 @@ export default function Evenements() {
                         onEventDeleted={handleEventDeleted}
                     />
                 </div>
+            </div>
+        </div>
+
+        {/* Navigation des vues */}
+        <div className="px-6 mb-6 fade-in" style={{animationDelay: '0.1s'}}>
+            <div className="flex space-x-1 bg-white/10 rounded-lg p-1 w-fit">
+                <button 
+                    onClick={() => handleViewChange('all')}
+                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                        currentView === 'all' 
+                            ? 'bg-purple-600 text-white shadow-sm' 
+                            : 'text-white/70 hover:text-white hover:bg-white/10'
+                    }`}
+                >
+                    Tous les événements
+                </button>
+                <button 
+                    onClick={() => handleViewChange('my')}
+                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                        currentView === 'my' 
+                            ? 'bg-purple-600 text-white shadow-sm' 
+                            : 'text-white/70 hover:text-white hover:bg-white/10'
+                    }`}
+                >
+                    Mes événements
+                </button>
+                <button 
+                    onClick={() => handleViewChange('participating')}
+                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                        currentView === 'participating' 
+                            ? 'bg-purple-600 text-white shadow-sm' 
+                            : 'text-white/70 hover:text-white hover:bg-white/10'
+                    }`}
+                >
+                    Je participe
+                </button>
             </div>
         </div>
 
@@ -361,23 +473,34 @@ export default function Evenements() {
 
             {!loading && !error && (
                 <div className="space-y-4">
-                    {(showMyEvents ? myEvents : events).length === 0 ? (
-                        <div className="glass-card rounded-2xl p-8 text-center">
-                            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center">
-                                <ion-icon name="calendar" className="text-white text-2xl"></ion-icon>
-                            </div>
-                            <h3 className="text-white font-semibold mb-2">
-                                {showMyEvents ? 'Aucun événement créé' : 'Aucun événement'}
-                            </h3>
-                            <p className="text-white/70 text-sm">
-                                {showMyEvents 
-                                    ? 'Vous n\'avez pas encore créé d\'événements. Commencez dès maintenant !'
-                                    : 'Il n\'y a pas encore d\'événements dans votre quartier. Soyez le premier à en créer un !'
-                                }
-                            </p>
-                        </div>
-                    ) : (
-                        (showMyEvents ? myEvents : events).map((event, index) => {
+                    {(() => {
+                        const currentEvents = currentView === 'my' ? myEvents : 
+                                            currentView === 'participating' ? registeredEvents : events;
+                        
+                        if (currentEvents.length === 0) {
+                            return (
+                                <div className="glass-card rounded-2xl p-8 text-center">
+                                    <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center">
+                                        <ion-icon name="calendar" className="text-white text-2xl"></ion-icon>
+                                    </div>
+                                    <h3 className="text-white font-semibold mb-2">
+                                        {currentView === 'my' ? 'Aucun événement créé' : 
+                                         currentView === 'participating' ? 'Aucune participation' : 
+                                         'Aucun événement'}
+                                    </h3>
+                                    <p className="text-white/70 text-sm">
+                                        {currentView === 'my' 
+                                            ? 'Vous n\'avez pas encore créé d\'événements. Commencez dès maintenant !'
+                                            : currentView === 'participating'
+                                            ? 'Vous ne participez à aucun événement pour le moment. Découvrez les événements disponibles !'
+                                            : 'Il n\'y a pas encore d\'événements dans votre quartier. Soyez le premier à en créer un !'
+                                        }
+                                    </p>
+                                </div>
+                            );
+                        }
+
+                        return currentEvents.map((event, index) => {
                             const isRegistered = registeredEvents.some(regEvent => regEvent.id === event.id);
                             
                             return (
@@ -391,32 +514,39 @@ export default function Evenements() {
                                         location={event.location}
                                         icon={event.imageUrl || "calendar"}
                                         buttonText={
-                                            showMyEvents 
-                                                ? "Modifier" 
+                                            currentView === 'my' 
+                                                ? "Modifier"
+                                                : currentView === 'participating'
+                                                ? "Ne plus participer"
                                                 : isRegistered 
                                                     ? "Ne plus participer" 
                                                     : "Participer"
                                         }
                                         buttonType={
-                                            showMyEvents 
-                                                ? "secondary" 
+                                            currentView === 'my' 
+                                                ? "secondary"
+                                                : currentView === 'participating'
+                                                ? "secondary"
                                                 : isRegistered 
                                                     ? "secondary" 
                                                     : "primary"
                                         }
                                         animationDelay={index}
                                         onClick={
-                                            showMyEvents 
-                                                ? () => handleEditEvent(event) 
+                                            currentView === 'my' 
+                                                ? () => handleEditEvent(event)
+                                                : currentView === 'participating'
+                                                ? () => handleUnregister(event.id)
                                                 : isRegistered 
                                                     ? () => handleUnregister(event.id) 
                                                     : () => handleParticipate(event.id)
                                         }
+                                        onCardClick={() => handleEventClick(event.id!)}
                                     />
                                 </div>
                             );
-                        })
-                    )}
+                        });
+                    })()}
                 </div>
             )}
 

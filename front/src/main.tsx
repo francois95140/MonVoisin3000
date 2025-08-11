@@ -5,6 +5,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { WebSocketProvider } from './contexts/WebSocketContext';
+import { ConversationWebSocketProvider } from './contexts/ConversationWebSocketContext';
 import "./index.css";
 import Home from "./home/Home";
 import Connexion from "./auth/Connexion";
@@ -20,7 +21,7 @@ import Navbar from "./UI/navbar";
 import ProfilePage from "./profile/Profile";
 import EditUser from "./auth/Edit";
 import ChangePassword from "./profile/ChangePassword";
-import { Conversations } from "./section/conversations";
+import { Conversations, NewConversations } from "./section/conversations";
 import News from "./news/News";
 
 // Définit le basename pour React Router
@@ -103,7 +104,7 @@ function AppLayout() {
             <Route path="/trock" element={<Trock />} />
             <Route path="/evenements" element={<Evenements />} />
             <Route path="/messages" element={<Messages />} />
-            <Route path="/convs" element={<Conversations />} />
+            <Route path="/convs" element={<NewConversations />} />
             <Route path="/carte" element={<Map />} />
           </>
         ) : (
@@ -135,9 +136,11 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ThemeProvider>
       <WebSocketProvider>
-        <BrowserRouter basename={basename}>
-          <AppLayout />
-        </BrowserRouter>
+        <ConversationWebSocketProvider>
+          <BrowserRouter basename={basename}>
+            <AppLayout />
+          </BrowserRouter>
+        </ConversationWebSocketProvider>
       </WebSocketProvider>
     </ThemeProvider>
   </StrictMode>
