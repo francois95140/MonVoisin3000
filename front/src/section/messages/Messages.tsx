@@ -35,7 +35,7 @@ const Messages: React.FC = () => {
       id: '2', 
       name: 'Jean Martin',
       avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
-      lastMessage: 'Merci pour ton aide avec le déménagement !',
+      lastMessage: 'Merci pour ton aide avec le dï¿½mï¿½nagement !',
       time: '12:15',
       unread: 0,
       online: false
@@ -146,11 +146,11 @@ const Messages: React.FC = () => {
             <IonIcon name="chatbubbles" className="text-6xl text-white/30 mb-4" />
             <h3 className="text-xl font-semibold text-white mb-2">Aucune conversation</h3>
             <p className="text-white/60 mb-6">
-              Commencez à discuter avec vos voisins !
+              Commencez ï¿½ discuter avec vos voisins !
             </p>
             <Button variant="primary">
               <IonIcon name="add" className="w-5 h-5 mr-2" />
-              Démarrer une conversation
+              Dï¿½marrer une conversation
             </Button>
           </GlassCard>
         )}
@@ -162,7 +162,7 @@ const Messages: React.FC = () => {
             <div>
               <p className="text-yellow-100 text-sm font-medium">Conseil</p>
               <p className="text-yellow-200/80 text-xs mt-1">
-                Utilisez les messages pour organiser des événements, échanger des services ou simplement faire connaissance avec vos voisins !
+                Utilisez les messages pour organiser des ï¿½vï¿½nements, ï¿½changer des services ou simplement faire connaissance avec vos voisins !
               </p>
             </div>
           </div>

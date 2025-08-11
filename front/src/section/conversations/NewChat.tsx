@@ -5,11 +5,18 @@ import { useConversationWebSocket } from '../../contexts/ConversationWebSocketCo
 import { MessageInConversation } from '../../types/conversation.types';
 import ConversationDetailsModal from './ConversationDetailsModal';
 
+interface UserInfo {
+  id: string;
+  pseudo: string;
+  avatar?: string;
+}
+
 const NewChat: React.FC<ChatProps> = ({ conversation, currentUserId, onBack, onConversationUpdate }) => {
   const [newMessage, setNewMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [userIsOnline, setUserIsOnline] = useState(conversation.isOnline);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [users, setUsers] = useState<Map<string, UserInfo>>(new Map());
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -232,6 +239,50 @@ const NewChat: React.FC<ChatProps> = ({ conversation, currentUserId, onBack, onC
     }
   };
 
+  // Fonction pour charger les infos des utilisateurs qui ont envoyé des messages
+  const loadUserInfo = async (userId: string): Promise<UserInfo | null> => {
+    try {
+      const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+      if (!token) return null;
+
+      const apiUrl = import.meta.env.VITE_API_URL;
+      const response = await fetch(`${apiUrl}/api/users/${userId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const userData = await response.json();
+        return {
+          id: userData.id,
+          pseudo: userData.pseudo,
+          avatar: userData.avatar
+        };
+      }
+    } catch (error) {
+      console.warn(`Erreur lors de la récupération de l'utilisateur ${userId}:`, error);
+    }
+    return null;
+  };
+
+  // Charger les informations des utilisateurs quand les messages changent
+  useEffect(() => {
+    if (conversation.isGroup && messages.length > 0) {
+      const uniqueSenderIds = [...new Set(messages.map(msg => msg.senderId))];
+      
+      uniqueSenderIds.forEach(async (senderId) => {
+        if (!users.has(senderId)) {
+          const userInfo = await loadUserInfo(senderId);
+          if (userInfo) {
+            setUsers(prev => new Map(prev.set(senderId, userInfo)));
+          }
+        }
+      });
+    }
+  }, [messages, conversation.isGroup]);
+
   const renderAvatar = () => {
     const { avatar } = conversation;
     
@@ -252,11 +303,33 @@ const NewChat: React.FC<ChatProps> = ({ conversation, currentUserId, onBack, onC
     );
   };
 
+  // Fonction pour rendre l'avatar d'un utilisateur spécifique (pour les groupes)
+  const renderUserAvatar = (userId: string) => {
+    const userInfo = users.get(userId);
+    const colors = ['from-blue-400 to-purple-600', 'from-green-400 to-teal-600', 'from-pink-400 to-red-600', 'from-yellow-400 to-orange-600'];
+    const colorIndex = userId.length % colors.length;
+    
+    return (
+      <div className={`w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br ${colors[colorIndex]} flex items-center justify-center flex-shrink-0`}>
+        {userInfo?.avatar ? (
+          <img 
+            src={userInfo.avatar} 
+            alt={userInfo.pseudo}
+            className="w-full h-full object-cover" 
+          />
+        ) : (
+          <span className="text-white font-bold text-xs">
+            {userInfo?.pseudo ? userInfo.pseudo.substring(0, 2).toUpperCase() : '??'}
+          </span>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div 
       className="flex flex-col antialiased"
       style={{
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
         height: 'calc(100vh - ( 4.2rem + 0.4rem ) - ( 6.6rem ) )',
         overflow: 'hidden'
       }}
@@ -323,6 +396,8 @@ const NewChat: React.FC<ChatProps> = ({ conversation, currentUserId, onBack, onC
               const isCurrentUser = message.senderId === currentUserId;
               const showAvatar = !isCurrentUser && 
                 (index === 0 || messages[index - 1]?.senderId !== message.senderId);
+              const showSenderName = conversation.isGroup && !isCurrentUser && showAvatar;
+              const senderInfo = users.get(message.senderId);
               
               return (
                 <div
@@ -331,11 +406,20 @@ const NewChat: React.FC<ChatProps> = ({ conversation, currentUserId, onBack, onC
                 >
                   {!isCurrentUser && (
                     <div className="w-8 h-8 flex-shrink-0">
-                      {showAvatar && renderAvatar()}
+                      {showAvatar && (
+                        conversation.isGroup ? renderUserAvatar(message.senderId) : renderAvatar()
+                      )}
                     </div>
                   )}
                   
                   <div className={`max-w-xs lg:max-w-md ${isCurrentUser ? 'order-1' : ''}`}>
+                    {/* Nom de l'expéditeur pour les groupes */}
+                    {showSenderName && (
+                      <p className="text-xs text-white/60 mb-1 ml-1">
+                        {senderInfo?.pseudo || 'Utilisateur inconnu'}
+                      </p>
+                    )}
+                    
                     <div
                       className={`px-4 py-2 rounded-2xl ${
                         isCurrentUser

@@ -220,8 +220,7 @@ const ConversationDetailsModal: React.FC<ConversationDetailsModalProps> = ({
                 onClick={handleDeleteConversation}
                 className="w-full flex items-center justify-center space-x-2 p-3 bg-red-600 hover:bg-red-700 rounded-xl text-white font-medium transition-colors"
               >
-                <IonIcon name="trash-outline" />
-                <span>Supprimer la conversation</span>
+                <IonIcon name="trash-outline" className="text-2xl" />
               </button>
             </div>
           </div>

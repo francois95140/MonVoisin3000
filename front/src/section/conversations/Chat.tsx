@@ -208,7 +208,6 @@ const Chat: React.FC<ChatProps> = ({ conversation, currentUserId, onBack, onConv
     <div 
       className="flex flex-col antialiased"
       style={{
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
         height: 'calc(100vh - ( 4.2rem + 0.4rem ) - ( 6.6rem ) )',
         overflow: 'hidden'
       }}

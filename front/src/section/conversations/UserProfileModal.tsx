@@ -81,6 +81,39 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
     onClose();
   };
 
+  const handleReportUser = async () => {
+    try {
+      const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+      if (!token) {
+        throw new Error('Token d\'authentification manquant');
+      }
+
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+      const response = await fetch(`${apiUrl}/api/users/${user.id}/report`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ 
+          reason: 'Signalement depuis le profil utilisateur',
+          reportedUserId: user.id 
+        })
+      });
+
+      if (response.ok) {
+        alert(`Utilisateur ${user.pseudo} signalé avec succès`);
+        onClose();
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Erreur lors du signalement');
+      }
+    } catch (error) {
+      console.error('Erreur lors du signalement:', error);
+      alert(error instanceof Error ? error.message : 'Une erreur est survenue lors du signalement');
+    }
+  };
+
   const renderUserAvatar = () => {
     if (user.avatar) {
       return (
@@ -291,6 +324,18 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
                 </div>
               </div>
             )}
+          </div>
+
+          {/* Report User Section */}
+          <div className="mt-6 pt-4 border-t border-white/5">
+            <Button
+              onClick={handleReportUser}
+              variant="danger"
+              className="w-full bg-red-600/20 hover:bg-red-600/30 border border-red-500/30 text-red-300 hover:text-red-200"
+            >
+              <IonIcon name="flag" className="w-4 h-4 mr-2" />
+              Signaler cet utilisateur
+            </Button>
           </div>
         </div>
 
