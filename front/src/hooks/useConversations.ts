@@ -285,7 +285,7 @@ export const useConversations = (currentUserId: string | null) => {
       
       const updateStatuses = async () => {
         try {
-          const userIds = conversations.map(conv => conv.userId);
+          const userIds = conversations.map(conv => conv.userId).filter((id): id is string => id !== undefined);
           const userStatuses = await getUsersStatus(userIds);
           console.log('🔄 Mise à jour des statuts utilisateurs:', userStatuses);
           

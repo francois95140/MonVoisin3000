@@ -6,7 +6,7 @@ interface IonIconProps {
 }
 
 const IonIcon: React.FC<IonIconProps> = ({ name, className = "" }) => (
-  <ion-icon name={name} class={className}></ion-icon>
+  <ion-icon name={name} className={className}></ion-icon>
 );
 
 export default IonIcon;

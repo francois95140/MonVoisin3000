@@ -1,12 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import ServiceModal, { ServiceType } from './components/ServiceModal';
+import { IonIcon } from '../components/shared';
 
 const apiUrl = import.meta.env.VITE_API_URL;
-
-// Composant pour les icônes Ionicons
-const IonIcon: React.FC<{ name: string; className?: string }> = ({ name, className = "" }) => (
-  <ion-icon name={name} class={className}></ion-icon>
-);
 
 interface ServiceItem {
   id: number;

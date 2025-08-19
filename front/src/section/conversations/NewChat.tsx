@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { IonIcon } from '../../components/shared';
 import { ChatProps } from './types';
-import { useConversationWebSocket } from '../../contexts/ConversationWebSocketContext';
+import { useWebSocket } from '../../contexts/WebSocketContext';
 import { MessageInConversation } from '../../types/conversation.types';
 import ConversationDetailsModal from './ConversationDetailsModal';
 
@@ -23,12 +23,12 @@ const NewChat: React.FC<ChatProps> = ({ conversation, currentUserId, onBack, onC
   const {
     isConnected,
     sendMessageToConversation,
-    getConversation,
+    getConversationById,
     markConversationAsRead,
     messages,
     getUsersStatus,
     createOrGetPrivateConversation
-  } = useConversationWebSocket();
+  } = useWebSocket();
 
   // Charger la conversation
   useEffect(() => {
@@ -72,7 +72,7 @@ const NewChat: React.FC<ChatProps> = ({ conversation, currentUserId, onBack, onC
     
     setIsLoading(true);
     try {
-      await getConversation(conversation.conversationId);
+      await getConversationById(conversation.conversationId);
     } catch (error) {
       console.error('Erreur lors du chargement de la conversation:', error);
     } finally {
@@ -90,7 +90,7 @@ const NewChat: React.FC<ChatProps> = ({ conversation, currentUserId, onBack, onC
       console.log('✅ Conversation chargée/créée:', conversationData._id);
       
       // Charger les messages de cette conversation
-      await getConversation(conversationData._id);
+      await getConversationById(conversationData._id);
     } catch (error) {
       console.error('Erreur lors du chargement/création de la conversation:', error);
     } finally {

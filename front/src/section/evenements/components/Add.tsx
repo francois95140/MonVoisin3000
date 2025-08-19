@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import IconOption from './IconOption';
+import { IconPicker } from '../../../components/shared';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -31,8 +31,7 @@ export default function Add() {
         });
 
         // Vérification de la sélection d'icône
-        const selectedIconInput = document.getElementById('selectedIcon') as HTMLInputElement;
-        if (!selectedIconInput?.value || selectedIconInput.value.trim() === '') {
+        if (!selectedIcon || selectedIcon.trim() === '') {
             errors.push('Veuillez sélectionner une icône.');
         }
 
@@ -76,9 +75,8 @@ export default function Add() {
         const formData = new FormData(event.currentTarget);
 
         // Ajouter l'icône sélectionnée au FormData
-        const selectedIcon = document.getElementById('selectedIcon') as HTMLInputElement;
-        if (selectedIcon?.value) {
-            formData.set('icon', selectedIcon.value);
+        if (selectedIcon) {
+            formData.set('icon', selectedIcon);
         }
 
         // Validation du formulaire
@@ -111,7 +109,7 @@ export default function Add() {
                 startTime: formData.get('startTime') as string,
                 endTime: formData.get('endTime') as string,
                 location: formData.get('location') as string,
-                imageUrl: selectedIcon?.value || undefined
+                imageUrl: selectedIcon || undefined
             };
 
             const response = await fetch(`${apiUrl}/api/events`, {
@@ -142,26 +140,11 @@ export default function Add() {
         toggleModal();
         const form = document.getElementById('eventForm') as HTMLFormElement;
         if (form) form.reset();
-        const selectedIconInput = document.getElementById('selectedIcon') as HTMLInputElement;
-        if (selectedIconInput) selectedIconInput.value = '';
         setSelectedIcon('');
     };
 
-    const iconOptions = [
-        "calendar", "musical-notes", "restaurant", "fitness", "library",
-        "cafe", "basketball", "camera", "boat", "bicycle", "book", "gift",
-        "heart", "home", "medical", "people", "school", "school", "school",
-        "calendar", "musical-notes", "restaurant", "fitness", "library",
-        "cafe", "basketball", "camera", "boat", "bicycle", "book", "gift",
-        "heart", "home", "medical", "people", "school", "school", "school"
-    ];
-
     const handleIconSelect = (iconName: string) => {
         setSelectedIcon(iconName);
-        const selectedIconInput = document.getElementById('selectedIcon') as HTMLInputElement;
-        if (selectedIconInput) {
-            selectedIconInput.value = iconName;
-        }
     };
 
     const toggleModal = () => {
@@ -201,19 +184,10 @@ export default function Add() {
                             {/* Sélection d'icône */}
                             <div>
                                 <label className="block text-white font-medium mb-3">Choisir une icône</label>
-                                <div className="icon-grid">
-
-                                    {iconOptions.map((icon, index) => (
-                                        <div 
-                                            key={index} 
-                                            className={`icon-option ${selectedIcon === icon ? 'selected' : ''}`}
-                                            onClick={() => handleIconSelect(icon)}
-                                        >
-                                            <IconOption dataIcon={icon} />
-                                        </div>
-                                    ))}
-                                    
-                                </div>
+                                <IconPicker 
+                                    selectedIcon={selectedIcon}
+                                    onSelectIcon={handleIconSelect}
+                                />
                                 <input type="hidden" id="selectedIcon" name="icon" value={selectedIcon}/>
                             </div>
 

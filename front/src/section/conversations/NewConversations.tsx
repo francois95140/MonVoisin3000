@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { IonIcon, GlassCard, Button } from '../../components/shared';
 import { Conversation, User } from './types';
 import { useNewConversations } from '../../hooks/useNewConversations';
-import { useConversationWebSocket } from '../../contexts/ConversationWebSocketContext';
+import { useWebSocket } from '../../contexts/WebSocketContext';
 import ConversationItem from './ConversationItem';
 import NewChat from './NewChat';
 import UserSearchModal from './UserSearchModal';
@@ -38,7 +38,7 @@ const NewConversations: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   const { conversations, loading, error, refetch } = useNewConversations(currentUserId);
-  const { connect, isConnected, createOrGetEventConversation } = useConversationWebSocket();
+  const { connect, isConnected, createOrGetEventConversation } = useWebSocket();
 
   // Récupérer l'ID de l'utilisateur connecté
   useEffect(() => {
@@ -58,6 +58,13 @@ const NewConversations: React.FC = () => {
         if (response.ok) {
           const userData = await response.json();
           setCurrentUserId(userData.id);
+        } else if (response.status === 401) {
+          console.error('Token invalide, redirection vers connexion');
+          // Nettoyer le token invalide
+          localStorage.removeItem('authToken');
+          sessionStorage.removeItem('authToken');
+          // Rediriger vers la page de connexion
+          window.location.href = '/connexion';
         }
       } catch (error) {
         console.error('Erreur lors de la récupération de l\'utilisateur:', error);
@@ -67,13 +74,14 @@ const NewConversations: React.FC = () => {
     getUserId();
   }, []);
 
-  // Connecter au WebSocket une seule fois quand l'utilisateur est disponible
+  // WebSocket connecté globalement via main.tsx, plus besoin de le faire ici
   useEffect(() => {
-    if (currentUserId) {
-      console.log('🔌 Initialisation de la connexion WebSocket Conversations pour:', currentUserId);
-      connect(currentUserId);
+    if (currentUserId && isConnected) {
+      console.log('✅ WebSocket déjà connecté globalement pour utilisateur:', currentUserId);
+    } else if (currentUserId && !isConnected) {
+      console.log('⏳ En attente de la connexion WebSocket globale...');
     }
-  }, [currentUserId, connect]);
+  }, [currentUserId, isConnected]);
 
   // Effet pour créer automatiquement la conversation d'événement si on arrive avec ces paramètres
   useEffect(() => {

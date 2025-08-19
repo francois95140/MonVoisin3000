@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { IonIcon, GlassCard } from '../../components/shared';
-import { ChatProps, Message } from './types';
+import { ChatProps } from './types';
+import { MessageInConversation } from '../../types/conversation.types';
 import { useWebSocket } from '../../contexts/WebSocketContext';
 
 const Chat: React.FC<ChatProps> = ({ conversation, currentUserId, onBack, onConversationUpdate }) => {
@@ -254,14 +255,14 @@ const Chat: React.FC<ChatProps> = ({ conversation, currentUserId, onBack, onConv
           </div>
         ) : (
           <>
-            {messages.map((message: Message, index) => {
+            {messages.map((message: MessageInConversation, index) => {
               const isCurrentUser = message.senderId === currentUserId;
               const showAvatar = !isCurrentUser && 
                 (index === 0 || messages[index - 1]?.senderId !== message.senderId);
               
               return (
                 <div
-                  key={message.id}
+                  key={message._id}
                   className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'} items-end space-x-2`}
                 >
                   {!isCurrentUser && (

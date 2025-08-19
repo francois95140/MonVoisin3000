@@ -69,13 +69,12 @@ const Conversations: React.FC = () => {
     getUserId();
   }, []);
 
-  // Connecter au WebSocket une seule fois quand l'utilisateur est disponible
+  // WebSocket connecté globalement via main.tsx
   useEffect(() => {
-    if (currentUserId) {
-      console.log('🔌 Initialisation de la connexion WebSocket pour:', currentUserId);
-      connect(currentUserId);
+    if (currentUserId && isConnected) {
+      console.log('✅ WebSocket déjà connecté globalement pour utilisateur:', currentUserId);
     }
-  }, [currentUserId]); // Connexion unique par utilisateur
+  }, [currentUserId, isConnected]);
 
 
   // Filtrer les conversations selon le terme de recherche

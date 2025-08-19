@@ -42,6 +42,12 @@ const UserSearchModal: React.FC<UserSearchModalProps> = ({
         if (response.status === 404) {
           setUsers([]);
           return;
+        } else if (response.status === 401) {
+          console.error('Token invalide lors de la recherche, redirection vers connexion');
+          localStorage.removeItem('authToken');
+          sessionStorage.removeItem('authToken');
+          window.location.href = '/connexion';
+          return;
         }
         throw new Error('Erreur lors de la recherche d\'utilisateurs');
       }

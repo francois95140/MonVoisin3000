@@ -1,42 +1,36 @@
 import React, { createContext, useContext, useRef, useState, useCallback, useEffect } from 'react';
 import { io, Socket } from 'socket.io-client';
-
-interface Message {
-  id: string;
-  senderId: string;
-  recipientId: string;
-  content: string;
-  createdAt: string;
-  isRead: boolean;
-  sender?: {
-    id: string;
-    pseudo: string;
-    avatar?: string;
-  };
-  recipient?: {
-    id: string;
-    pseudo: string;
-    avatar?: string;
-  };
-}
-
-interface ConversationData {
-  messages: Message[];
-  totalCount: number;
-  hasNextPage: boolean;
-}
+import { 
+  ConversationData, 
+  MessageInConversation, 
+  ConversationWithMessages,
+  ConversationListItem,
+  UnreadCount
+} from '../types/conversation.types';
 
 interface WebSocketContextType {
   socket: Socket | null;
   isConnected: boolean;
-  messages: Message[];
+  messages: MessageInConversation[];
   connect: (userId: string) => void;
   disconnect: () => void;
-  sendMessage: (recipientId: string, content: string) => Promise<void>;
-  getConversation: (userId1: string, userId2: string, page?: number) => Promise<ConversationData | null>;
-  markAsRead: (messageId: string, userId: string) => Promise<void>;
-  getUnreadCount: (userId: string) => Promise<number>;
+  
+  // Nouvelles méthodes (conversations)
+  sendMessageToConversation: (conversationId: string, content: string) => Promise<MessageInConversation>;
+  createOrGetPrivateConversation: (otherUserId: string) => Promise<ConversationData>;
+  createOrGetEventConversation: (eventId: string, eventTitle: string) => Promise<ConversationData>;
+  getConversationById: (conversationId: string, page?: number) => Promise<ConversationWithMessages | null>;
+  getUserConversations: (page?: number) => Promise<ConversationListItem | null>;
+  markConversationAsRead: (conversationId: string, fromSenderId?: string) => Promise<{ markedCount: number }>;
+  getUnreadCounts: () => Promise<UnreadCount[]>;
+  getTotalUnreadCount: () => Promise<number>;
   getUsersStatus: (userIds: string[]) => Promise<{ userId: string; isOnline: boolean }[]>;
+  
+  // Méthodes de compatibilité (ancien système émulé)
+  sendMessage: (recipientId: string, content: string) => Promise<void>;
+  getUnreadCount: (userId: string) => Promise<number>;
+  markAsRead: (messageId: string, userId: string) => Promise<void>;
+  getConversation: (userId1: string, userId2: string, page?: number) => Promise<any>;
 }
 
 const WebSocketContext = createContext<WebSocketContextType | undefined>(undefined);
@@ -56,7 +50,7 @@ interface WebSocketProviderProps {
 export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }) => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<MessageInConversation[]>([]);
   const socketRef = useRef<Socket | null>(null);
   const currentUserId = useRef<string | null>(null);
   const isConnecting = useRef<boolean>(false);
@@ -80,7 +74,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
       socketRef.current.disconnect();
     }
 
-    console.log('🔌 Connexion WebSocket pour utilisateur:', userId);
+    console.log('🔌 Connexion WebSocket Conversations pour utilisateur:', userId);
 
     const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
     
@@ -91,7 +85,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
       reconnectionDelay: 1000,
       reconnectionAttempts: 3,
       timeout: 10000,
-      forceNew: false // Réutiliser la connexion si possible
+      forceNew: false
     });
 
     socketRef.current = newSocket;
@@ -99,7 +93,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
     setSocket(newSocket);
 
     newSocket.on('connect', () => {
-      console.log('✅ Connecté au WebSocket');
+      console.log('✅ Connecté au WebSocket Conversations');
       isConnecting.current = false;
       setIsConnected(true);
       
@@ -115,85 +109,81 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
     });
 
     newSocket.on('disconnect', (reason) => {
-      console.log('❌ Déconnecté du WebSocket. Raison:', reason);
+      console.log('❌ Déconnecté du WebSocket Conversations. Raison:', reason);
       isConnecting.current = false;
       setIsConnected(false);
       
-      // Ne pas tenter de reconnecter automatiquement pour éviter les boucles
-      if (reason === 'io client disconnect') {
-        console.log('🔌 Déconnexion volontaire, pas de reconnexion');
+      // Reconnexion automatique après déconnexion (sauf si c'est volontaire)
+      if (reason !== 'io client disconnect' && currentUserId.current) {
+        console.log('🔄 Tentative de reconnexion automatique dans 3 secondes...');
+        setTimeout(() => {
+          if (currentUserId.current && !socketRef.current?.connected) {
+            console.log('🔄 Reconnexion automatique...');
+            connect(currentUserId.current);
+          }
+        }, 3000);
       }
     });
 
     newSocket.on('connect_error', (error) => {
-      console.error('❌ Erreur de connexion WebSocket:', error);
+      console.error('❌ Erreur de connexion WebSocket Conversations:', error);
       isConnecting.current = false;
       setIsConnected(false);
     });
 
-    // Écouter les nouveaux messages
-    newSocket.on('newMessage', (message: any) => {
-      console.log('📩 Nouveau message reçu:', message);
-      
-      // Normaliser les données du message (MongoDB _id -> id)
-      const normalizedMessage: Message = {
-        id: message._id || message.id,
-        senderId: message.senderId,
-        recipientId: message.recipientId,
-        content: message.content,
-        createdAt: message.createdAt,
-        isRead: message.isRead,
-        sender: message.sender,
-        recipient: message.recipient
+    // Écouter les nouveaux messages dans les conversations
+    newSocket.on('newMessageInConversation', (data: {
+      conversationId: string;
+      message: MessageInConversation;
+      conversation: {
+        _id: string;
+        participant_ids: string[];
+        type: string;
+        name?: string;
+        updatedAt: string;
       };
+    }) => {
+      console.log('📩 Nouveau message dans conversation reçu:', data);
       
-      setMessages(prev => [...prev, normalizedMessage]);
+      // Ajouter le message à la liste locale si c'est la conversation active
+      setMessages(prev => [...prev, data.message]);
       
       // Émettre un événement personnalisé pour notifier les composants
       const conversationUpdateEvent = new CustomEvent('conversationUpdate', {
         detail: {
           type: 'newMessage',
-          message: normalizedMessage,
-          conversationParticipant: normalizedMessage.senderId
+          conversationId: data.conversationId,
+          message: data.message,
+          conversation: data.conversation
         }
       });
       window.dispatchEvent(conversationUpdateEvent);
     });
 
-    // Écouter les messages mis à jour
-    newSocket.on('messageUpdated', (message: any) => {
-      console.log('✏️ Message mis à jour:', message);
+    // Écouter les messages marqués comme lus
+    newSocket.on('messagesMarkedAsRead', (data: {
+      conversationId: string;
+      userId: string;
+      markedCount: number;
+    }) => {
+      console.log('👀 Messages marqués comme lus dans conversation:', data);
       
-      const normalizedMessage: Message = {
-        id: message._id || message.id,
-        senderId: message.senderId,
-        recipientId: message.recipientId,
-        content: message.content,
-        createdAt: message.createdAt,
-        isRead: message.isRead,
-        sender: message.sender,
-        recipient: message.recipient
-      };
-      
-      setMessages(prev => 
-        prev.map(msg => msg.id === normalizedMessage.id ? normalizedMessage : msg)
-      );
-    });
-
-    // Écouter les messages supprimés
-    newSocket.on('messageDeleted', (data: { id: string }) => {
-      console.log('🗑️ Message supprimé:', data.id);
-      setMessages(prev => prev.filter(msg => msg.id !== data.id));
-    });
-
-    // Écouter les messages lus
-    newSocket.on('messageRead', (data: { id: string }) => {
-      console.log('👀 Message lu:', data.id);
+      // Mettre à jour les messages locaux
       setMessages(prev => 
         prev.map(msg => 
-          msg.id === data.id ? { ...msg, isRead: true } : msg
+          msg.senderId === currentUserId.current ? { ...msg, isRead: true } : msg
         )
       );
+
+      // Émettre un événement personnalisé
+      const readEvent = new CustomEvent('conversationUpdate', {
+        detail: {
+          type: 'messagesRead',
+          conversationId: data.conversationId,
+          markedCount: data.markedCount
+        }
+      });
+      window.dispatchEvent(readEvent);
     });
 
     // Écouter les changements de statut des utilisateurs
@@ -210,7 +200,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
   }, []);
 
   const disconnect = useCallback(() => {
-    console.log('🔌 Déconnexion WebSocket demandée');
+    console.log('🔌 Déconnexion WebSocket Conversations demandée');
     if (socketRef.current) {
       socketRef.current.disconnect();
       socketRef.current = null;
@@ -221,7 +211,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
     }
   }, []);
 
-  const sendMessage = useCallback(async (recipientId: string, content: string): Promise<void> => {
+  const sendMessageToConversation = useCallback(async (conversationId: string, content: string): Promise<MessageInConversation> => {
     if (!socketRef.current || !currentUserId.current) {
       throw new Error('WebSocket non connecté');
     }
@@ -231,43 +221,20 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
         reject(new Error('Timeout lors de l\'envoi du message'));
       }, 10000);
 
-      socketRef.current!.emit('createMessage', {
+      socketRef.current!.emit('createMessageInConversation', {
+        conversationId,
         senderId: currentUserId.current,
-        recipientId,
         content
       }, (response: any) => {
         clearTimeout(timeout);
         if (response && response.success) {
-          console.log('✅ Message envoyé avec succès:', response.data);
+          console.log('✅ Message envoyé dans conversation avec succès:', response.data);
           
           // Ajouter le message immédiatement à la liste locale
-          const newMessage: Message = {
-            id: response.data._id,
-            senderId: response.data.senderId,
-            recipientId: response.data.recipientId,
-            content: response.data.content,
-            createdAt: response.data.createdAt,
-            isRead: response.data.isRead,
-            sender: {
-              id: response.data.senderId,
-              pseudo: 'Vous', // Sera mis à jour si besoin
-              avatar: ''
-            }
-          };
-          
+          const newMessage = response.data.message;
           setMessages(prev => [...prev, newMessage]);
           
-          // Émettre un événement pour mettre à jour les conversations
-          const conversationUpdateEvent = new CustomEvent('conversationUpdate', {
-            detail: {
-              type: 'newMessage',
-              message: newMessage,
-              conversationParticipant: newMessage.recipientId // Le destinataire pour les messages qu'on envoie
-            }
-          });
-          window.dispatchEvent(conversationUpdateEvent);
-          
-          resolve();
+          resolve(newMessage);
         } else {
           console.error('❌ Erreur lors de l\'envoi du message:', response?.error || 'Erreur inconnue');
           reject(new Error(response?.error || 'Erreur lors de l\'envoi du message'));
@@ -276,11 +243,67 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
     });
   }, []);
 
-  const getConversation = useCallback(async (
-    userId1: string, 
-    userId2: string, 
+  const createOrGetPrivateConversation = useCallback(async (otherUserId: string): Promise<ConversationData> => {
+    if (!socketRef.current) {
+      throw new Error('WebSocket non connecté');
+    }
+
+    return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(new Error('Timeout lors de la création/récupération de la conversation'));
+      }, 10000);
+
+      socketRef.current!.emit('createOrGetPrivateConversation', {
+        otherUserId
+      }, (response: any) => {
+        clearTimeout(timeout);
+        if (response && response.success) {
+          console.log('✅ Conversation privée créée/récupérée:', response.data);
+          resolve(response.data);
+        } else {
+          console.error('❌ Erreur lors de la création/récupération de la conversation:', response?.error || 'Erreur inconnue');
+          reject(new Error(response?.error || 'Erreur lors de la création/récupération de la conversation'));
+        }
+      });
+    });
+  }, []);
+
+  const createOrGetEventConversation = useCallback(async (eventId: string, eventTitle: string): Promise<ConversationData> => {
+    console.log('🔥 createOrGetEventConversation appelée avec:', { eventId, eventTitle });
+    console.log('🔥 Socket connecté:', !!socketRef.current, 'isConnected:', isConnected);
+    
+    if (!socketRef.current) {
+      console.error('❌ WebSocket non connecté dans createOrGetEventConversation');
+      throw new Error('WebSocket non connecté');
+    }
+
+    return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(new Error('Timeout lors de la création/récupération de la conversation d\'événement'));
+      }, 10000);
+
+      console.log('🔥 Émission WebSocket createOrGetEventConversation...');
+      socketRef.current!.emit('createOrGetEventConversation', {
+        eventId,
+        eventTitle
+      }, (response: any) => {
+        console.log('🔥 Réponse WebSocket reçue:', response);
+        clearTimeout(timeout);
+        if (response && response.success) {
+          console.log('✅ Conversation d\'événement créée/récupérée:', response.data);
+          resolve(response.data);
+        } else {
+          console.error('❌ Erreur lors de la création/récupération de la conversation d\'événement:', response?.error || 'Erreur inconnue');
+          reject(new Error(response?.error || 'Erreur lors de la création/récupération de la conversation d\'événement'));
+        }
+      });
+    });
+  }, []);
+
+  const getConversationById = useCallback(async (
+    conversationId: string, 
     page = 1
-  ): Promise<ConversationData | null> => {
+  ): Promise<ConversationWithMessages | null> => {
     if (!socketRef.current) {
       throw new Error('WebSocket non connecté');
     }
@@ -291,8 +314,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
       }, 10000);
 
       socketRef.current!.emit('getConversation', {
-        userId1,
-        userId2,
+        conversationId,
         page,
         limit: 50
       }, (response: any) => {
@@ -300,23 +322,9 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
         if (response && response.success) {
           console.log('✅ Conversation récupérée:', response.data);
           
-          // Normaliser les messages de la conversation
-          const normalizedMessages = response.data.messages.map((msg: any) => ({
-            id: msg._id || msg.id,
-            senderId: msg.senderId,
-            recipientId: msg.recipientId,
-            content: msg.content,
-            createdAt: msg.createdAt,
-            isRead: msg.isRead,
-            sender: msg.sender,
-            recipient: msg.recipient
-          }));
-          
-          setMessages(normalizedMessages);
-          resolve({
-            ...response.data,
-            messages: normalizedMessages
-          });
+          // Mettre à jour les messages locaux
+          setMessages(response.data.messages);
+          resolve(response.data);
         } else {
           console.error('❌ Erreur lors de la récupération de la conversation:', response?.error || 'Erreur inconnue');
           reject(new Error(response?.error || 'Erreur lors de la récupération de la conversation'));
@@ -325,7 +333,33 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
     });
   }, []);
 
-  const markAsRead = useCallback(async (messageId: string, userId: string): Promise<void> => {
+  const getUserConversations = useCallback(async (page = 1): Promise<ConversationListItem | null> => {
+    if (!socketRef.current) {
+      throw new Error('WebSocket non connecté');
+    }
+
+    return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(new Error('Timeout lors de la récupération des conversations'));
+      }, 10000);
+
+      socketRef.current!.emit('getUserConversations', {
+        page,
+        limit: 50
+      }, (response: any) => {
+        clearTimeout(timeout);
+        if (response && response.success) {
+          console.log('✅ Conversations utilisateur récupérées:', response.data);
+          resolve(response.data);
+        } else {
+          console.error('❌ Erreur lors de la récupération des conversations:', response?.error || 'Erreur inconnue');
+          reject(new Error(response?.error || 'Erreur lors de la récupération des conversations'));
+        }
+      });
+    });
+  }, []);
+
+  const markConversationAsRead = useCallback(async (conversationId: string, fromSenderId?: string): Promise<{ markedCount: number }> => {
     if (!socketRef.current) {
       throw new Error('WebSocket non connecté');
     }
@@ -335,14 +369,14 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
         reject(new Error('Timeout lors du marquage comme lu'));
       }, 10000);
 
-      socketRef.current!.emit('markAsRead', {
-        id: messageId,
-        userId
+      socketRef.current!.emit('markConversationAsRead', {
+        conversationId,
+        fromSenderId
       }, (response: any) => {
         clearTimeout(timeout);
         if (response && response.success) {
-          console.log('✅ Message marqué comme lu:', response.data);
-          resolve();
+          console.log('✅ Conversation marquée comme lue:', response.data);
+          resolve(response.data);
         } else {
           console.error('❌ Erreur lors du marquage comme lu:', response?.error || 'Erreur inconnue');
           reject(new Error(response?.error || 'Erreur lors du marquage comme lu'));
@@ -351,26 +385,47 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
     });
   }, []);
 
-  const getUnreadCount = useCallback(async (userId: string): Promise<number> => {
+  const getUnreadCounts = useCallback(async (): Promise<UnreadCount[]> => {
     if (!socketRef.current) {
       throw new Error('WebSocket non connecté');
     }
 
     return new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
-        reject(new Error('Timeout lors de la récupération du nombre de messages non lus'));
+        reject(new Error('Timeout lors de la récupération des compteurs non lus'));
       }, 10000);
 
-      socketRef.current!.emit('getUnreadCount', {
-        userId
-      }, (response: any) => {
+      socketRef.current!.emit('getUnreadCounts', {}, (response: any) => {
         clearTimeout(timeout);
         if (response && response.success) {
-          console.log('✅ Nombre de messages non lus:', response.data.count);
+          console.log('✅ Compteurs non lus récupérés:', response.data);
+          resolve(response.data);
+        } else {
+          console.error('❌ Erreur lors de la récupération des compteurs non lus:', response?.error || 'Erreur inconnue');
+          reject(new Error(response?.error || 'Erreur lors de la récupération des compteurs non lus'));
+        }
+      });
+    });
+  }, []);
+
+  const getTotalUnreadCount = useCallback(async (): Promise<number> => {
+    if (!socketRef.current) {
+      throw new Error('WebSocket non connecté');
+    }
+
+    return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(new Error('Timeout lors de la récupération du nombre total non lu'));
+      }, 10000);
+
+      socketRef.current!.emit('getTotalUnreadCount', {}, (response: any) => {
+        clearTimeout(timeout);
+        if (response && response.success) {
+          console.log('✅ Nombre total non lu récupéré:', response.data.count);
           resolve(response.data.count);
         } else {
-          console.error('❌ Erreur lors de la récupération du nombre de messages non lus:', response?.error || 'Erreur inconnue');
-          reject(new Error(response?.error || 'Erreur lors de la récupération du nombre de messages non lus'));
+          console.error('❌ Erreur lors de la récupération du nombre total non lu:', response?.error || 'Erreur inconnue');
+          reject(new Error(response?.error || 'Erreur lors de la récupération du nombre total non lu'));
         }
       });
     });
@@ -401,12 +456,69 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
     });
   }, []);
 
-  // Nettoyage lors du démontage du provider
+  // 🔄 MÉTHODES DE COMPATIBILITÉ AVEC L'ANCIEN SYSTÈME
+  const sendMessage = useCallback(async (recipientId: string, content: string): Promise<void> => {
+    // Émulation : créer une conversation privée puis envoyer le message
+    try {
+      const conversation = await createOrGetPrivateConversation(recipientId);
+      await sendMessageToConversation(conversation._id, content);
+    } catch (error) {
+      console.error('❌ Erreur sendMessage (compatibilité):', error);
+      throw error;
+    }
+  }, [createOrGetPrivateConversation, sendMessageToConversation]);
+
+  const getUnreadCount = useCallback(async (_userId: string): Promise<number> => {
+    // Émulation : récupérer le total des messages non lus
+    try {
+      return await getTotalUnreadCount();
+    } catch (error) {
+      console.error('❌ Erreur getUnreadCount (compatibilité):', error);
+      throw error;
+    }
+  }, [getTotalUnreadCount]);
+
+  const markAsRead = useCallback(async (_messageId: string, _userId: string): Promise<void> => {
+    // Émulation : cette méthode n'a pas d'équivalent direct dans le nouveau système
+    // On ne fait rien car les messages sont marqués comme lus par conversation
+    console.warn('⚠️ markAsRead (legacy) appelée - pas d\'équivalent direct dans le nouveau système');
+  }, []);
+
+  const getConversation = useCallback(async (_userId1: string, userId2: string, page = 1): Promise<any> => {
+    // Émulation : créer/récupérer conversation privée puis charger les messages
+    try {
+      const conversation = await createOrGetPrivateConversation(userId2);
+      const conversationData = await getConversationById(conversation._id, page);
+      
+      // Retourner dans le format attendu par l'ancien système
+      return {
+        messages: conversationData?.messages || [],
+        totalCount: conversationData?.pagination?.totalCount || 0,
+        hasNextPage: conversationData?.pagination?.hasNextPage || false
+      };
+    } catch (error) {
+      console.error('❌ Erreur getConversation (compatibilité):', error);
+      throw error;
+    }
+  }, [createOrGetPrivateConversation, getConversationById]);
+
+  // Nettoyage lors du démontage du provider - seulement quand l'app se ferme vraiment
   useEffect(() => {
-    return () => {
-      disconnect();
+    const handleBeforeUnload = () => {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+      }
     };
-  }, [disconnect]);
+
+    // Se déconnecter seulement quand l'onglet/fenêtre se ferme
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      // Ne pas déconnecter automatiquement sur unmount en dev mode
+      // disconnect();
+    };
+  }, []);
 
   const contextValue: WebSocketContextType = {
     socket,
@@ -414,11 +526,23 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
     messages,
     connect,
     disconnect,
+    
+    // Nouvelles méthodes
+    sendMessageToConversation,
+    createOrGetPrivateConversation,
+    createOrGetEventConversation,
+    getConversationById,
+    getUserConversations,
+    markConversationAsRead,
+    getUnreadCounts,
+    getTotalUnreadCount,
+    getUsersStatus,
+    
+    // Méthodes de compatibilité
     sendMessage,
-    getConversation,
-    markAsRead,
     getUnreadCount,
-    getUsersStatus
+    markAsRead,
+    getConversation
   };
 
   return (

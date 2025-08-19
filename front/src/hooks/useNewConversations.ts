@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Conversation } from '../section/conversations/types';
-import { useConversationWebSocket } from '../contexts/ConversationWebSocketContext';
+import { useWebSocket } from '../contexts/WebSocketContext';
 import { ConversationData, UnreadCount } from '../types/conversation.types';
 
 interface Friend {
@@ -16,7 +16,7 @@ export const useNewConversations = (currentUserId: string | null) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  const { getUserConversations, getUnreadCounts, getUsersStatus, isConnected } = useConversationWebSocket();
+  const { getUserConversations, getUnreadCounts, getUsersStatus, isConnected } = useWebSocket();
 
   // Flag pour savoir si on a déjà récupéré les statuts via WebSocket
   const hasUpdatedStatusesRef = useRef(false);
@@ -35,39 +35,18 @@ export const useNewConversations = (currentUserId: string | null) => {
 
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
-      // Récupérer les conversations via WebSocket
+      // Récupérer les conversations via WebSocket seulement
       let conversationData;
       if (isConnected) {
         try {
           conversationData = await getUserConversations(1);
         } catch (wsError) {
-          console.warn('Erreur WebSocket, fallback sur REST API:', wsError);
-          // Fallback vers REST API
-          const response = await fetch(`${apiUrl}/api/conversations?page=1&limit=50`, {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
-          });
-          
-          if (response.ok) {
-            const data = await response.json();
-            conversationData = data.success ? data.data : null;
-          }
+          console.error('Erreur WebSocket lors de la récupération des conversations:', wsError);
+          throw wsError;
         }
       } else {
-        // Utiliser REST API si WebSocket non connecté
-        const response = await fetch(`${apiUrl}/api/conversations?page=1&limit=50`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          conversationData = data.success ? data.data : null;
-        }
+        console.log('WebSocket non connecté, attente de la connexion...');
+        return; // Sortir et attendre que le WebSocket se connecte
       }
 
       if (!conversationData || !conversationData.conversations) {
@@ -293,7 +272,8 @@ export const useNewConversations = (currentUserId: string | null) => {
         try {
           const userIds = conversations
             .filter(conv => !conv.isGroup && conv.userId)
-            .map(conv => conv.userId);
+            .map(conv => conv.userId)
+            .filter((id): id is string => id !== undefined);
             
           if (userIds.length === 0) return;
           
