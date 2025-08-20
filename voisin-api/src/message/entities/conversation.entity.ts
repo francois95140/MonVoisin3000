@@ -69,6 +69,12 @@ export class Conversation {
   eventIcon?: string; // Icône de l'événement (pour les conversations d'événement)
 
   @Prop()
+  serviceId?: string; // ID du service/troc (pour les conversations de service)
+
+  @Prop()
+  serviceIcon?: string; // Icône du service/troc (pour les conversations de service)
+
+  @Prop()
   createdAt?: Date;
 
   @Prop()
@@ -195,3 +201,4 @@ ConversationSchema.index({ type: 1 });
 ConversationSchema.index({ updatedAt: -1 });
 ConversationSchema.index({ 'messages.senderId': 1, 'messages.isRead': 1 });
 ConversationSchema.index({ eventId: 1 });
+ConversationSchema.index({ serviceId: 1 });

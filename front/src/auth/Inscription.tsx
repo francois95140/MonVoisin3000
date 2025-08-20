@@ -17,7 +17,6 @@ async function handleInscription(event: React.FormEvent<HTMLFormElement>, isInsc
     password: formData.get("motdepasse") as string, // Le champ s'appelle "motdepasse" dans le HTML
     pseudo: formData.get("pseudo") as string,
     bio: formData.get("bio") as string,
-    phoneNumber: formData.get("tel") as string, // Le champ s'appelle "tel" dans le HTML
     rue: formData.get("rue") as string,
     codePostal: formData.get("cp") as string,
     ville: formData.get("ville") as string,
@@ -56,7 +55,6 @@ async function handleInscription(event: React.FormEvent<HTMLFormElement>, isInsc
         pseudo: formValues.pseudo,
         avatar: avatarBase64 || "https://avatars.githubusercontent.com/u/94387150?v=4",
         bio: formValues.bio,
-        phoneNumber: formValues.phoneNumber,
         quartier: "quartier",
         rue: formValues.rue,
         cp: formValues.codePostal,
@@ -77,7 +75,6 @@ async function handleInscription(event: React.FormEvent<HTMLFormElement>, isInsc
       if (hasChanged(formValues.email, initialUserData.email)) bodyData.email = formValues.email;
       if (hasChanged(formValues.pseudo, initialUserData.pseudo)) bodyData.pseudo = formValues.pseudo;
       if (hasChanged(formValues.bio, initialUserData.bio)) bodyData.bio = formValues.bio;
-      if (hasChanged(formValues.phoneNumber, initialUserData.phone)) bodyData.phoneNumber = formValues.phoneNumber;
       if (hasChanged(formValues.rue, initialUserData.rue)) bodyData.rue = formValues.rue;
       if (hasChanged(formValues.codePostal, initialUserData.codePostal)) bodyData.cp = formValues.codePostal;
       if (hasChanged(formValues.ville, initialUserData.ville)) bodyData.ville = formValues.ville;
@@ -172,7 +169,6 @@ async function handleInscription(event: React.FormEvent<HTMLFormElement>, isInsc
 interface UserData {
   pseudo?: string;
   email?: string;
-  phone?: string;
   address?: string;
   bio?: string;
   tag?: string;
@@ -193,15 +189,12 @@ function Inscription({ isInscription = true, userData = {} }: { isInscription?: 
   return (
     <>
       <section className="text-gray-600 body-font flex flex-col justify-center items-center">
-        <h1 className="text-3xl font-semibold my-5">{isInscription ? "Inscription" : "Modification"}</h1>
+        <h1 className="text-3xl font-semibold my-5 text-white">{isInscription ? "Inscription" : "Modification"}</h1>
         <div className="container px-5 py-6 mx-auto flex flex-wrap items-center justify-center">
           <form
             onSubmit={(e) => handleInscription(e, isInscription, userData, navigate, avatarBase64)}
             className="lg:w-2/5 md:w-1/2 bg-gray-100 rounded-lg p-8 flex flex-col w-full mt-0 justify-center"
           >
-            <h2 className="text-gray-900 text-lg font-medium title-font mb-5">
-              {isInscription ? "Créer un compte" : "Modifier mon compte"}
-            </h2>
             {isInscription && (
               <>
                 <SocialButtons />
@@ -227,13 +220,6 @@ function Inscription({ isInscription = true, userData = {} }: { isInscription?: 
               name="tag"
               label="Tag"
               defaultValue={userData.tag || ''}
-            />
-            <FormField
-              id="tel"
-              name="tel"
-              label="Tel."
-              type="tel"
-              defaultValue={userData.phone || ''}
             />
             <FormField
               id="email"

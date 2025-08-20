@@ -67,7 +67,7 @@ const AddressField: React.FC<AddressFieldProps> = ({
       <div className="relative mb-4">
         <label
           htmlFor={id}
-          className="leading-7 text-sm text-white/80 dark:text-white/90"
+          className="leading-7 text-sm text-gray-600"
         >
           {label}
         </label>
@@ -77,7 +77,7 @@ const AddressField: React.FC<AddressFieldProps> = ({
           name={name}
           defaultValue={defaultValue}
           onChange={handleAddressChange}
-          className="w-full bg-white/10 dark:bg-white/10 rounded border border-white/20 dark:border-white/20 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-white dark:text-white py-1 px-3 leading-8 transition-colors duration-200 ease-in-out placeholder-white/50"
+          className="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
         />
         <input type="hidden" name="rue" id="rue" defaultValue={userData.rue || ''} />
         <input type="hidden" name="cp" id="cp" defaultValue={userData.codePostal || ''} />
@@ -86,7 +86,7 @@ const AddressField: React.FC<AddressFieldProps> = ({
       <div className="mb-4">
         <div
           id="adresseautocomplete"
-          className="font-semibold w-full p-2 bg-white/20 dark:bg-white/10 text-center text-white dark:text-white rounded"
+          className="font-semibold w-full p-2 bg-blue-200 text-center text-gray-700 rounded"
         >
           ...
         </div>

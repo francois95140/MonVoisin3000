@@ -19,7 +19,7 @@ import {
 } from './dto/create-conversation.dto';
 import { AuthGuard } from '../auth/auth.guard';
 
-@Controller('api/conversations')
+@Controller('conversations')
 @UseGuards(AuthGuard)
 export class ConversationController {
   constructor(private readonly conversationService: ConversationService) {}
@@ -334,6 +334,33 @@ export class ConversationController {
   }
 
   /**
+   * Quitter un groupe (retirer l'utilisateur des participants)
+   */
+  @Post(':conversationId/leave')
+  async leaveGroup(
+    @Param('conversationId') conversationId: string,
+    @Request() req
+  ) {
+    try {
+      const userId = req.user.id;
+      console.log('🚪 Utilisateur', userId, 'quitte le groupe:', conversationId);
+      
+      await this.conversationService.leaveGroup(conversationId, userId);
+
+      return {
+        success: true,
+        message: 'Vous avez quitté le groupe avec succès'
+      };
+    } catch (error) {
+      console.error('❌ Erreur lors de la sortie du groupe:', error.message);
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  /**
    * Test endpoint pour vérifier que la route fonctionne
    */
   @Post('event/test')
@@ -362,6 +389,49 @@ export class ConversationController {
       };
     } catch (error) {
       console.error('❌ Erreur dans endpoint event:', error);
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  /**
+   * Créer ou récupérer une conversation de service/troc
+   */
+  @Post('service')
+  async findOrCreateServiceConversation(
+    @Body() body: { serviceId: string; serviceTitle: string; serviceIcon: string; creatorId: string },
+    @Request() req
+  ) {
+    try {
+      console.log('🚀 Endpoint service conversation atteint avec:', body, 'user:', req.user?.id);
+      
+      const interestedUserId = req.user.id;
+      
+      // Vérifier que l'utilisateur ne crée pas une conversation avec lui-même
+      if (interestedUserId === body.creatorId) {
+        return {
+          success: false,
+          error: 'Vous ne pouvez pas créer une conversation avec vous-même'
+        };
+      }
+      
+      const conversation = await this.conversationService.findOrCreateServiceConversation(
+        body.serviceId,
+        body.serviceTitle,
+        body.serviceIcon,
+        body.creatorId,
+        interestedUserId
+      );
+
+      return {
+        success: true,
+        data: conversation,
+        message: 'Conversation de service créée/récupérée avec succès'
+      };
+    } catch (error) {
+      console.error('❌ Erreur dans endpoint service conversation:', error);
       return {
         success: false,
         error: error.message

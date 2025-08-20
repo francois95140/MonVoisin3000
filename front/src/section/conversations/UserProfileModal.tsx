@@ -267,16 +267,6 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
                   </div>
                 )}
 
-                {/* Phone (si ami) */}
-                {friendshipStatus === 'friends' && user.phoneNumber && (
-                  <div className="flex items-center space-x-3">
-                    <IonIcon name="call" className="text-white/40 text-lg w-5" />
-                    <div>
-                      <p className="text-white/60 text-xs">Téléphone</p>
-                      <p className="text-white text-sm">{user.phoneNumber}</p>
-                    </div>
-                  </div>
-                )}
 
                 {/* Location */}
                 {user.address && (

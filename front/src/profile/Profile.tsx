@@ -21,7 +21,6 @@ const ProfilePage: React.FC<ProfilePageProps> = () => {
   const [formData, setFormData] = useState({
     pseudo: '',
     email: '',
-    phone: '',
     address: '',
     bio: '',
     tag:'',
@@ -69,7 +68,6 @@ const ProfilePage: React.FC<ProfilePageProps> = () => {
         setFormData({
           pseudo: userDataResponse.pseudo || '',
           email: userDataResponse.email || '',
-          phone: userDataResponse.phoneNumber || '',
           address: userDataResponse.address || '',
           bio: userDataResponse.bio || '',
           tag: userDataResponse.tag || '',
@@ -290,10 +288,6 @@ const ProfilePage: React.FC<ProfilePageProps> = () => {
                   <p className="font-medium text-white">{formData.email}</p>
                 </div>
                 <div>
-                  <span className="text-sm">Téléphone :</span>
-                  <p className="font-medium text-white">{formData.phone}</p>
-                </div>
-                <div>
                   <span className="text-sm">Adresse :</span>
                   <p className="font-medium text-white">{formData.address}</p>
                 </div>
@@ -310,7 +304,6 @@ const ProfilePage: React.FC<ProfilePageProps> = () => {
                   userData: {
                     pseudo: formData.pseudo,
                     email: formData.email,
-                    phone: formData.phone,
                     address: formData.address,
                     bio: formData.bio,
                     tag: formData.tag,

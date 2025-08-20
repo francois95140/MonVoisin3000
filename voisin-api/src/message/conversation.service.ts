@@ -335,6 +335,76 @@ export class ConversationService {
   }
 
   /**
+   * Quitter un groupe (retirer l'utilisateur des participants)
+   */
+  async leaveGroup(conversationId: string, userId: string): Promise<void> {
+    console.log('🚪 Service: Utilisateur', userId, 'quitte le groupe:', conversationId);
+    
+    // Recherche de la conversation avec la même logique que deleteConversation
+    let conversation;
+    
+    // 1. Si l'ID ressemble à un ObjectId MongoDB (24 caractères hex)
+    if (/^[0-9a-fA-F]{24}$/.test(conversationId)) {
+      console.log('🔍 ID ressemble à un ObjectId MongoDB, recherche directe...');
+      conversation = await this.conversationModel.findOne({ _id: conversationId });
+    } else {
+      // 2. Chercher par ID custom si existe
+      console.log('🔍 Recherche par ID custom...');
+      conversation = await this.conversationModel.findOne({ id: conversationId });
+      
+      // 3. Si toujours pas trouvé, chercher parmi toutes les conversations de l'utilisateur
+      if (!conversation) {
+        console.log('🔍 Recherche parmi toutes les conversations de l\'utilisateur...');
+        const userConversations = await this.conversationModel.find({
+          participant_ids: userId,
+          deletedAt: { $exists: false }
+        });
+        
+        // Chercher une conversation qui pourrait correspondre
+        conversation = userConversations.find(conv => 
+          conv.id?.toString() === conversationId ||
+          conv._id.toString() === conversationId
+        );
+      }
+    }
+    
+    if (!conversation) {
+      console.log('❌ Conversation non trouvée avec ID:', conversationId);
+      throw new NotFoundException('Conversation non trouvée');
+    }
+
+    console.log('✅ Conversation trouvée:', {
+      id: conversation._id,
+      type: conversation.type,
+      participants: conversation.participant_ids
+    });
+
+    // Vérifier que l'utilisateur fait partie de la conversation
+    if (!conversation.participant_ids.includes(userId)) {
+      throw new BadRequestException('Vous ne faites pas partie de cette conversation');
+    }
+
+    // Gérer différemment selon le type de conversation
+    if (conversation.type === ConversationType.Group) {
+      // Pour les groupes : retirer l'utilisateur des participants
+      conversation.participant_ids = conversation.participant_ids.filter(id => id !== userId);
+      conversation.updatedAt = new Date();
+      
+      await conversation.save();
+      console.log('✅ Utilisateur retiré du groupe. Nouveaux participants:', conversation.participant_ids);
+      
+    } else if (conversation.type === ConversationType.Private) {
+      // Pour les conversations privées : marquer comme supprimée pour cet utilisateur
+      conversation.deletedAt = new Date();
+      await conversation.save();
+      console.log('✅ Conversation privée marquée comme supprimée pour l\'utilisateur');
+      
+    } else {
+      throw new BadRequestException('Type de conversation non supporté');
+    }
+  }
+
+  /**
    * Créer ou récupérer une conversation d'événement pour un utilisateur spécifique
    */
   async findOrCreateEventConversationForUser(eventId: string, eventTitle: string, userId: string): Promise<ConversationDocument> {
@@ -357,5 +427,36 @@ export class ConversationService {
     } catch (error) {
       throw new BadRequestException(`Impossible d'accéder à la conversation de l'événement: ${error.message}`);
     }
+  }
+
+  /**
+   * Créer ou récupérer une conversation de service/troc
+   */
+  async findOrCreateServiceConversation(serviceId: string, serviceTitle: string, serviceIcon: string, creatorId: string, interestedUserId: string): Promise<ConversationDocument> {
+    // Chercher une conversation de service existante pour ce service et ces deux utilisateurs
+    const existingConversation = await this.conversationModel.findOne({
+      type: ConversationType.Group,
+      serviceId: serviceId,
+      participant_ids: { $all: [creatorId, interestedUserId] }
+    });
+
+    if (existingConversation) {
+      return existingConversation;
+    }
+
+    // Créer une nouvelle conversation de service
+    const participantIds = [creatorId, interestedUserId];
+    const newConversation = new this.conversationModel({
+      participant_ids: participantIds,
+      type: ConversationType.Group,
+      name: `${serviceTitle}`,
+      description: `Discussion pour le service: ${serviceTitle}`,
+      serviceId: serviceId,
+      serviceIcon: serviceIcon,
+      adminIds: [creatorId], // Le créateur du service est admin par défaut
+      messages: []
+    });
+
+    return await newConversation.save();
   }
 }

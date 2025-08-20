@@ -219,25 +219,45 @@ const NewChat: React.FC<ChatProps> = ({ conversation, currentUserId, onBack, onC
 
   const handleLeaveGroup = async (conversationId: string) => {
     try {
-      // TODO: Implémenter l'API pour quitter un groupe
-      console.log('Quitter le groupe:', conversationId);
-      onBack(); // Retourner à la liste des conversations
-      onConversationUpdate?.(); // Rafraîchir la liste
+      const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+      if (!token) {
+        throw new Error('Token d\'authentification manquant');
+      }
+
+      if (!window.confirm('Êtes-vous sûr de vouloir quitter ce groupe ?')) {
+        return;
+      }
+
+      console.log('🚪 Tentative de sortie du groupe:', conversationId);
+
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+      const response = await fetch(`${apiUrl}/api/conversations/${conversationId}/leave`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          console.log('✅ Groupe quitté avec succès');
+          onBack(); // Retourner à la liste des conversations
+          onConversationUpdate?.(); // Rafraîchir la liste
+        } else {
+          throw new Error(data.error || 'Erreur lors de la sortie du groupe');
+        }
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Erreur lors de la sortie du groupe');
+      }
     } catch (error) {
-      console.error('Erreur lors de la sortie du groupe:', error);
+      console.error('❌ Erreur lors de la sortie du groupe:', error);
+      alert(error instanceof Error ? error.message : 'Une erreur est survenue lors de la sortie du groupe');
     }
   };
 
-  const handleDeleteConversation = async (conversationId: string) => {
-    try {
-      // TODO: Implémenter l'API pour supprimer une conversation
-      console.log('Supprimer la conversation:', conversationId);
-      onBack(); // Retourner à la liste des conversations
-      onConversationUpdate?.(); // Rafraîchir la liste
-    } catch (error) {
-      console.error('Erreur lors de la suppression de la conversation:', error);
-    }
-  };
 
   // Fonction pour charger les infos des utilisateurs qui ont envoyé des messages
   const loadUserInfo = async (userId: string): Promise<UserInfo | null> => {
@@ -507,7 +527,6 @@ const NewChat: React.FC<ChatProps> = ({ conversation, currentUserId, onBack, onC
         isOpen={showDetailsModal}
         onClose={() => setShowDetailsModal(false)}
         onLeaveGroup={handleLeaveGroup}
-        onDeleteConversation={handleDeleteConversation}
       />
     </div>
   );

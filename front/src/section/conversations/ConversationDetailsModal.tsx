@@ -18,7 +18,6 @@ interface ConversationDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
   onLeaveGroup?: (conversationId: string) => void;
-  onDeleteConversation?: (conversationId: string) => void;
 }
 
 const ConversationDetailsModal: React.FC<ConversationDetailsModalProps> = ({
@@ -26,8 +25,7 @@ const ConversationDetailsModal: React.FC<ConversationDetailsModalProps> = ({
   currentUserId,
   isOpen,
   onClose,
-  onLeaveGroup,
-  onDeleteConversation
+  onLeaveGroup
 }) => {
   const [participants, setParticipants] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
@@ -89,15 +87,8 @@ const ConversationDetailsModal: React.FC<ConversationDetailsModalProps> = ({
   };
 
   const handleLeaveGroup = () => {
-    if (conversation.isGroup && onLeaveGroup) {
-      onLeaveGroup(conversation.conversationId);
-      onClose();
-    }
-  };
-
-  const handleDeleteConversation = () => {
-    if (onDeleteConversation) {
-      onDeleteConversation(conversation.conversationId);
+    if (onLeaveGroup) {
+      onLeaveGroup(conversation.conversationId || conversation.id);
       onClose();
     }
   };
@@ -206,21 +197,12 @@ const ConversationDetailsModal: React.FC<ConversationDetailsModalProps> = ({
 
             {/* Actions */}
             <div className="p-6 pt-0 space-y-3">
-              {conversation.isGroup && (
-                <button
-                  onClick={handleLeaveGroup}
-                  className="w-full flex items-center justify-center space-x-2 p-3 bg-orange-600 hover:bg-orange-700 rounded-xl text-white font-medium transition-colors"
-                >
-                  <IonIcon name="exit-outline" />
-                  <span>Quitter le groupe</span>
-                </button>
-              )}
-              
               <button
-                onClick={handleDeleteConversation}
-                className="w-full flex items-center justify-center space-x-2 p-3 bg-red-600 hover:bg-red-700 rounded-xl text-white font-medium transition-colors"
+                onClick={handleLeaveGroup}
+                className="w-full flex items-center justify-center space-x-2 p-3 bg-orange-600 hover:bg-orange-700 rounded-xl text-white font-medium transition-colors"
               >
-                <IonIcon name="trash-outline" className="text-2xl" />
+                <IonIcon name="exit-outline" />
+                <span>Quitter le groupe</span>
               </button>
             </div>
           </div>

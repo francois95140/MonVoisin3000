@@ -23,19 +23,9 @@ export default defineConfig({
         orientation: 'portrait-primary',
         icons: [
           {
-            src: 'icon-192x192.png',
-            sizes: '192x192',
-            type: 'image/png'
-          },
-          {
-            src: 'icon-512x512.png',
-            sizes: '512x512',
-            type: 'image/png'
-          },
-          {
-            src: 'icon-512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
+            src: 'icone.svg',
+            sizes: 'any',
+            type: 'image/svg+xml',
             purpose: 'any maskable'
           }
         ],
@@ -45,14 +35,14 @@ export default defineConfig({
             short_name: 'Chat',
             description: 'Accéder directement aux conversations',
             url: '/convs',
-            icons: [{ src: 'icon-192x192.png', sizes: '192x192' }]
+            icons: [{ src: 'icone.svg', sizes: 'any' }]
           },
           {
             name: 'Événements',
             short_name: 'Events',
             description: 'Voir les événements locaux',
             url: '/evenements',
-            icons: [{ src: 'icon-192x192.png', sizes: '192x192' }]
+            icons: [{ src: 'icone.svg', sizes: 'any' }]
           }
         ]
       },

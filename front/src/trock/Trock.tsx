@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ServiceModal, { ServiceType } from './components/ServiceModal';
+import TrocDetailsModal from './components/TrocDetailsModal';
 import { IonIcon } from '../components/shared';
 
 const apiUrl = import.meta.env.VITE_API_URL;
@@ -22,6 +23,9 @@ interface ServiceItem {
 const Trock: React.FC = () => {
   const [activeServiceTab, setActiveServiceTab] = useState<ServiceType>(ServiceType.HELP);
   const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
+  const [isTrocDetailsModalOpen, setIsTrocDetailsModalOpen] = useState(false);
+  const [selectedServiceId, setSelectedServiceId] = useState<number | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string>('');
   const [services, setServices] = useState<ServiceItem[]>([]);
   const [myServices, setMyServices] = useState<ServiceItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -314,6 +318,14 @@ const Trock: React.FC = () => {
     }
   ];
 
+  // Récupérer l'ID de l'utilisateur actuel
+  useEffect(() => {
+    const userInfo = JSON.parse(sessionStorage.getItem('userInfo') || localStorage.getItem('userInfo') || '{}');
+    if (userInfo.id) {
+      setCurrentUserId(userInfo.id);
+    }
+  }, []);
+
   // Utiliser useEffect pour charger les services au changement d'onglet
   useEffect(() => {
     if (!showMyServices) {
@@ -332,8 +344,80 @@ const Trock: React.FC = () => {
     ? myServices.filter(service => service.type === activeServiceTab)
     : services.filter(service => service.type === activeServiceTab);
 
-  const handleItemClick = (title: string) => {
-    console.log(`Consultation de l'annonce: ${title}`);
+  const handleItemClick = (service: ServiceItem) => {
+    console.log(`Consultation de l'annonce: ${service.title}`);
+    setSelectedServiceId(service.id);
+    setIsTrocDetailsModalOpen(true);
+  };
+
+  const handleDeleteService = (serviceId: number) => {
+    // Mettre à jour les listes de services après suppression
+    setServices(prev => prev.filter(s => s.id !== serviceId));
+    setMyServices(prev => prev.filter(s => s.id !== serviceId));
+    
+    // Recharger les services pour être sûr
+    fetchServices(activeServiceTab, 1, true);
+    fetchMyServices();
+  };
+
+  const handleOpenChat = async (serviceId: number, serviceTitle: string) => {
+    try {
+      // Trouver le service pour obtenir les détails du créateur
+      const service = [...services, ...myServices].find(s => s.id === serviceId);
+      if (!service) {
+        console.error('Service non trouvé');
+        return;
+      }
+
+      const authToken = sessionStorage.getItem('authToken') || localStorage.getItem('authToken');
+      if (!authToken) {
+        console.error('Token d\'authentification manquant');
+        return;
+      }
+
+      // Récupérer les détails complets du service depuis l'API
+      const response = await fetch(`${apiUrl}/api/services/${serviceId}`, {
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+      }
+
+      const serviceData = await response.json();
+      
+      // Créer ou récupérer la conversation de service
+      const conversationResponse = await fetch(`${apiUrl}/api/conversations/service`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          serviceId: serviceId.toString(),
+          serviceTitle: serviceTitle,
+          serviceIcon: service.icon,
+          creatorId: serviceData.creator?.id || serviceData.createdBy
+        })
+      });
+
+      if (conversationResponse.ok) {
+        const conversationData = await conversationResponse.json();
+        console.log('✅ Conversation de service créée/récupérée:', conversationData.data._id);
+        
+        // Rediriger vers la conversation (vous devrez adapter selon votre routing)
+        window.location.href = `/convs?conversationId=${conversationData.data._id}`;
+      } else {
+        const errorData = await conversationResponse.json();
+        throw new Error(errorData.error || 'Erreur lors de la création de la conversation');
+      }
+    } catch (error) {
+      console.error('❌ Erreur lors de l\'ouverture du chat:', error);
+      alert(error instanceof Error ? error.message : 'Une erreur est survenue');
+    }
   };
 
   const renderStars = (rating: number) => {
@@ -429,7 +513,7 @@ const Trock: React.FC = () => {
                 key={service.id}
                 className="glass-card item-card rounded-2xl p-4 fade-in cursor-pointer"
                 style={{animationDelay: `${0.2 + index * 0.1}s`}}
-                onClick={() => handleItemClick(service.title)}
+                onClick={() => handleItemClick(service)}
               >
                 <div className="flex items-start space-x-4">
                   <div className={`item-image bg-gradient-to-br ${getServiceTypeColor(service.type)}`}>
@@ -441,7 +525,6 @@ const Trock: React.FC = () => {
                         <h3 className="text-xl font-bold text-white mb-1">{service.title}</h3>
                         <p className="text-white/80 text-sm">{service.provider}</p>
                       </div>
-                      <span className="price-tag">{service.price}</span>
                     </div>
                     <p className="text-white/70 text-sm leading-relaxed mb-3">
                       {service.description}
@@ -581,6 +664,21 @@ const Trock: React.FC = () => {
          onClose={toggleServiceModal}
          onSubmit={handleServiceSubmit}
        />
+
+       {/* Modale de détails du service */}
+       {selectedServiceId && (
+         <TrocDetailsModal
+           isOpen={isTrocDetailsModalOpen}
+           onClose={() => {
+             setIsTrocDetailsModalOpen(false);
+             setSelectedServiceId(null);
+           }}
+           serviceId={selectedServiceId}
+           currentUserId={currentUserId}
+           onDelete={handleDeleteService}
+           onOpenChat={handleOpenChat}
+         />
+       )}
     </>
   );
 };

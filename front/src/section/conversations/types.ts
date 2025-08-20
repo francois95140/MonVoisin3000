@@ -55,7 +55,6 @@ export interface User {
   pseudo: string;
   tag: string;
   email?: string;
-  phoneNumber?: string;
   avatar?: string;
   bio?: string;
   address?: string;

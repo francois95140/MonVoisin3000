@@ -23,6 +23,8 @@ import EditUser from "./auth/Edit";
 import ChangePassword from "./profile/ChangePassword";
 import { Conversations, NewConversations } from "./section/conversations";
 import News from "./news/News";
+import Privacy from "./privacy/Privacy";
+import Help from "./help/Help";
 
 // Définit le basename pour React Router
 const basename = '/';
@@ -203,6 +205,8 @@ function AppLayout() {
             <Route path="/messages" element={<Messages />} />
             <Route path="/convs" element={<NewConversations />} />
             <Route path="/carte" element={<Map />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/help" element={<Help />} />
           </>
         ) : (
           // Redirection si pas connecté
