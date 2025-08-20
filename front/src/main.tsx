@@ -25,6 +25,7 @@ import { Conversations, NewConversations } from "./section/conversations";
 import News from "./news/News";
 import Privacy from "./privacy/Privacy";
 import Help from "./help/Help";
+import Friends from "./friends/Friends";
 
 // Définit le basename pour React Router
 const basename = '/';
@@ -207,6 +208,7 @@ function AppLayout() {
             <Route path="/carte" element={<Map />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/help" element={<Help />} />
+            <Route path="/friends" element={<Friends />} />
           </>
         ) : (
           // Redirection si pas connecté

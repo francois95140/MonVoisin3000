@@ -61,7 +61,7 @@ export class FriendService {
     return { message: 'Friend request accepted!' };
   }
 
-  // 📌 Rejeter une demande d’ami
+  // 📌 Rejeter une demande d'ami
   async rejectFriendRequest(from: string, to: string) {
     const query = `
       MATCH (:User {userPgId: $from})-[r:FRIEND_REQUEST]->(:User {userPgId: $to})
@@ -71,6 +71,18 @@ export class FriendService {
     await this.neo4jService.write(query, { from, to });
 
     return { message: 'Friend request rejected!' };
+  }
+
+  // 📌 Annuler une demande d'ami que j'ai envoyée
+  async cancelFriendRequest(from: string, to: string) {
+    const query = `
+      MATCH (:User {userPgId: $from})-[r:FRIEND_REQUEST]->(:User {userPgId: $to})
+      DELETE r
+    `;
+
+    await this.neo4jService.write(query, { from, to });
+
+    return { message: 'Friend request cancelled!' };
   }
 
   // 📌 Liste des amis d’un utilisateur

@@ -199,9 +199,34 @@ const NewConversations: React.FC = () => {
     setSelectedUser(null);
   };
 
-  const handleAddFriend = (userId: string) => {
-    // La demande d'ami a été envoyée
-    console.log('Demande d\'ami envoyée à:', userId);
+  const handleAddFriend = async (userId: string) => {
+    try {
+      const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+      if (!token) {
+        throw new Error('Token d\'authentification manquant');
+      }
+
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+      const response = await fetch(`${apiUrl}/api/friends/request`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ to: userId })
+      });
+
+      if (response.ok) {
+        console.log('Demande d\'ami envoyée avec succès à:', userId);
+        // Optionnel: mettre à jour l'interface ou afficher un message de succès
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Erreur lors de l\'envoi de la demande d\'ami');
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'envoi de la demande d\'ami:', error);
+      // L'erreur est déjà gérée dans UserProfileModal
+    }
   };
 
   const handleCloseUserSearch = () => {

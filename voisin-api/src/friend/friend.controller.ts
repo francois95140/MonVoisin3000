@@ -39,6 +39,15 @@ export class FriendController {
     return this.friendService.rejectFriendRequest(from, user.id);
   }
 
+  // ✅ Annuler une demande d'ami que j'ai envoyée
+  @Post('cancel')
+  async cancelFriendRequest(
+    @GetUser() user:User ,
+    @Body('to') to: string
+  ) {
+    return this.friendService.cancelFriendRequest(user.id, to);
+  }
+
   // ✅ Récupérer la liste des amis de l'utilisateur connecté
   @Get()
   async getFriends(
