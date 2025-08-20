@@ -284,6 +284,10 @@ const ProfilePage: React.FC<ProfilePageProps> = () => {
                   <p className="font-medium text-white">{formData.pseudo}</p>
                 </div>
                 <div>
+                  <span className="text-sm">Tag :</span>
+                  <p className="font-medium text-white">@{formData.tag}</p>
+                </div>
+                <div>
                   <span className="text-sm">Email :</span>
                   <p className="font-medium text-white">{formData.email}</p>
                 </div>
