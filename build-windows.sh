@@ -11,21 +11,18 @@ mkdir -p build/win
 # Build Java
 cd java && mvn clean package -q && cd ..
 
+# Build microlangage executable
+echo "🔧 Compilation du microlangage..."
+cd microlangage && ./build-executable.bat && cd ..
+
 # Copier app
-cp -r java microlangage build/win/
+cp -r java build/win/
+cp dist/SQLUnification.exe build/win/
 
 # Launcher Windows
 cat > build/win/run.bat << 'EOF'
 @echo off
-cd /d "%~dp0"
-if not exist "microlangage\venv" (
-    cd microlangage
-    python -m venv venv
-    call venv\Scripts\activate.bat
-    pip install -r requirements.txt
-    cd ..
-)
-cd java
+cd /d "%~dp0\java"
 mvn javafx:run
 EOF
 

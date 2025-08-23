@@ -14,7 +14,7 @@ import java.util.Properties;
             final String fromEmail = Env.dotenv.get("GMAIL_USER"); //requires valid gmail id
             final String password = Env.dotenv.get("GMAIL_PASSWORD"); // correct password for gmail id
 
-            System.out.println("TLSEmail Start");
+            System.out.println("tlsemail start");
             Properties props = new Properties();
             props.put("mail.smtp.host", "smtp.gmail.com"); //SMTP Host
             props.put("mail.smtp.port", "587"); //TLS Port

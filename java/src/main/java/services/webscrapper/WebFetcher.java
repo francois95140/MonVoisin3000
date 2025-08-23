@@ -35,7 +35,7 @@ public class WebFetcher {
                     requestBuilder.header(key, value);
                 }
             } catch (IllegalArgumentException e) {
-                System.out.println("Header restreint ignoré: " + key);
+                System.out.println("header restreint ignore: " + key);
             }
         });
 
@@ -48,7 +48,7 @@ public class WebFetcher {
         } else if (statusCode >= 300 && statusCode < 400) {
             String location = response.headers().firstValue("Location").orElse("");
             if (!location.isEmpty()) {
-                System.out.println("Redirection vers: " + location);
+                System.out.println("redirection vers: " + location);
                 return fetch(location, headers);
             }
             throw new IOException("HTTP " + statusCode + " - Redirection sans location");
@@ -76,7 +76,7 @@ public class WebFetcher {
         for (int attempt = 1; attempt <= maxRetries; attempt++) {
             try {
                 if (attempt > 1) {
-                    System.out.println("Tentative " + attempt + "/" + maxRetries + " pour: " + url);
+                    System.out.println("tentative " + attempt + "/" + maxRetries + " pour: " + url);
                     // Délai exponentiel entre les tentatives
                     Thread.sleep(1000 * attempt);
                 }
@@ -85,7 +85,7 @@ public class WebFetcher {
 
             } catch (IOException e) {
                 lastException = e;
-                System.out.println("❌ Tentative " + attempt + " échouée: " + e.getMessage());
+                System.out.println("tentative " + attempt + " echouee: " + e.getMessage());
 
                 if (attempt == maxRetries) {
                     break;

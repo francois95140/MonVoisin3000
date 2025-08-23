@@ -1,8 +1,6 @@
 package plugin;
 
-import plugin.examples.PageTrackerPlugin;
-import plugin.examples.PerformanceMonitorPlugin;
-import plugin.examples.WelcomePlugin;
+// Les plugins examples sont maintenant dans le dossier plugins/ et chargés dynamiquement
 
 /**
  * Initialise et enregistre les plugins par défaut de l'application
@@ -15,27 +13,21 @@ public class PluginInitializer {
     public static void initializeDefaultPlugins() {
         PluginManager pluginManager = PluginManager.getInstance();
         
-        System.out.println("🔌 Initialisation des plugins par défaut...");
+        System.out.println("initialisation des plugins par défaut...");
         
-        // Enregistrer les plugins d'exemple
-        pluginManager.registerPlugin(new PageTrackerPlugin());
-        pluginManager.registerPlugin(new WelcomePlugin());
-        pluginManager.registerPlugin(new PerformanceMonitorPlugin());
+        // Les plugins examples sont maintenant dans le dossier plugins/ 
+        // et peuvent être chargés via l'interface utilisateur
+        // Aucun plugin hardcodé n'est plus enregistré ici
         
-        // Activer les plugins par défaut (optionnel)
-        // pluginManager.enablePlugin("Page Tracker");
-        // pluginManager.enablePlugin("Welcome Messages");
-        // pluginManager.enablePlugin("Performance Monitor");
-        
-        System.out.println("✅ Plugins par défaut initialisés");
+        System.out.println("plugins par défaut initialisés");
     }
     
     /**
      * Nettoie tous les plugins lors de la fermeture de l'application
      */
     public static void shutdownPlugins() {
-        System.out.println("🔌 Arrêt des plugins...");
+        System.out.println("arrêt des plugins...");
         PluginManager.getInstance().shutdown();
-        System.out.println("✅ Plugins arrêtés");
+        System.out.println("plugins arrêtés");
     }
 }

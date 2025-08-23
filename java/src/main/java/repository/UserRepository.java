@@ -1,7 +1,7 @@
 package repository;
 
 import model.User;
-import services.bdd.Bdd;
+import services.bdd.BddNew;
 import services.security.Security;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,7 +26,7 @@ public class UserRepository {
                     email.replace("'", "''")
             );
             System.out.println("requete: "+query);
-            String result = Bdd.request(DATABASE, query);
+            String result = BddNew.request(DATABASE, query);
             System.out.println("retour: "+result);
 
             if (result == null || result.contains("erreur") || result.trim().isEmpty() || result.equals("[]")) {
@@ -73,9 +73,9 @@ public class UserRepository {
             );
 
             System.out.println(query);
-            Bdd.request(DATABASE, query);
+            BddNew.request(DATABASE, query);
         } catch (Exception e) {
-            System.out.println("erreur lors de la mise à jour de lastLogin: " + e.getMessage());
+            System.out.println("erreur lors de la mise a jour de lastlogin: " + e.getMessage());
         }
     }
 

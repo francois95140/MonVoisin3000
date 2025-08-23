@@ -1,0 +1,11 @@
+{
+  "version": "1.0.0",
+  "build_date": "2025-01-02",
+  "components": {
+    "java": "1.0.0",
+    "microlangage": "1.0.0",
+    "plugins": "1.0.0"
+  },
+  "release_notes": "Version initiale avec système d'auto-update",
+  "download_url": "https://github.com/francois95140/MonVoisin3000/releases/latest"
+}

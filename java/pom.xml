@@ -84,6 +84,13 @@
             <artifactId>jackson-databind</artifactId>
             <version>2.14.3</version>
         </dependency>
+        
+        <!-- Gson pour les auto-updates -->
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.10.1</version>
+        </dependency>
 
         <!-- Selenium WebDriver -->
         <dependency>

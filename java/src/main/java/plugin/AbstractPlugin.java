@@ -26,18 +26,18 @@ public abstract class AbstractPlugin implements Plugin {
     
     @Override
     public void initialize() {
-        System.out.println("Plugin " + getName() + " initialisé");
+        System.out.println("plugin " + getName() + " initialise");
     }
     
     @Override
     public void cleanup() {
-        System.out.println("Plugin " + getName() + " nettoyé");
+        System.out.println("plugin " + getName() + " nettoye");
     }
     
     @Override
     public void onPageChanged(String pageName, String previousPage) {
         if (enabled) {
-            System.out.println("Plugin " + getName() + " - Changement de page: " + 
+            System.out.println("plugin " + getName() + " - changement de page: " + 
                              (previousPage != null ? previousPage + " -> " : "") + pageName);
         }
     }

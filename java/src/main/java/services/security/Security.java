@@ -112,19 +112,19 @@ public class Security {
             // Conversion $2b$ vers $2a$ pour compatibilité avec jBCrypt 0.4
             if (hash.startsWith("$2b$")) {
                 hash = hash.replaceFirst("\\$2b\\$", "\\$2a\\$");
-                System.out.println("Hash converti de $2b$ vers $2a$ pour compatibilité");
+                System.out.println("hash converti de $2b$ vers $2a$ pour compatibilite");
             }
 
             // Vérification du format BCrypt
             if (!hash.matches("^\\$2a\\$\\d{2}\\$.{53}$")) {
-                System.out.println("Format de hash invalide: " + hash.substring(0, Math.min(10, hash.length())));
+                System.out.println("format de hash invalide: " + hash.substring(0, Math.min(10, hash.length())));
                 return false;
             }
 
             return BCrypt.checkpw(password, hash);
 
         } catch (Exception e) {
-            System.out.println("erreur BCrypt: " + e.getMessage());
+            System.out.println("erreur bcrypt: " + e.getMessage());
             return false;
         }
     }

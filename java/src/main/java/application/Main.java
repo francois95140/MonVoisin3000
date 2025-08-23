@@ -8,7 +8,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import plugin.PluginInitializer;
 import plugin.PluginManager;
-import services.bdd.Bdd;
+import services.bdd.BddNew;
 import services.security.Security;
 
 import java.io.File;
@@ -83,13 +83,13 @@ public class Main extends Application {
         Task<Void> bddTask = new Task<Void>() {
             @Override
             protected Void call() throws Exception {
-                Bdd.initBdd();
-                System.out.println("✅ BDD initialisée avec succès");
+                BddNew.initBdd();
+                System.out.println("bdd initialisée avec succès");
                 return null;
             }
             @Override
             protected void failed() {
-                System.out.println("Mince alors, la mise en place du microlangage pour la bdd est un echec:\n " + getException().getMessage());
+                System.out.println("mince alors, la mise en place du microlangage pour la bdd est un echec:\n " + getException().getMessage());
             }
         };
 
@@ -110,7 +110,7 @@ public class Main extends Application {
         loadThemeConfig();
 
         // Initialisation BDD en arrière-plan
-        System.out.println("🚀 Lancement en mode asynchrone");
+        System.out.println("lancement en mode asynchrone");
         initBddAsync();
 
         // Ajouter un hook de fermeture pour nettoyer les plugins
