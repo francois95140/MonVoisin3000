@@ -197,8 +197,10 @@ function Inscription({ isInscription = true, userData = {} }: { isInscription?: 
           >
             {isInscription && (
               <>
+                {/* 
                 <SocialButtons />
-                <Separator />
+                <Separator /> 
+                */}
               </>
             )}
 

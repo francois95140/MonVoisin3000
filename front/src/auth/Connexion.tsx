@@ -99,8 +99,10 @@ function Connexion() {
             <h2 className="text-gray-900 text-lg font-medium title-font mb-5">
               Se connecter à un compte
             </h2>
+            {/* 
             <SocialButtons />
             <Separator />
+             */}
             <FormField
               id="tag"
               name="tag"

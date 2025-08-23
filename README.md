@@ -1,11 +1,149 @@
-# MonVoisin3000
+# MonVoisin3000 - Réseau Social de Quartier
 
 ![](icone.svg)
 
-## Description du Projet
-**MonVoisin3000** est une plateforme destinée à faciliter les interactions entre voisins et à améliorer l'accès aux informations locales. L'objectif est de proposer un ensemble de fonctionnalités favorisant l'entraide, le partage et la communication entre habitants d'un même quartier.
+Une application de réseau social pour connecter les voisins d'un même quartier.
 
-## Fonctionnalités Principales
+## 🚀 Déploiement Rapide avec Docker
+
+### Prérequis
+
+- [Docker](https://www.docker.com/get-started) installé et en cours d'exécution
+- [Docker Compose](https://docs.docker.com/compose/install/) (généralement inclus avec Docker Desktop)
+
+### Déploiement en Une Commande
+
+#### Sur Linux/macOS :
+```bash
+chmod +x deploy.sh
+./deploy.sh
+```
+
+#### Sur Windows (PowerShell) :
+```powershell
+.\deploy.ps1
+```
+
+#### Alternative avec Docker Compose directement :
+```bash
+docker-compose up --build -d
+```
+
+### 🌐 Accès à l'Application
+
+Après le déploiement, l'application sera accessible sur :
+
+- **Application Frontend** : http://localhost
+- **API Backend** : http://localhost:3001
+- **Mongo Express** : http://localhost:8081 (admin/password123)
+- **Neo4j Browser** : http://localhost:7475 (neo4j/password123)
+
+## 📋 Architecture
+
+L'application utilise une architecture microservices avec :
+
+### Backend
+- **Framework** : NestJS (Node.js/TypeScript)
+- **Base de données relationnelle** : PostgreSQL (utilisateurs, événements, services)
+- **Base de données NoSQL** : MongoDB (conversations, messages)
+- **Base de données graphe** : Neo4j (relations d'amitié)
+- **Port** : 3001
+
+### Frontend
+- **Framework** : React + TypeScript + Vite
+- **Serveur web** : Nginx
+- **Port** : 80
+
+### Bases de Données
+- **PostgreSQL** : Port 5433
+- **MongoDB** : Port 27018
+- **Neo4j** : Ports 7475 (HTTP) et 7688 (Bolt)
+
+## 🛠️ Commandes de Gestion
+
+### Scripts de Déploiement
+
+#### Linux/macOS (deploy.sh)
+```bash
+./deploy.sh deploy    # Déploiement complet
+./deploy.sh dev       # Bases de données uniquement (développement)
+./deploy.sh stop      # Arrêter tous les services
+./deploy.sh logs      # Voir les logs
+./deploy.sh status    # État des services
+```
+
+#### Windows (deploy.ps1)
+```powershell
+.\deploy.ps1 deploy   # Déploiement complet
+.\deploy.ps1 dev      # Bases de données uniquement (développement)
+.\deploy.ps1 stop     # Arrêter tous les services  
+.\deploy.ps1 logs     # Voir les logs
+.\deploy.ps1 status   # État des services
+```
+
+### Docker Compose Direct
+
+```bash
+# Démarrer tous les services
+docker-compose up -d
+
+# Voir les logs
+docker-compose logs -f [service_name]
+
+# Arrêter tous les services
+docker-compose down
+
+# Redémarrer un service
+docker-compose restart [service_name]
+
+# Reconstruire et redémarrer
+docker-compose up --build -d
+
+# Voir l'état des services
+docker-compose ps
+```
+
+## 🔧 Développement
+
+### Environnement de Développement
+
+Pour le développement, vous pouvez démarrer uniquement les bases de données :
+
+```bash
+# Linux/macOS
+./deploy.sh dev
+
+# Windows
+.\deploy.ps1 dev
+
+# Ou directement
+docker-compose -f docker-compose.dev.yml up -d
+```
+
+Puis démarrer le frontend et backend manuellement :
+
+```bash
+# Backend
+cd voisin-api
+npm install
+npm run start:dev
+
+# Frontend  
+cd front
+npm install
+npm run dev
+```
+
+## 📝 Fonctionnalités
+
+- 👥 Gestion des utilisateurs et authentification
+- 🤝 Système d'amitié
+- 💬 Messagerie en temps réel
+- 📅 Organisation d'événements
+- 🛠️ Services entre voisins
+- 🗺️ Géolocalisation par quartier
+
+### Fonctionnalités Détaillées
 
 ### 1. Troc et Services entre Voisins
 - **Troc** : Possibilité d'échanger des objets via des annonces.

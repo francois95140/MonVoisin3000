@@ -17,8 +17,9 @@ async function bootstrap() {
   SwaggerModule.setup('api-doc', app, documentFactory);
 
   app.enableCors({
-    origin: ['http://localhost:5173', 'https://www.causeconnect.fr'],
+    origin: process.env.CORS_ORIGINS?.split(',') || ['http://localhost:80', 'http://localhost:3000', 'http://localhost:5173'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
   });
 
   await app.listen(process.env.PORT ?? 3001);
