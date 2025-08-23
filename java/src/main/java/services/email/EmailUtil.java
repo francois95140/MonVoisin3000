@@ -32,9 +32,9 @@ public class EmailUtil {
         msg.setSentDate(new Date());
 
         msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail, false));
-        System.out.println("Message is ready");
+        System.out.println("message is ready");
         Transport.send(msg);
 
-        System.out.println("EMail Sent Successfully!!");
+        System.out.println("email sent successfully!!");
     }
 }

@@ -37,7 +37,7 @@ public class PluginManager {
     public void registerPlugin(Plugin plugin) {
         if (plugin != null && plugin.getName() != null) {
             plugins.put(plugin.getName(), plugin);
-            System.out.println("Plugin enregistré: " + plugin.getName() + " v" + plugin.getVersion());
+            System.out.println("plugin enregistre: " + plugin.getName() + " v" + plugin.getVersion());
         }
     }
     
@@ -49,7 +49,7 @@ public class PluginManager {
         if (plugin != null) {
             plugin.setEnabled(false); // Désactiver avant de retirer
             plugins.remove(pluginName);
-            System.out.println("Plugin retiré: " + pluginName);
+            System.out.println("plugin retire: " + pluginName);
         }
     }
     
@@ -60,7 +60,7 @@ public class PluginManager {
         Plugin plugin = plugins.get(pluginName);
         if (plugin != null) {
             plugin.setEnabled(true);
-            System.out.println("Plugin activé: " + pluginName);
+            System.out.println("plugin active: " + pluginName);
         }
     }
     
@@ -71,7 +71,7 @@ public class PluginManager {
         Plugin plugin = plugins.get(pluginName);
         if (plugin != null) {
             plugin.setEnabled(false);
-            System.out.println("Plugin désactivé: " + pluginName);
+            System.out.println("plugin desactive: " + pluginName);
         }
     }
     
@@ -140,6 +140,6 @@ public class PluginManager {
             }
         }
         plugins.clear();
-        System.out.println("Tous les plugins ont été nettoyés");
+        System.out.println("tous les plugins ont ete nettoyes");
     }
 }

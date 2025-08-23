@@ -1,0 +1,162 @@
+name: Build & Release MonVoisin3000
+
+on:
+  push:
+    tags:
+      - 'v*'  # Déclenche sur les tags comme v1.0.0
+  workflow_dispatch:  # Permet de déclencher manuellement
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    name: Build Linux Package
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Cache Maven dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+        
+    - name: Make build script executable
+      run: chmod +x build-deb.sh
+      
+    - name: Build Linux package
+      run: ./build-deb.sh
+      
+    - name: Upload Linux artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: linux-installer
+        path: build/MonVoisin3000Installer.deb
+
+  build-windows:
+    runs-on: ubuntu-latest  # Utilise Ubuntu car on a un script bash
+    name: Build Windows Package
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install NSIS
+      run: sudo apt-get update && sudo apt-get install -y nsis
+      
+    - name: Cache Maven dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+        
+    - name: Make build script executable
+      run: chmod +x build-windows.sh
+      
+    - name: Build Windows package
+      run: ./build-windows.sh
+      
+    - name: Upload Windows artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: windows-installer
+        path: build/MonVoisin3000Installer.exe
+
+  create-release:
+    needs: [build-linux, build-windows]
+    runs-on: ubuntu-latest
+    name: Create GitHub Release
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Download Linux artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: linux-installer
+        path: ./artifacts/
+        
+    - name: Download Windows artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: windows-installer
+        path: ./artifacts/
+        
+    - name: Get version from tag
+      id: get_version
+      run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+      
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.get_version.outputs.VERSION }}
+        release_name: MonVoisin3000 ${{ steps.get_version.outputs.VERSION }}
+        body: |
+          ## 🚀 MonVoisin3000 ${{ steps.get_version.outputs.VERSION }}
+          
+          ### 📦 Téléchargements
+          - **Linux (Ubuntu/Debian)**: MonVoisin3000Installer.deb
+          - **Windows**: MonVoisin3000Installer.exe
+          
+          ### ✨ Nouveautés
+          - Microlangage Python compilé (plus besoin d'environnement Python)
+          - Système d'auto-update intégré
+          - Améliorations de performance
+          
+          ### 🔧 Installation
+          - **Linux**: `sudo dpkg -i MonVoisin3000Installer.deb`
+          - **Windows**: Double-cliquez sur l'installateur
+          
+          ### 📋 Prérequis
+          - Java 21+ (OpenJDK recommandé)
+          - Maven (pour le développement uniquement)
+        draft: false
+        prerelease: false
+        
+    - name: Upload Linux Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./artifacts/MonVoisin3000Installer.deb
+        asset_name: MonVoisin3000Installer.deb
+        asset_content_type: application/vnd.debian.binary-package
+        
+    - name: Upload Windows Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./artifacts/MonVoisin3000Installer.exe
+        asset_name: MonVoisin3000Installer.exe
+        asset_content_type: application/x-msdownload

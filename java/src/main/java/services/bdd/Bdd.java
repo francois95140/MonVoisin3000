@@ -21,11 +21,11 @@ public class Bdd {
         try {
             String venvPath = "../microlangage/venv";
             if (!Files.exists(Paths.get(venvPath))) {
-                System.out.println("Environnement virtuel non trouvé");
+                System.out.println("environnement virtuel non trouve");
                 return false;
             }
             if (!Files.exists(Paths.get(isWindows() ? "../microlangage/venv/Scripts/python.exe" : "../microlangage/venv/bin/python3"))) {
-                System.out.println("Exécutable Python non trouvé dans l'environnement virtuel");
+                System.out.println("executable python non trouve dans l'environnement virtuel");
                 return false;
             }
 
@@ -55,15 +55,15 @@ public class Bdd {
 
             boolean isOk = "OK".equals(result) && p.exitValue() == 0;
             if (isOk) {
-                System.out.println("Environnement Python fonctionnel");
+                System.out.println("environnement python fonctionnel");
             } else {
-                System.out.println("Environnement Python dysfonctionnel");
+                System.out.println("environnement python dysfonctionnel");
             }
 
             return isOk;
 
         } catch (Exception e) {
-            System.out.println("erreur lors de la vérification: " + e.getMessage());
+            System.out.println("erreur lors de la verification: " + e.getMessage());
             return false;
         }
     }
@@ -100,21 +100,21 @@ public class Bdd {
 
             boolean depsOk = result.toString().contains("DEPS_OK") && p.exitValue() == 0;
             if (depsOk) {
-                System.out.println("Dépendances Python installées");
+                System.out.println("dependances python installees");
             } else {
-                System.out.println("Dépendances Python manquantes");
+                System.out.println("dependances python manquantes");
             }
 
             return depsOk;
 
         } catch (Exception e) {
-            System.out.println("erreur lors de la vérification des dépendances: " + e.getMessage());
+            System.out.println("erreur lors de la verification des dependances: " + e.getMessage());
             return false;
         }
     }
 
     public static void fullInit() {
-        System.out.println("Initialisation complète de l'environnement Python...");
+        System.out.println("initialisation complete de l'environnement python...");
         ProcessBuilder pb;
 
         if (isWindows()) {
@@ -138,7 +138,7 @@ public class Bdd {
                 throw new RuntimeException("erreur lors de l'initialisation (code: " + p.exitValue() + ")");
             }
 
-            System.out.println("Initialisation complète terminée");
+            System.out.println("initialisation complete terminee");
 
         } catch (IOException e) {
             throw new RuntimeException("erreur d'initialisation BDD: " + e.getMessage(), e);
@@ -150,24 +150,24 @@ public class Bdd {
 
     public static void initBdd() {
         if (environmentChecked && environmentReady) {
-            System.out.println("Environnement déjà vérifié et prêt");
+            System.out.println("environnement deja verifie et pret");
             return;
         }
 
-        System.out.println("Vérification de l'environnement Python...");
+        System.out.println("verification de l'environnement python...");
 
         // Vérification rapide
         if (checkEnvironment() && checkDependencies()) {
-            System.out.println("Environnement déjà prêt, pas de réinstallation nécessaire");
+            System.out.println("environnement deja pret, pas de reinstallation necessaire");
             environmentReady = true;
         } else {
-            System.out.println("Environnement non fonctionnel, initialisation complète...");
+            System.out.println("environnement non fonctionnel, initialisation complete...");
             fullInit();
 
             // Double vérification après installation
             if (checkEnvironment() && checkDependencies()) {
                 environmentReady = true;
-                System.out.println("Environnement initialisé avec succès");
+                System.out.println("environnement initialise avec succes");
             } else {
                 throw new RuntimeException("Échec de l'initialisation de l'environnement Python");
             }
@@ -177,7 +177,7 @@ public class Bdd {
     }
 
     public static void forceReinit() {
-        System.out.println("Réinitialisation forcée...");
+        System.out.println("reinitialisation forcee...");
         environmentChecked = false;
         environmentReady = false;
         fullInit();
@@ -236,7 +236,7 @@ public class Bdd {
         }
 
         try {
-            System.out.println("🔍 DEBUG: OS détecté = " + (isWindows() ? "Windows" : "Linux/Mac"));
+            System.out.println("debug: os detecte = " + (isWindows() ? "windows" : "linux/mac"));
 
             ProcessBuilder pb;
             String command;
@@ -253,7 +253,7 @@ public class Bdd {
                 pb = new ProcessBuilder("bash", "-c", command);
             }
 
-            System.out.println("DEBUG: Commande = " + command);
+            System.out.println("debug: commande = " + command);
 
             pb.redirectErrorStream(true);
             Process p = pb.start();
@@ -273,27 +273,27 @@ public class Bdd {
             }
 
             int exitCode = p.exitValue();
-            System.out.println("DEBUG: Code de sortie = " + exitCode);
+            System.out.println("debug: code de sortie = " + exitCode);
 
             String finalResult = result.toString().trim();
-            System.out.println("DEBUG: Résultat = " + finalResult);
+            System.out.println("debug: resultat = " + finalResult);
 
             return finalResult;
 
         } catch (Exception e) {
-            System.out.println("DEBUG: Exception = " + e.getMessage());
+            System.out.println("debug: exception = " + e.getMessage());
             e.printStackTrace();
             return "erreur: " + e.getMessage();
         }
     }
 
     public static void testCompatibility() {
-        System.out.println("=== TEST DE COMPATIBILITÉ ===");
-        System.out.println("OS: " + System.getProperty("os.name"));
-        System.out.println("Version: " + System.getProperty("os.version"));
-        System.out.println("Architecture: " + System.getProperty("os.arch"));
-        System.out.println("Est Windows: " + isWindows());
-        System.out.println("Répertoire courant: " + System.getProperty("user.dir"));
+        System.out.println("=== test de compatibilite ===");
+        System.out.println("os: " + System.getProperty("os.name"));
+        System.out.println("version: " + System.getProperty("os.version"));
+        System.out.println("architecture: " + System.getProperty("os.arch"));
+        System.out.println("est windows: " + isWindows());
+        System.out.println("repertoire courant: " + System.getProperty("user.dir"));
 
         try {
             ProcessBuilder pb;
@@ -306,7 +306,7 @@ public class Bdd {
             Process p = pb.start();
             BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
             String result = r.readLine();
-            System.out.println("Test commande: " + result);
+            System.out.println("test commande: " + result);
 
         } catch (Exception e) {
             System.out.println("erreur test: " + e.getMessage());
@@ -320,10 +320,10 @@ public class Bdd {
 
     public static void main(String[] args) {
         testCompatibility();
-        System.out.println("\n=== INITIALISATION BDD ===");
+        System.out.println("\n=== initialisation bdd ===");
         initBdd();
-        System.out.println("\n=== TEST REQUÊTES ===");
+        System.out.println("\n=== test requetes ===");
         String result = requestWithDebug("mongo", "select * from conversations_db");
-        System.out.println("Résultat final: " + result);
+        System.out.println("resultat final: " + result);
     }
 }

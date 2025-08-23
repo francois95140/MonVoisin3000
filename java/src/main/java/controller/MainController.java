@@ -8,7 +8,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import model.Article;
 import plugin.PluginManager;
-import services.bdd.Bdd;
+import services.bdd.BddNew;
 import services.alert.Alert;
 import services.webscrapper.News;
 
@@ -138,7 +138,7 @@ public class MainController implements Initializable {
             }
             jsonBuilder.append("}}");
 
-            String mongoResult = Bdd.request("mongo", "INSERT INTO news_collection VALUES ('" + jsonBuilder.toString().replace("'", "\\'") + "')");
+            String mongoResult = BddNew.request("mongo", "INSERT INTO news_collection VALUES ('" + jsonBuilder.toString().replace("'", "\\'") + "')");
             if (mongoResult != null && !mongoResult.startsWith("erreur:")) {
                 Alert.showSuccessAlert("Succès", "Articles sauvegardés dans MongoDB");
             }
@@ -154,7 +154,7 @@ public class MainController implements Initializable {
 
     private List<String> getVillesDistinctFromUsers() {
         try {
-            String usersResult = Bdd.request("postgres", "SELECT * FROM users");
+            String usersResult = BddNew.request("postgres", "SELECT * FROM users");
             if (usersResult == null || usersResult.startsWith("erreur:")) return new ArrayList<>();
 
             ArrayList<String> toutesLesVilles = new ArrayList<>();
@@ -190,7 +190,7 @@ public class MainController implements Initializable {
                         Object button = plugin.getClass().getMethod("getGameButton").invoke(plugin);
                         if (button instanceof javafx.scene.control.Button && pluginContainer != null) {
                             pluginContainer.getChildren().add((javafx.scene.control.Button) button);
-                            System.out.println("✅ Bouton ajouté pour le plugin: " + plugin.getName());
+                            System.out.println("bouton ajoute pour le plugin: " + plugin.getName());
                         }
                     }
                 } catch (NoSuchMethodException e) {

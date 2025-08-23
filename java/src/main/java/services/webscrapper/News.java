@@ -97,7 +97,7 @@ public class News {
                 sentiment = aiResult.sentiment;
                 Thread.sleep(1000);
             } catch (Exception e) {
-                System.out.println("erreur IA pour l'article '" + titre + "': " + e.getMessage());
+                System.out.println("erreur ia pour l'article '" + titre + "': " + e.getMessage());
                 // Fallback: tags et sentiment par défaut
                 tags = Collections.singletonList("actu");
                 sentiment = 0;
@@ -170,7 +170,7 @@ public class News {
             }
 
         } catch (Exception e) {
-            System.out.println("erreur lors du parsing de la réponse IA: " + e.getMessage());
+            System.out.println("erreur lors du parsing de la reponse ia: " + e.getMessage());
             tags.add("actualité");
             sentiment = 0;
         }
@@ -312,14 +312,14 @@ public class News {
         News newsService = new News(); // Activer l'IA
 
         try {
-            System.out.println("=== TEST DÉTAILLÉ AVEC IA INTÉGRÉE ===");
+            System.out.println("=== test detaille avec ia integree ===");
             List<Article> articlesTest = newsService.getNews("Paris", 5);
             for (Article article : articlesTest) {
                 System.out.println(article.toFormattedString());
             }
 
         } catch (Exception e) {
-            System.out.println("❌ erreur: " + e.getMessage());
+            System.out.println("erreur: " + e.getMessage());
             e.printStackTrace();
         }
     }

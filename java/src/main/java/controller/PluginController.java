@@ -291,7 +291,7 @@ public class PluginController implements Initializable {
 
     private void chargerPluginDepuisJar(File jarFile) {
         try {
-            System.out.println("🔌 Tentative de chargement du plugin: " + jarFile.getName());
+            System.out.println("tentative de chargement du plugin: " + jarFile.getName());
             
             // Créer un ClassLoader pour le JAR
             URL jarUrl = jarFile.toURI().toURL();
@@ -308,7 +308,7 @@ public class PluginController implements Initializable {
                 
                 showInfoAlert("Plugin chargé", 
                     "Plugin '" + plugin.getName() + "' v" + plugin.getVersion() + " chargé avec succès !");
-                System.out.println("✅ Plugin chargé: " + plugin.getName() + " v" + plugin.getVersion());
+                System.out.println("plugin charge: " + plugin.getName() + " v" + plugin.getVersion());
             }
             
             if (!pluginTrouve) {

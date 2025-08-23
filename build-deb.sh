@@ -8,9 +8,14 @@ mkdir -p build/deb/MonVoisin3000_1.0.0/{DEBIAN,opt/MonVoisin3000,usr/share/{appl
 # Build Java
 cd java && mvn clean package -q && cd ..
 
+# Build microlangage executable
+echo "🔧 Compilation du microlangage..."
+cd microlangage && chmod +x build-executable.sh && ./build-executable.sh && cd ..
+
 # Structure .deb
 DEB=build/deb/MonVoisin3000_1.0.0
-cp -r java microlangage $DEB/opt/MonVoisin3000/
+cp -r java $DEB/opt/MonVoisin3000/
+cp dist/SQLUnification $DEB/opt/MonVoisin3000/
 [ -f icone.svg ] && cp icone.svg $DEB/usr/share/pixmaps/MonVoisin3000.svg
 
 # Control
@@ -18,7 +23,7 @@ cat > $DEB/DEBIAN/control << EOF
 Package: monvoisin3000
 Version: 1.0.0
 Architecture: all
-Depends: openjdk-21-jre, python3, python3-pip, python3-venv, maven
+Depends: openjdk-21-jre, maven
 Maintainer: MonVoisin Team
 Description: Application de gestion de voisinage
 EOF
@@ -26,17 +31,14 @@ EOF
 # Post-install
 cat > $DEB/DEBIAN/postinst << 'EOF'
 #!/bin/bash
-cd /opt/MonVoisin3000/microlangage
-python3 -m venv venv && source venv/bin/activate && pip install -r requirements.txt
 chmod +x /opt/MonVoisin3000/run.sh
+chmod +x /opt/MonVoisin3000/SQLUnification
 EOF
 
 # Launcher
 cat > $DEB/opt/MonVoisin3000/run.sh << 'EOF'
 #!/bin/bash
-cd /opt/MonVoisin3000
-[ ! -d microlangage/venv ] && cd microlangage && python3 -m venv venv && source venv/bin/activate && pip install -r requirements.txt && cd ..
-cd java && mvn javafx:run
+cd /opt/MonVoisin3000/java && mvn javafx:run
 EOF
 
 # Desktop
