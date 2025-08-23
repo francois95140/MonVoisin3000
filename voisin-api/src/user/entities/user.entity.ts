@@ -49,9 +49,6 @@ export class User {
   preferences: object; // Préférences utilisateur (thème, notifications, etc.)
 
   @Column({ nullable: true })
-  phoneNumber: string;
-
-  @Column({ nullable: true })
   location: string;
 
   @Column({ nullable: true })

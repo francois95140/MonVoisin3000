@@ -1,6 +1,7 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useSearchParams } from "react-router-dom";
 import { FormField, Button, IonIcon } from '../components/shared';
 import { SocialButtons, Separator } from './components';
+import { toast } from 'react-toastify';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -21,7 +22,7 @@ async function handleConnexion(event: React.FormEvent<HTMLFormElement>) {
 
   try {
     // Envoi des données de connexion
-    const response = await fetch(`${apiUrl}/auth/login`, {
+    const response = await fetch(`${apiUrl}/api/auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -39,15 +40,37 @@ async function handleConnexion(event: React.FormEvent<HTMLFormElement>) {
       
       // Stockage du token si fourni
       if (data.token) {
-        if (formValues.rememberMe) {
-          localStorage.setItem("authToken", data.token);
-        } else {
-          sessionStorage.setItem("authToken", data.token);
+        const storage = formValues.rememberMe ? localStorage : sessionStorage;
+        storage.setItem("authToken", data.token);
+        
+        // Récupérer les informations utilisateur
+        try {
+          const userResponse = await fetch(`${apiUrl}/api/users/me`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${data.token}`
+            }
+          });
+          
+          if (userResponse.ok) {
+            const userData = await userResponse.json();
+            
+            // Stocker les informations utilisateur
+            storage.setItem("UserPseudo", userData.pseudo || userData.tag || "Utilisateur");
+            if (userData.avatar) {
+              storage.setItem("UserImage", userData.avatar);
+            }
+            
+            console.log("Données utilisateur récupérées:", userData);
+          }
+        } catch (userError) {
+          console.error("Erreur lors de la récupération des données utilisateur:", userError);
+          // Ne pas bloquer la connexion si la récupération des données échoue
         }
       }
       
-      
-      alert("Connexion réussie !");
+      toast.success("Connexion réussie !");
       
       // Redirection vers la page d'accueil ou dashboard
       window.location.href = "/evenements";
@@ -55,16 +78,18 @@ async function handleConnexion(event: React.FormEvent<HTMLFormElement>) {
     } else {
       const errorData = await response.json();
       console.error("Erreur lors de la connexion:", errorData);
-      alert(`Erreur lors de la connexion: ${errorData.message || 'Identifiants incorrects'}`);
+      toast.error(`Erreur lors de la connexion: ${errorData.message || 'Identifiants incorrects'}`);
     }
     
   } catch (error) {
     console.error("Erreur réseau:", error);
-    alert("Erreur de connexion. Veuillez réessayer.");
+    toast.error("Erreur de connexion. Veuillez réessayer.");
   }
 }
 
 function Connexion() {
+  const [searchParams] = useSearchParams();
+  const emailFromUrl = searchParams.get('email') || '';
   return (
     <>
             <section className="text-gray-600 body-font flex flex-col justify-center items-center">
@@ -81,6 +106,7 @@ function Connexion() {
               name="tag"
               label="Tag ou Email"
               type="text"
+              defaultValue={emailFromUrl}
             />
             <FormField
               id="motdepasse"

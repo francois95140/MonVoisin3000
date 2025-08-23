@@ -1,11 +1,7 @@
 import React, { useState } from 'react';
+import { IonIcon, IconPicker } from '../../components/shared';
 
 const apiUrl = import.meta.env.VITE_API_URL;
-
-// Composant pour les icônes Ionicons
-const IonIcon: React.FC<{ name: string; className?: string }> = ({ name, className = "" }) => (
-  <ion-icon name={name} class={className}></ion-icon>
-);
 
 // Enum pour les types de service
 export enum ServiceType {
@@ -13,11 +9,6 @@ export enum ServiceType {
   EXCHANGE = 'exchange', // Échange (ex: vélo contre machine à laver)
   DONATION = 'donation'  // Don (ex: donner un sac)
 }
-
-// Composant pour afficher une option d'icône
-const IconOption: React.FC<{ dataIcon: string }> = ({ dataIcon }) => (
-  <IonIcon name={dataIcon} className="text-2xl" />
-);
 
 interface ServiceModalProps {
   isOpen: boolean;
@@ -34,17 +25,6 @@ const ServiceModal: React.FC<ServiceModalProps> = ({ isOpen, onClose, onSubmit }
   const [selectedServiceType, setSelectedServiceType] = useState<ServiceType>(ServiceType.HELP);
   const [selectedIcon, setSelectedIcon] = useState<string>('home');
 
-  const iconOptions = [
-    "calendar", "musical-notes", "restaurant", "fitness", "library",
-    "cafe", "basketball", "camera", "boat", "bicycle", "book", "gift",
-    "heart", "home", "medical", "people", "school", "car", "airplane",
-    "build", "flash", "leaf", "paw", "pizza", "game-controller"
-  ];
-
-  const handleIconSelect = (icon: string) => {
-    setSelectedIcon(icon);
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
@@ -52,7 +32,7 @@ const ServiceModal: React.FC<ServiceModalProps> = ({ isOpen, onClose, onSubmit }
       title: formData.get('title') as string,
       description: formData.get('description') as string,
       type: selectedServiceType,
-      imageUrl: selectedIcon
+      icon: selectedIcon
     };
 
     try {
@@ -64,14 +44,24 @@ const ServiceModal: React.FC<ServiceModalProps> = ({ isOpen, onClose, onSubmit }
         return;
       }
 
+      // Données à envoyer à l'API (adapter selon le schéma backend)
+      const apiData = {
+        title: serviceData.title,
+        description: serviceData.description,
+        type: serviceData.type,
+        imageUrl: serviceData.icon  // L'API attend probablement imageUrl comme pour les events
+      };
+
+      console.log('Données envoyées à l\'API:', apiData);
+
       // Envoi des données à l'API
-      const response = await fetch(`${apiUrl}/services`, {
+      const response = await fetch(`${apiUrl}/api/services`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${authToken}`
         },
-        body: JSON.stringify(serviceData)
+        body: JSON.stringify(apiData)
       });
 
       if (response.ok) {
@@ -109,17 +99,10 @@ const ServiceModal: React.FC<ServiceModalProps> = ({ isOpen, onClose, onSubmit }
             {/* Sélection d'icône */}
             <div>
               <label className="block text-white font-medium mb-3">Choisir une icône</label>
-              <div className="icon-grid">
-                {iconOptions.map((icon, index) => (
-                  <div 
-                    key={index} 
-                    className={`icon-option ${selectedIcon === icon ? 'selected' : ''}`}
-                    onClick={() => handleIconSelect(icon)}
-                  >
-                    <IconOption dataIcon={icon} />
-                  </div>
-                ))}
-              </div>
+              <IconPicker 
+                selectedIcon={selectedIcon}
+                onSelectIcon={setSelectedIcon}
+              />
               <input type="hidden" name="icon" value={selectedIcon}/>
             </div>
 

@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import ServiceModal, { ServiceType } from './components/ServiceModal';
+import TrocDetailsModal from './components/TrocDetailsModal';
+import { IonIcon } from '../components/shared';
 
 const apiUrl = import.meta.env.VITE_API_URL;
-
-// Composant pour les icônes Ionicons
-const IonIcon: React.FC<{ name: string; className?: string }> = ({ name, className = "" }) => (
-  <ion-icon name={name} class={className}></ion-icon>
-);
 
 interface ServiceItem {
   id: number;
@@ -26,12 +23,16 @@ interface ServiceItem {
 const Trock: React.FC = () => {
   const [activeServiceTab, setActiveServiceTab] = useState<ServiceType>(ServiceType.HELP);
   const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
+  const [isTrocDetailsModalOpen, setIsTrocDetailsModalOpen] = useState(false);
+  const [selectedServiceId, setSelectedServiceId] = useState<number | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string>('');
   const [services, setServices] = useState<ServiceItem[]>([]);
   const [myServices, setMyServices] = useState<ServiceItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [showMyServices, setShowMyServices] = useState(false);
   const limit = 10;
 
   // Fonction pour récupérer les services depuis l'API
@@ -48,7 +49,7 @@ const Trock: React.FC = () => {
         return;
       }
 
-      const response = await fetch(`${apiUrl}/services?type=${type}&limit=${limit}&page=${page}`, {
+      const response = await fetch(`${apiUrl}/api/services?type=${type}&limit=${limit}&page=${page}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -107,6 +108,20 @@ const Trock: React.FC = () => {
     setIsServiceModalOpen(!isServiceModalOpen);
   };
 
+  // Fonction pour basculer entre tous les services et mes services
+  const toggleMyServices = () => {
+    setShowMyServices(!showMyServices);
+    setError(null);
+    
+    if (!showMyServices) {
+      // Si on bascule vers "Mes services", charger mes services
+      fetchMyServices();
+    } else {
+      // Si on revient vers "Tous les services", recharger la liste normale
+      fetchServices(activeServiceTab, 1, true);
+    }
+  };
+
   // Fonction pour récupérer les services créés par l'utilisateur
   const fetchMyServices = async () => {
     try {
@@ -116,7 +131,7 @@ const Trock: React.FC = () => {
         return;
       }
 
-      const response = await fetch(`${apiUrl}/services/my-services`, {
+      const response = await fetch(`${apiUrl}/api/services/my-services`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -131,7 +146,7 @@ const Trock: React.FC = () => {
       const data = await response.json();
        
        // Transformer les données de l'API pour correspondre à notre interface
-       const transformedMyServices: ServiceItem[] = data.items?.map((item: any) => ({
+       const transformedMyServices: ServiceItem[] = data?.map((item: any) => ({
          id: item.id,
          title: item.title,
          provider: item.creator?.pseudo || item.creator?.email || 'Utilisateur',
@@ -191,7 +206,12 @@ const Trock: React.FC = () => {
     icon: string;
   }) => {
     console.log('Nouveau service:', serviceData);
-    // Ici vous pouvez ajouter la logique pour envoyer les données à votre API
+    
+    // Recharger la liste des services après création
+    fetchServices(activeServiceTab, 1, true);
+    
+    // Recharger aussi mes services pour voir le nouveau service dans la liste personnelle
+    fetchMyServices();
   };
 
   // Fonction pour obtenir la couleur de fond selon le type de service
@@ -298,21 +318,106 @@ const Trock: React.FC = () => {
     }
   ];
 
+  // Récupérer l'ID de l'utilisateur actuel
+  useEffect(() => {
+    const userInfo = JSON.parse(sessionStorage.getItem('userInfo') || localStorage.getItem('userInfo') || '{}');
+    if (userInfo.id) {
+      setCurrentUserId(userInfo.id);
+    }
+  }, []);
+
   // Utiliser useEffect pour charger les services au changement d'onglet
   useEffect(() => {
-    fetchServices(activeServiceTab, 1, true);
-  }, [activeServiceTab]);
+    if (!showMyServices) {
+      fetchServices(activeServiceTab, 1, true);
+    }
+    // Si on est en mode "Mes services", pas besoin de recharger, le filtrage se fait localement
+  }, [activeServiceTab, showMyServices]);
 
   // Charger les services de l'utilisateur au démarrage
   useEffect(() => {
     fetchMyServices();
   }, []);
 
-  // Filtrer les services par type (pour les données actuelles)
-  const filteredServices = services.filter(service => service.type === activeServiceTab);
+  // Filtrer les services par type ou afficher mes services
+  const filteredServices = showMyServices 
+    ? myServices.filter(service => service.type === activeServiceTab)
+    : services.filter(service => service.type === activeServiceTab);
 
-  const handleItemClick = (title: string) => {
-    console.log(`Consultation de l'annonce: ${title}`);
+  const handleItemClick = (service: ServiceItem) => {
+    console.log(`Consultation de l'annonce: ${service.title}`);
+    setSelectedServiceId(service.id);
+    setIsTrocDetailsModalOpen(true);
+  };
+
+  const handleDeleteService = (serviceId: number) => {
+    // Mettre à jour les listes de services après suppression
+    setServices(prev => prev.filter(s => s.id !== serviceId));
+    setMyServices(prev => prev.filter(s => s.id !== serviceId));
+    
+    // Recharger les services pour être sûr
+    fetchServices(activeServiceTab, 1, true);
+    fetchMyServices();
+  };
+
+  const handleOpenChat = async (serviceId: number, serviceTitle: string) => {
+    try {
+      // Trouver le service pour obtenir les détails du créateur
+      const service = [...services, ...myServices].find(s => s.id === serviceId);
+      if (!service) {
+        console.error('Service non trouvé');
+        return;
+      }
+
+      const authToken = sessionStorage.getItem('authToken') || localStorage.getItem('authToken');
+      if (!authToken) {
+        console.error('Token d\'authentification manquant');
+        return;
+      }
+
+      // Récupérer les détails complets du service depuis l'API
+      const response = await fetch(`${apiUrl}/api/services/${serviceId}`, {
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+      }
+
+      const serviceData = await response.json();
+      
+      // Créer ou récupérer la conversation de service
+      const conversationResponse = await fetch(`${apiUrl}/api/conversations/service`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          serviceId: serviceId.toString(),
+          serviceTitle: serviceTitle,
+          serviceIcon: service.icon,
+          creatorId: serviceData.creator?.id || serviceData.createdBy
+        })
+      });
+
+      if (conversationResponse.ok) {
+        const conversationData = await conversationResponse.json();
+        console.log('✅ Conversation de service créée/récupérée:', conversationData.data._id);
+        
+        // Rediriger vers la conversation (vous devrez adapter selon votre routing)
+        window.location.href = `/convs?conversationId=${conversationData.data._id}`;
+      } else {
+        const errorData = await conversationResponse.json();
+        throw new Error(errorData.error || 'Erreur lors de la création de la conversation');
+      }
+    } catch (error) {
+      console.error('❌ Erreur lors de l\'ouverture du chat:', error);
+      alert(error instanceof Error ? error.message : 'Une erreur est survenue');
+    }
   };
 
   const renderStars = (rating: number) => {
@@ -336,12 +441,25 @@ const Trock: React.FC = () => {
                 Échangez, partagez et entraidez-vous
               </p>
             </div>
-            <button 
-              className="glass-card rounded-xl p-3 hover:bg-white/20 transition-all duration-200"
-              onClick={toggleServiceModal}
-            >
-              <IonIcon name="add" className="text-white text-xl" />
-            </button>
+            <div className="flex space-x-3">
+              <button 
+                onClick={toggleMyServices}
+                className={`glass-card px-4 py-2 rounded-xl font-medium transition-colors ${
+                  showMyServices 
+                    ? 'bg-purple-600 text-white' 
+                    : 'bg-white/10 text-white/70 hover:bg-white/20'
+                }`}
+              >
+                <IonIcon name="person-circle" className="mr-2" />
+                {showMyServices ? 'Tous les services' : 'Mes services'}
+              </button>
+              <button 
+                className="glass-card rounded-xl p-3 hover:bg-white/20 transition-all duration-200"
+                onClick={toggleServiceModal}
+              >
+                <IonIcon name="add" className="text-white text-xl" />
+              </button>
+            </div>
           </div>
         </div>
 
@@ -395,7 +513,7 @@ const Trock: React.FC = () => {
                 key={service.id}
                 className="glass-card item-card rounded-2xl p-4 fade-in cursor-pointer"
                 style={{animationDelay: `${0.2 + index * 0.1}s`}}
-                onClick={() => handleItemClick(service.title)}
+                onClick={() => handleItemClick(service)}
               >
                 <div className="flex items-start space-x-4">
                   <div className={`item-image bg-gradient-to-br ${getServiceTypeColor(service.type)}`}>
@@ -407,7 +525,6 @@ const Trock: React.FC = () => {
                         <h3 className="text-xl font-bold text-white mb-1">{service.title}</h3>
                         <p className="text-white/80 text-sm">{service.provider}</p>
                       </div>
-                      <span className="price-tag">{service.price}</span>
                     </div>
                     <p className="text-white/70 text-sm leading-relaxed mb-3">
                       {service.description}
@@ -441,7 +558,7 @@ const Trock: React.FC = () => {
                               return;
                             }
 
-                            const response = await fetch(`${apiUrl}/services/${service.id}/assign/${providerId}`, {
+                            const response = await fetch(`${apiUrl}/api/services/${service.id}/assign/${providerId}`, {
                               method: 'PATCH',
                               headers: {
                                 'Content-Type': 'application/json',
@@ -490,17 +607,21 @@ const Trock: React.FC = () => {
             {!loading && filteredServices.length === 0 && (
               <div className="text-center py-8">
                 <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-gray-400 to-gray-600 flex items-center justify-center">
-                  <IonIcon name="search" className="text-white text-2xl" />
+                  <IonIcon name={showMyServices ? "person-circle" : "search"} className="text-white text-2xl" />
                 </div>
-                <h3 className="text-white font-semibold mb-2">Aucun service trouvé</h3>
+                <h3 className="text-white font-semibold mb-2">
+                  {showMyServices ? 'Aucun de vos services' : 'Aucun service trouvé'}
+                </h3>
                 <p className="text-white/70 text-sm">
-                  Soyez le premier à proposer un service de ce type !
+                  {showMyServices 
+                    ? 'Vous n\'avez pas encore créé de service de ce type. Créez-en un !' 
+                    : 'Soyez le premier à proposer un service de ce type !'}
                 </p>
               </div>
             )}
             
-            {/* Bouton Charger plus */}
-            {!loading && filteredServices.length > 0 && hasMore && (
+            {/* Bouton Charger plus (seulement pour tous les services, pas mes services) */}
+            {!loading && filteredServices.length > 0 && hasMore && !showMyServices && (
               <div className="text-center pt-4">
                 <button 
                   className="glass-card px-6 py-3 rounded-xl text-white font-semibold hover:bg-white/20 transition-all duration-200"
@@ -543,6 +664,21 @@ const Trock: React.FC = () => {
          onClose={toggleServiceModal}
          onSubmit={handleServiceSubmit}
        />
+
+       {/* Modale de détails du service */}
+       {selectedServiceId && (
+         <TrocDetailsModal
+           isOpen={isTrocDetailsModalOpen}
+           onClose={() => {
+             setIsTrocDetailsModalOpen(false);
+             setSelectedServiceId(null);
+           }}
+           serviceId={selectedServiceId}
+           currentUserId={currentUserId}
+           onDelete={handleDeleteService}
+           onOpenChat={handleOpenChat}
+         />
+       )}
     </>
   );
 };

@@ -15,8 +15,6 @@ export class CreateUserDto implements CreateUserInput {
   @ApiPropertyOptional()
   bio?: string ;
   @ApiPropertyOptional()
-  phoneNumber?: string ;
-  @ApiPropertyOptional()
   rue?:string;
   @ApiPropertyOptional()
   cp?:string;

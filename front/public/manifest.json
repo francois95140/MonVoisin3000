@@ -1,0 +1,61 @@
+{
+  "name": "MonVoisin3000",
+  "short_name": "MonVoisin",
+  "description": "Application de voisinage et de communication locale",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a1a2e",
+  "theme_color": "#6366f1",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "fr",
+  "dir": "ltr",
+  "categories": ["social", "communication", "lifestyle"],
+  "icons": [
+    {
+      "src": "/icone.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Conversations",
+      "short_name": "Chat",
+      "description": "Accéder directement aux conversations",
+      "url": "/convs",
+      "icons": [{ "src": "/icone.svg", "sizes": "any" }]
+    },
+    {
+      "name": "Événements",
+      "short_name": "Events",
+      "description": "Voir les événements locaux",
+      "url": "/evenements",
+      "icons": [{ "src": "/icone.svg", "sizes": "any" }]
+    },
+    {
+      "name": "Carte",
+      "short_name": "Map",
+      "description": "Voir la carte du quartier",
+      "url": "/carte",
+      "icons": [{ "src": "/icone.svg", "sizes": "any" }]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "screenshots": [
+    {
+      "src": "/screenshot-mobile-1.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "/screenshot-desktop-1.png", 
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ]
+}

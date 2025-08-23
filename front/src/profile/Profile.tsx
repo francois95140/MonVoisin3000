@@ -1,28 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { IonIcon, GlassCard, ToggleSwitch, Button } from '../components/shared';
-import { AvatarUpload } from '../auth/components';
+import { toast } from 'react-toastify';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface ProfilePageProps {}
 
 const ProfilePage: React.FC<ProfilePageProps> = () => {
+  const { theme, toggleTheme } = useTheme();
 
   document.getElementById("indicator")?.classList.add("filter", "opacity-0");
   setTimeout(() => {
-    const list = document.getElementById("indicator").parentNode.children;
-    Array.from(list).forEach((el) => el.classList.remove("active"));
+    const indicator = document.getElementById("indicator");
+    if (indicator && indicator.parentNode) {
+      const list = indicator.parentNode.children;
+      Array.from(list).forEach((el) => el.classList.remove("active"));
+    }
   }, 0);
 
   const [formData, setFormData] = useState({
     pseudo: '',
     email: '',
-    phone: '',
     address: '',
     bio: '',
     tag:'',
+    avatar: '',
     geoPermission: 'friends-only'
   });
 
+  const [userData, setUserData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -39,7 +45,7 @@ const ProfilePage: React.FC<ProfilePageProps> = () => {
           throw new Error('Token d\'authentification manquant. Veuillez vous reconnecter.');
         }
         
-        const response = await fetch(`${apiUrl}/users/me`, {
+        const response = await fetch(`${apiUrl}/api/users/me`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -57,15 +63,16 @@ const ProfilePage: React.FC<ProfilePageProps> = () => {
           throw new Error(`Erreur ${response.status}: ${response.statusText}`);
         }
 
-        const userData = await response.json();
+        const userDataResponse = await response.json();
+        setUserData(userDataResponse);
         setFormData({
-          pseudo: userData.pseudo || '',
-          email: userData.email || '',
-          phone: userData.phoneNumber || '',
-          address: userData.address || '',
-          bio: userData.bio || '',
-          tag: userData.tag || '',
-          geoPermission: userData.geoPermission || 'friends-only'
+          pseudo: userDataResponse.pseudo || '',
+          email: userDataResponse.email || '',
+          address: userDataResponse.address || '',
+          bio: userDataResponse.bio || '',
+          tag: userDataResponse.tag || '',
+          avatar: userDataResponse.avatar || '',
+          geoPermission: userDataResponse.geoPermission || 'friends-only'
         });
       } catch (err) {
         console.error('Erreur lors de la récupération des données utilisateur:', err);
@@ -101,15 +108,98 @@ const ProfilePage: React.FC<ProfilePageProps> = () => {
 
   const handleLogout = () => {
     if (window.confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
-      console.log('Déconnexion');
-      // Redirection vers login
+      // Supprimer les tokens de connexion
+      localStorage.removeItem('authToken');
+      sessionStorage.removeItem('authToken');
+      localStorage.removeItem('user');
+      sessionStorage.removeItem('user');
+      
+      // Redirection vers la page de connexion
+      window.location.href = '/connexion';
     }
   };
 
-  const handleDeleteAccount = () => {
-    if (window.confirm('⚠️ ATTENTION : Cette action est irréversible !\n\nÊtes-vous absolument sûr de vouloir supprimer votre compte ? Toutes vos données seront perdues définitivement.')) {
-      console.log('Suppression de compte');
-      alert('Compte supprimé');
+  const handleDeleteAccount = async () => {
+    const confirmMessage = '⚠️ ATTENTION : Cette action est irréversible !\n\n' +
+                          'Êtes-vous absolument sûr de vouloir supprimer votre compte ?\n' +
+                          'Toutes vos données seront perdues définitivement.\n\n' +
+                          'Tapez "SUPPRIMER" pour confirmer (en majuscules) :';
+    
+    const userInput = window.prompt(confirmMessage);
+    
+    if (userInput === 'SUPPRIMER') {
+      const doubleConfirm = window.confirm(
+        'Dernière confirmation !\n\n' +
+        'Vous êtes sur le point de supprimer définitivement votre compte.\n' +
+        'Cette action ne peut pas être annulée.\n\n' +
+        'Confirmer la suppression ?'
+      );
+      
+      if (doubleConfirm) {
+        try {
+          const apiUrl = import.meta.env.VITE_API_URL;
+          const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+          
+          if (!token) {
+            toast.error('Session expirée. Veuillez vous reconnecter.');
+            setTimeout(() => {
+              window.location.href = '/connexion';
+            }, 2000);
+            return;
+          }
+
+          const response = await fetch(`${apiUrl}/api/users/me`, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            
+            // Nettoyer toutes les données utilisateur du localStorage/sessionStorage
+            localStorage.removeItem('authToken');
+            sessionStorage.removeItem('authToken');
+            localStorage.removeItem('user');
+            sessionStorage.removeItem('user');
+            localStorage.removeItem('UserImage');
+            sessionStorage.removeItem('UserImage');
+            localStorage.removeItem('UserPseudo');
+            sessionStorage.removeItem('UserPseudo');
+            
+            toast.success('Votre compte a été supprimé avec succès. Redirection en cours...');
+            
+            // Redirection vers la page d'accueil après un délai
+            setTimeout(() => {
+              window.location.href = '/';
+            }, 3000);
+            
+          } else {
+            const errorData = await response.json();
+            
+            if (response.status === 401) {
+              localStorage.removeItem('authToken');
+              sessionStorage.removeItem('authToken');
+              toast.error('Session expirée. Veuillez vous reconnecter.');
+              setTimeout(() => {
+                window.location.href = '/connexion';
+              }, 2000);
+              return;
+            }
+            
+            console.error('Erreur lors de la suppression:', errorData);
+            toast.error(`Erreur lors de la suppression du compte: ${errorData.message || 'Une erreur est survenue'}`);
+          }
+          
+        } catch (error) {
+          console.error('Erreur réseau:', error);
+          toast.error('Erreur de connexion. Veuillez réessayer.');
+        }
+      }
+    } else if (userInput !== null) {
+      toast.warning('Suppression annulée. Vous devez taper exactement "SUPPRIMER" pour confirmer.');
     }
   };
 
@@ -171,8 +261,20 @@ const ProfilePage: React.FC<ProfilePageProps> = () => {
           {!loading && !error && (
           <GlassCard>
           <div className="relative mb-4 flex justify-center">
-              
-                  <AvatarUpload id="photoback" />
+              <div className="h-32 w-32 overflow-hidden rounded-full bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center">
+                {formData.avatar ? (
+                  <img 
+                    src={formData.avatar} 
+                    alt="Avatar" 
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <IonIcon 
+                    name="person" 
+                    className="text-white text-4xl"
+                  />
+                )}
+              </div>
             </div>
             
             <div className="space-y-4">
@@ -182,12 +284,12 @@ const ProfilePage: React.FC<ProfilePageProps> = () => {
                   <p className="font-medium text-white">{formData.pseudo}</p>
                 </div>
                 <div>
-                  <span className="text-sm">Email :</span>
-                  <p className="font-medium text-white">{formData.email}</p>
+                  <span className="text-sm">Tag :</span>
+                  <p className="font-medium text-white">@{formData.tag}</p>
                 </div>
                 <div>
-                  <span className="text-sm">Téléphone :</span>
-                  <p className="font-medium text-white">{formData.phone}</p>
+                  <span className="text-sm">Email :</span>
+                  <p className="font-medium text-white">{formData.email}</p>
                 </div>
                 <div>
                   <span className="text-sm">Adresse :</span>
@@ -206,14 +308,15 @@ const ProfilePage: React.FC<ProfilePageProps> = () => {
                   userData: {
                     pseudo: formData.pseudo,
                     email: formData.email,
-                    phone: formData.phone,
                     address: formData.address,
                     bio: formData.bio,
                     tag: formData.tag,
-                    // Extraction des composants d'adresse si disponibles
-                    rue: formData.address?.split(',')[0] || '',
-                    ville: formData.address?.split(',').pop()?.trim() || '',
-                    codePostal: formData.address?.match(/\d{5}/) ? formData.address.match(/\d{5}/)[0] : ''
+                    avatar: formData.avatar,
+                    // Extraction des composants d'adresse si disponibles  
+                    rue: userData?.rue || formData.address?.split(',')[0] || '',
+                    ville: userData?.ville || formData.address?.split(',').pop()?.trim() || '',
+                    codePostal: userData?.cp || (formData.address?.match(/\d{5}/)?.[0]) || '',
+                    cp: userData?.cp || (formData.address?.match(/\d{5}/)?.[0]) || ''
                   }
                 }}
                 className="w-full"
@@ -266,10 +369,10 @@ const ProfilePage: React.FC<ProfilePageProps> = () => {
                   onChange={handleInputChange}
                   className="w-full py-3 px-4 rounded-xl bg-white/10 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
                 >
-                  <option value="everyone" className="bg-gray-800">Tout le monde</option>
-                  <option value="friends-only" className="bg-gray-800">Mes amis uniquement</option>
-                  <option value="authorized-friends" className="bg-gray-800">Amis avec autorisation</option>
-                  <option value="nobody" className="bg-gray-800">Personne</option>
+                  <option value="everyone" className="bg-gray-800 text-white">Tout le monde</option>
+                  <option value="friends-only" className="bg-gray-800 text-white">Mes amis uniquement</option>
+                  <option value="authorized-friends" className="bg-gray-800 text-white">Amis avec autorisation</option>
+                  <option value="nobody" className="bg-gray-800 text-white">Personne</option>
                 </select>
               </div>
 
@@ -283,6 +386,27 @@ const ProfilePage: React.FC<ProfilePageProps> = () => {
                     </p>
                   </div>
                 </div>
+              </div>
+            </div>
+          </GlassCard>
+
+          {/* Paramètres d'apparence */}
+          <GlassCard>
+            <div className="flex items-center space-x-4 mb-6">
+              <IonIcon name="color-palette" className="w-6 h-6 text-white flex-shrink-0" />
+              <h2 className="text-xl font-semibold text-white">Apparence</h2>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-white font-medium">Mode sombre</h3>
+                  <p className="text-white/60 text-sm">Basculer vers le thème sombre pour un confort visuel</p>
+                </div>
+                <ToggleSwitch 
+                  defaultChecked={theme === 'dark'} 
+                  onChange={toggleTheme}
+                />
               </div>
             </div>
           </GlassCard>

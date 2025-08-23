@@ -49,7 +49,7 @@ export class EventService {
   async findOne(id: string): Promise<Event> {
     const event = await this.eventRepository.findOne({
       where: { id },
-      relations: ['createdBy']
+      relations: ['creator', 'participants']
     });
 
     if (!event) {
@@ -176,5 +176,72 @@ export class EventService {
       .orderBy('event.startDate', 'ASC')
       .addOrderBy('event.startTime', 'ASC')
       .getMany();
+  }
+
+  // Obtenir tous les participants d'un événement (créateur + participants) avec l'icône
+  async getEventParticipantIds(eventId: string): Promise<string[]> {
+    const event = await this.eventRepository.findOne({
+      where: { id: eventId },
+      relations: ['creator', 'participants']
+    });
+
+    if (!event) {
+      throw new NotFoundException('Événement introuvable');
+    }
+
+    const participantIds: string[] = [];
+    
+    // Ajouter le créateur
+    if (event.creator && event.creator.id) {
+      participantIds.push(event.creator.id);
+    } else if (event.createdBy) {
+      participantIds.push(event.createdBy);
+    }
+    
+    // Ajouter les participants
+    if (event.participants) {
+      event.participants.forEach(participant => {
+        if (!participantIds.includes(participant.id)) {
+          participantIds.push(participant.id);
+        }
+      });
+    }
+
+    return participantIds;
+  }
+
+  // Obtenir les détails d'un événement pour la conversation (participants + icône)
+  async getEventForConversation(eventId: string): Promise<{ participantIds: string[], eventIcon: string }> {
+    const event = await this.eventRepository.findOne({
+      where: { id: eventId },
+      relations: ['creator', 'participants']
+    });
+
+    if (!event) {
+      throw new NotFoundException('Événement introuvable');
+    }
+
+    const participantIds: string[] = [];
+    
+    // Ajouter le créateur
+    if (event.creator && event.creator.id) {
+      participantIds.push(event.creator.id);
+    } else if (event.createdBy) {
+      participantIds.push(event.createdBy);
+    }
+    
+    // Ajouter les participants
+    if (event.participants) {
+      event.participants.forEach(participant => {
+        if (!participantIds.includes(participant.id)) {
+          participantIds.push(participant.id);
+        }
+      });
+    }
+
+    return {
+      participantIds,
+      eventIcon: event.imageUrl || 'calendar'
+    };
   }
 }

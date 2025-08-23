@@ -61,7 +61,7 @@ export class FriendService {
     return { message: 'Friend request accepted!' };
   }
 
-  // 📌 Rejeter une demande d’ami
+  // 📌 Rejeter une demande d'ami
   async rejectFriendRequest(from: string, to: string) {
     const query = `
       MATCH (:User {userPgId: $from})-[r:FRIEND_REQUEST]->(:User {userPgId: $to})
@@ -73,6 +73,18 @@ export class FriendService {
     return { message: 'Friend request rejected!' };
   }
 
+  // 📌 Annuler une demande d'ami que j'ai envoyée
+  async cancelFriendRequest(from: string, to: string) {
+    const query = `
+      MATCH (:User {userPgId: $from})-[r:FRIEND_REQUEST]->(:User {userPgId: $to})
+      DELETE r
+    `;
+
+    await this.neo4jService.write(query, { from, to });
+
+    return { message: 'Friend request cancelled!' };
+  }
+
   // 📌 Liste des amis d’un utilisateur
   async getFriends(userId: string) {
     const query = `
@@ -82,6 +94,38 @@ export class FriendService {
     const result = await this.neo4jService.read(query, { userId });
 
     return result.records.map((record) => record.get('friend').properties);
+  }
+
+  // 📌 Vérifier le statut d'amitié entre deux utilisateurs
+  async getFriendshipStatus(userId1: string, userId2: string): Promise<'none' | 'friends' | 'pending' | 'sent'> {
+    const query = `
+      MATCH (a:User {userPgId: $userId1}), (b:User {userPgId: $userId2})
+      OPTIONAL MATCH (a)-[r1:FRIEND]-(b)
+      OPTIONAL MATCH (a)-[r2:FRIEND_REQUEST]->(b)
+      OPTIONAL MATCH (b)-[r3:FRIEND_REQUEST]->(a)
+      RETURN r1, r2, r3
+    `;
+
+    const result = await this.neo4jService.read(query, { userId1, userId2 });
+    
+    if (result.records.length === 0) {
+      return 'none';
+    }
+
+    const record = result.records[0];
+    const friendRelation = record.get('r1');
+    const sentRequest = record.get('r2');
+    const receivedRequest = record.get('r3');
+
+    if (friendRelation) {
+      return 'friends';
+    } else if (sentRequest) {
+      return 'sent';
+    } else if (receivedRequest) {
+      return 'pending';
+    } else {
+      return 'none';
+    }
   }
 
   // 📌 Suggestions d'amis basées sur un algorithme

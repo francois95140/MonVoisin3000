@@ -1,9 +1,11 @@
-import { NavLink } from "react-router-dom";
+import React, { useState } from 'react';
+import { NavLink, useNavigate } from "react-router-dom";
 import { FormField, TextArea, Button, IonIcon } from '../components/shared';
 import { SocialButtons, Separator, AddressField, AvatarUpload } from './components';
+import { toast } from 'react-toastify';
 const apiUrl = import.meta.env.VITE_API_URL;
 import "./Inscription.css";
-async function handleInscription(event: React.FormEvent<HTMLFormElement>, isInscription: boolean = true, initialUserData: UserData = {}) {
+async function handleInscription(event: React.FormEvent<HTMLFormElement>, isInscription: boolean = true, initialUserData: UserData = {}, navigate?: (path: string) => void, avatarBase64?: string) {
   event.preventDefault();
   
   const formData = new FormData(event.currentTarget);
@@ -15,7 +17,6 @@ async function handleInscription(event: React.FormEvent<HTMLFormElement>, isInsc
     password: formData.get("motdepasse") as string, // Le champ s'appelle "motdepasse" dans le HTML
     pseudo: formData.get("pseudo") as string,
     bio: formData.get("bio") as string,
-    phoneNumber: formData.get("tel") as string, // Le champ s'appelle "tel" dans le HTML
     rue: formData.get("rue") as string,
     codePostal: formData.get("cp") as string,
     ville: formData.get("ville") as string,
@@ -26,28 +27,6 @@ async function handleInscription(event: React.FormEvent<HTMLFormElement>, isInsc
 
 
   try {
-    // Gestion de l'avatar si présent
-    const avatarInput = event.currentTarget.elements.namedItem("photo") as HTMLInputElement;
-    const avatarFile = avatarInput?.files?.[0];
-    let avatarUrl = "";
-
-    if (avatarFile) {
-      // Upload de l'avatar d'abord
-      const avatarFormData = new FormData();
-      avatarFormData.append("avatar", avatarFile);
-      
-      const avatarResponse = await fetch(`${apiUrl}/upload/avatar`, {
-        method: "POST",
-        body: avatarFormData,
-      });
-      
-      if (avatarResponse.ok) {
-        const avatarData = await avatarResponse.json();
-        avatarUrl = avatarData.url || "";
-      } else {
-        console.error("Erreur lors de l'upload de l'avatar:", avatarResponse.statusText);
-      }
-    }
 
     // Préparation des headers
     const headers: HeadersInit = {
@@ -58,7 +37,7 @@ async function handleInscription(event: React.FormEvent<HTMLFormElement>, isInsc
     if (!isInscription) {
       const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
       if (!token) {
-        alert('Session expirée. Veuillez vous reconnecter.');
+        toast.error('Session expirée. Veuillez vous reconnecter.');
         return;
       }
       headers['Authorization'] = `Bearer ${token}`;
@@ -74,9 +53,8 @@ async function handleInscription(event: React.FormEvent<HTMLFormElement>, isInsc
         email: formValues.email,
         password: formValues.password,
         pseudo: formValues.pseudo,
-        avatar: "https://avatars.githubusercontent.com/u/94387150?v=4",
+        avatar: avatarBase64 || "https://avatars.githubusercontent.com/u/94387150?v=4",
         bio: formValues.bio,
-        phoneNumber: formValues.phoneNumber,
         quartier: "quartier",
         rue: formValues.rue,
         cp: formValues.codePostal,
@@ -97,14 +75,19 @@ async function handleInscription(event: React.FormEvent<HTMLFormElement>, isInsc
       if (hasChanged(formValues.email, initialUserData.email)) bodyData.email = formValues.email;
       if (hasChanged(formValues.pseudo, initialUserData.pseudo)) bodyData.pseudo = formValues.pseudo;
       if (hasChanged(formValues.bio, initialUserData.bio)) bodyData.bio = formValues.bio;
-      if (hasChanged(formValues.phoneNumber, initialUserData.phone)) bodyData.phoneNumber = formValues.phoneNumber;
       if (hasChanged(formValues.rue, initialUserData.rue)) bodyData.rue = formValues.rue;
       if (hasChanged(formValues.codePostal, initialUserData.codePostal)) bodyData.cp = formValues.codePostal;
-      if (hasChanged(formValues.adresse, initialUserData.address)) bodyData.fullAddress = formValues.adresse;
+      if (hasChanged(formValues.ville, initialUserData.ville)) bodyData.ville = formValues.ville;
+      if (hasChanged(formValues.adresse, initialUserData.address)) bodyData.address = formValues.adresse;
+      
+      // Vérification de l'avatar modifié
+      if (avatarBase64 && avatarBase64.trim() !== '') {
+        bodyData.avatar = avatarBase64;
+      }
       
       // Si aucun champ n'a été modifié, informer l'utilisateur
       if (Object.keys(bodyData).length === 0) {
-        alert("Aucune modification détectée.");
+        toast.info("Aucune modification détectée.");
         return;
       }
       
@@ -112,15 +95,13 @@ async function handleInscription(event: React.FormEvent<HTMLFormElement>, isInsc
     }
 
     // Envoi des données
-    const url = isInscription ? `${apiUrl}/auth/register` : `${apiUrl}/users/me`;
+    const url = isInscription ? `${apiUrl}/api/auth/register` : `${apiUrl}/api/users/me`;
     const method = isInscription ? "POST" : "PATCH";
     
     const response = await fetch(url, {
       method,
       headers,
-      body: JSON.stringify({...bodyData,
-        cp: bodyData.codePostal,
-      }),
+      body: JSON.stringify(bodyData),
     });
 
     console.log("Response status:", response);
@@ -130,13 +111,26 @@ async function handleInscription(event: React.FormEvent<HTMLFormElement>, isInsc
       console.log(isInscription ? "Inscription réussie:" : "Modification réussie:", data);
       
       if (isInscription) {
-        // Redirection ou affichage d'un message de succès pour l'inscription
-        alert("Inscription réussie ! Vous pouvez maintenant vous connecter.");
-        // Optionnel: redirection vers la page de connexion
-        // window.location.href = "/connexion";
+        // Redirection automatique vers la page de connexion avec l'email
+        toast.success("Inscription réussie ! Redirection vers la connexion...");
+        if (navigate) {
+          setTimeout(() => {
+            navigate(`/connexion?email=${encodeURIComponent(formValues.email)}`);
+          }, 1500); // Délai pour laisser le temps de voir le toast
+        }
       } else {
         // Message de succès pour la modification
-        alert("Profil modifié avec succès !");
+        toast.success("Profil modifié avec succès !");
+        
+        // Mettre à jour les données utilisateur en cache
+        const storage = localStorage.getItem('authToken') ? localStorage : sessionStorage;
+        if (formValues.pseudo) {
+          storage.setItem('UserPseudo', formValues.pseudo);
+        }
+        if (avatarBase64) {
+          storage.setItem('UserImage', avatarBase64);
+        }
+        
         // Optionnel: redirection vers le profil
         // window.location.href = "/profile";
       }
@@ -149,43 +143,58 @@ async function handleInscription(event: React.FormEvent<HTMLFormElement>, isInsc
       if (response.status === 401 && !isInscription) {
         localStorage.removeItem('authToken');
         sessionStorage.removeItem('authToken');
-        alert('Session expirée. Veuillez vous reconnecter.');
+        toast.error('Session expirée. Veuillez vous reconnecter.');
         return;
       }
       
-      alert(`Erreur lors de l'${action}: ${errorData.message || 'Une erreur est survenue'}`);
+      // Gestion spécifique des erreurs de validation
+      if (errorData.errors && Array.isArray(errorData.errors)) {
+        // Afficher chaque erreur de validation
+        errorData.errors.forEach((error: any) => {
+          const field = error.path ? error.path.join('.') : 'Champ';
+          toast.error(`${field}: ${error.message}`);
+        });
+      } else {
+        // Erreur générale
+        toast.error(`Erreur lors de l'${action}: ${errorData.message || 'Une erreur est survenue'}`);
+      }
     }
     
   } catch (error) {
     console.error("Erreur réseau:", error);
-    alert("Erreur de connexion. Veuillez réessayer.");
+    toast.error("Erreur de connexion. Veuillez réessayer.");
   }
 }
 
 interface UserData {
   pseudo?: string;
   email?: string;
-  phone?: string;
   address?: string;
   bio?: string;
   tag?: string;
   rue?: string;
   codePostal?: string;
+  ville?: string;
+  avatar?: string;
 }
 
 function Inscription({ isInscription = true, userData = {} }: { isInscription?: boolean; userData?: UserData }) {
+  const navigate = useNavigate();
+  const [avatarBase64, setAvatarBase64] = useState<string>('');
+  
+  const handleAvatarChange = (base64: string) => {
+    setAvatarBase64(base64);
+  };
+  
   return (
     <>
       <section className="text-gray-600 body-font flex flex-col justify-center items-center">
-        <h1 className="text-3xl font-semibold my-5">{isInscription ? "Inscription" : "Modification"}</h1>
+        <h1 className="text-3xl font-semibold my-5 text-white">{isInscription ? "Inscription" : "Modification"}</h1>
         <div className="container px-5 py-6 mx-auto flex flex-wrap items-center justify-center">
           <form
-            onSubmit={(e) => handleInscription(e, isInscription, userData)}
+            onSubmit={(e) => handleInscription(e, isInscription, userData, navigate, avatarBase64)}
             className="lg:w-2/5 md:w-1/2 bg-gray-100 rounded-lg p-8 flex flex-col w-full mt-0 justify-center"
           >
-            <h2 className="text-gray-900 text-lg font-medium title-font mb-5">
-              {isInscription ? "Créer un compte" : "Modifier mon compte"}
-            </h2>
             {isInscription && (
               <>
                 <SocialButtons />
@@ -193,7 +202,10 @@ function Inscription({ isInscription = true, userData = {} }: { isInscription?: 
               </>
             )}
 
-            <AvatarUpload />
+            <AvatarUpload 
+              onChange={handleAvatarChange} 
+              defaultImage={userData.avatar || ''}
+            />
             <p className="text-xs text-muted-foreground p-2 m-4">
               Les champs marqués d'un * sont obligatoires
             </p>
@@ -208,13 +220,6 @@ function Inscription({ isInscription = true, userData = {} }: { isInscription?: 
               name="tag"
               label="Tag"
               defaultValue={userData.tag || ''}
-            />
-            <FormField
-              id="tel"
-              name="tel"
-              label="Tel."
-              type="tel"
-              defaultValue={userData.phone || ''}
             />
             <FormField
               id="email"

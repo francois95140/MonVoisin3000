@@ -3,9 +3,10 @@ import {
   NotFoundException,
   ConflictException,
   UnauthorizedException,
+  BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ILike, Repository } from 'typeorm';
+import { ILike, Repository, Not, FindOneOptions } from 'typeorm';
 import { User, UserRole } from './entities/user.entity';
 import { Neo4jService } from 'nest-neo4j';
 import { EmailService } from '../email/email.service';
@@ -60,14 +61,20 @@ export class UserService {
 
     const user = await this.userRepository.save(creatingUser);
 
-    const query = `
-      CREATE (u:User {pseudo: $pseudo, tag: $tag, userPgId: $userId})
-      RETURN u
-    `;
+    // Temporary: Disable Neo4j to test if it's causing the 500 error
+    try {
+      const query = `
+        CREATE (u:User {pseudo: $pseudo, tag: $tag, userPgId: $userId})
+        RETURN u
+      `;
 
-    const params = {pseudo : user.pseudo, tag : user.tag, userId : user.id};
+      const params = {pseudo : user.pseudo, tag : user.tag, userId : user.id};
 
-    await this.neo4jService.write(query, params);
+      await this.neo4jService.write(query, params);
+    } catch (error) {
+      console.log('Neo4j error (non-blocking):', error.message);
+      // Don't throw, allow user creation to continue
+    }
 
     /* this.eventEmitter.emit(
       'user.created',
@@ -119,7 +126,7 @@ export class UserService {
   async findById(id: string): Promise<User> {
     const user = await this.userRepository.findOne({
       where: { id },
-      select: ['id', 'pseudo', 'phoneNumber','email', 'tag', 'avatar', 'bio', 'isVerified', 'rue', 'cp', 'ville', 'address', 'isActive', 'role', 'lastLogin', 'createdAt'],
+      select: ['id', 'pseudo', 'email', 'tag', 'avatar', 'bio', 'isVerified', 'rue', 'cp', 'ville', 'address', 'isActive', 'role', 'lastLogin', 'createdAt'],
     });
 
     if (!user) {
@@ -142,6 +149,7 @@ export class UserService {
   }
 
   async update(id: string, input: UpdateUserInput): Promise<User> {
+    console.log('Update user - ID:', id, 'Input:', input);
     const user = await this.findById(id);
 
     // Si le mot de passe est mis à jour, le hasher
@@ -151,13 +159,22 @@ export class UserService {
 
     // Vérifier si le nouvel email/username n'est pas déjà utilisé
     if (input.email || input.pseudo) {
-      const existingUser = await this.userRepository.findOne({
-        where: [
-          { email: input.email, id:  id  },
-          { pseudo: input.pseudo, id:  id  },
-        ],
-      });
+      const whereConditions: any[] = [];
+      
+      if (input.email) {
+        whereConditions.push({ email: input.email, id: Not(id) });
+      }
+      if (input.pseudo) {
+        whereConditions.push({ pseudo: input.pseudo, id: Not(id) });
+      }
 
+      console.log('Checking for existing user with conditions:', whereConditions);
+      
+      const existingUser = await this.userRepository.findOne({
+        where: whereConditions
+      } as FindOneOptions<User>);
+
+      console.log('Found existing user:', existingUser);
       if (existingUser) {
         throw new ConflictException('Email ou nom d\'utilisateur déjà utilisé');
       }
@@ -288,6 +305,39 @@ export class UserService {
           <p style="color: #999; font-size: 12px;">MonVoisin3000 - Votre plateforme de voisinage</p>
         </div>
       `,
+    });
+  }
+
+  /**
+   * Change le mot de passe de l'utilisateur connecté
+   * @param userId - ID de l'utilisateur
+   * @param currentPassword - Mot de passe actuel
+   * @param newPassword - Nouveau mot de passe
+   * @returns Promise<void>
+   */
+  async changePassword(userId: string, currentPassword: string, newPassword: string): Promise<void> {
+    // Récupérer l'utilisateur avec le mot de passe
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      select: ['id', 'password'],
+    });
+
+    if (!user) {
+      throw new NotFoundException('Utilisateur non trouvé');
+    }
+
+    // Vérifier que le mot de passe actuel est correct
+    const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password);
+    if (!isCurrentPasswordValid) {
+      throw new BadRequestException('Le mot de passe actuel est incorrect');
+    }
+
+    // Hasher le nouveau mot de passe
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+    // Mettre à jour le mot de passe
+    await this.userRepository.update(userId, {
+      password: hashedNewPassword,
     });
   }
 

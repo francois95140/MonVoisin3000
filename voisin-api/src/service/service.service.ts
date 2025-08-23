@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Service } from './entities/service.entity';
@@ -117,7 +117,15 @@ export class ServiceService {
     return this.serviceRepository.save(service);
   }
 
-  async remove(id: string): Promise<void> {
+  async remove(id: string, userId?: string): Promise<void> {
+    // Si un userId est fourni, vérifier les permissions
+    if (userId) {
+      const service = await this.findOne(id);
+      if (service.createdBy !== userId) {
+        throw new ForbiddenException('Vous ne pouvez supprimer que vos propres services');
+      }
+    }
+    
     const result = await this.serviceRepository.softDelete(id);
     
     if (result.affected === 0) {

@@ -12,6 +12,7 @@ interface CardProps {
     buttonText?: string;
     buttonType?: 'primary' | 'secondary';
     onClick?: () => void;
+    onCardClick?: () => void;
 }
 
 const Card: React.FC<CardProps> = ({ 
@@ -25,20 +26,28 @@ const Card: React.FC<CardProps> = ({
     animationDelay = 0,
     buttonText = 'Participer',
     buttonType = 'primary',
-    onClick
+    onClick,
+    onCardClick
 }) => {
 
 
 
 
     return (
-      <div className="glass-card event-card rounded-2xl p-6 fade-in" style={{animationDelay: `${animationDelay*0.2}s`}}>
+      <div 
+        className="glass-card event-card rounded-2xl p-6 fade-in cursor-pointer hover:bg-white/5 transition-all duration-300" 
+        style={{animationDelay: `${animationDelay*0.2}s`}}
+        onClick={onCardClick}
+        title="Cliquez pour voir les détails"
+      >
         <div className="flex items-start space-x-4">
             <div className="event-image">
                 <ion-icon name={icon} className="text-white text-3xl"></ion-icon>
             </div>
             <div className="flex-1">
-                <h3 className="text-xl font-bold text-white mb-2">{title || "Titre de l'événement non fourni."}</h3>
+                <h3 className="text-xl font-bold text-white mb-2">
+                    {title || "Titre de l'événement non fourni."}
+                </h3>
                 <p className="text-white/70 text-sm leading-relaxed mb-4">
                     {description || "Description de l'événement non fournie."}
                 </p>
@@ -58,7 +67,10 @@ const Card: React.FC<CardProps> = ({
                 </div>
                 <button 
                     className={`${buttonType === 'primary' ? 'btn-primary' : 'btn-secondary'} px-6 py-2 rounded-xl text-white font-semibold text-sm`}
-                    onClick={onClick}
+                    onClick={(e) => {
+                        e.stopPropagation(); // Empêche la propagation vers le clic de la carte
+                        onClick?.();
+                    }}
                 >
                     {buttonText}
                 </button>

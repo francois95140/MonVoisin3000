@@ -18,7 +18,9 @@ import {
   paginationSchema,
   toggleStatusSchema,
   updateRoleSchema,
-  updatePreferencesSchema, searchQuerySchema,
+  updatePreferencesSchema, 
+  searchQuerySchema,
+  changePasswordSchema,
 } from './validations/user.validation';
 import { User, UserRole } from './entities/user.entity';
 import { GetUser } from '../auth/decorators/user.decorator';
@@ -51,11 +53,20 @@ export class UserController {
 
   @Get('me')
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Récupérer un utilisateur par ID' })
+  @ApiOperation({ summary: 'Récupérer l\'utilisateur connecté' })
   @ApiResponse({ status: 200, description: 'Utilisateur trouvé.' })
   @ApiResponse({ status: 404, description: 'Utilisateur non trouvé.' })
   async findOne( @GetUser() user: User) {
     return await this.userService.findById(user.id);
+  }
+
+  @Get(':id')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Récupérer un utilisateur par ID' })
+  @ApiResponse({ status: 200, description: 'Utilisateur trouvé.' })
+  @ApiResponse({ status: 404, description: 'Utilisateur non trouvé.' })
+  async findById(@Param('id', ParseUUIDPipe) id: string) {
+    return await this.userService.findById(id);
   }
 
   @Patch('me')
@@ -114,5 +125,18 @@ export class UserController {
     @Body(new ZodValidationPipe(updatePreferencesSchema)) preferences: object,
   ) {
     return await this.userService.updatePreferences(user.id, preferences);
+  }
+
+  @Patch('/me/change-password')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Changer le mot de passe de l\'utilisateur connecté' })
+  @ApiResponse({ status: 200, description: 'Mot de passe mis à jour avec succès.' })
+  @ApiResponse({ status: 400, description: 'Mot de passe actuel incorrect.' })
+  async changePassword(
+    @GetUser() user: User,
+    @Body(new ZodValidationPipe(changePasswordSchema)) changePasswordDto: { currentPassword: string; newPassword: string; confirmPassword: string },
+  ) {
+    await this.userService.changePassword(user.id, changePasswordDto.currentPassword, changePasswordDto.newPassword);
+    return { message: 'Mot de passe mis à jour avec succès' };
   }
 }

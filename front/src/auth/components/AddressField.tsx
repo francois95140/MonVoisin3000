@@ -46,14 +46,17 @@ const AddressField: React.FC<AddressFieldProps> = ({
             if (userData) {
               userData.rue = data.features[0].properties.name;
               userData.codePostal = data.features[0].properties.postcode;
+              userData.ville = data.features[0].properties.city;
               userData.address = data.features[0].properties.label;
             }
 
             // Mise à jour des champs cachés
             const rueInput = document.getElementById("rue") as HTMLInputElement;
             const cpInput = document.getElementById("cp") as HTMLInputElement;
+            const villeInput = document.getElementById("ville") as HTMLInputElement;
             if (rueInput) rueInput.value = data.features[0].properties.name;
             if (cpInput) cpInput.value = data.features[0].properties.postcode;
+            if (villeInput) villeInput.value = data.features[0].properties.city;
           }
         });
     }
@@ -78,11 +81,12 @@ const AddressField: React.FC<AddressFieldProps> = ({
         />
         <input type="hidden" name="rue" id="rue" defaultValue={userData.rue || ''} />
         <input type="hidden" name="cp" id="cp" defaultValue={userData.codePostal || ''} />
+        <input type="hidden" name="ville" id="ville" defaultValue={userData.ville || ''} />
       </div>
       <div className="mb-4">
         <div
           id="adresseautocomplete"
-          className="font-semibold w-full p-2 bg-indigo-200 text-center"
+          className="font-semibold w-full p-2 bg-blue-200 text-center text-gray-700 rounded"
         >
           ...
         </div>

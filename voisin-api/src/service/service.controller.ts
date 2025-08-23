@@ -95,7 +95,8 @@ export class ServiceController {
   @ApiParam({ name: 'id', description: 'Service ID' })
   @ApiResponse({ status: 200, description: 'Service successfully deleted' })
   @ApiResponse({ status: 404, description: 'Service not found' })
-  remove(@Param('id') id: string) {
-    return this.serviceService.remove(id);
+  @ApiResponse({ status: 403, description: 'Forbidden - Not the service owner' })
+  remove(@Param('id') id: string, @GetUser() user: User) {
+    return this.serviceService.remove(id, user.id);
   }
 }
