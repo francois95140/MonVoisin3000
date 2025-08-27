@@ -58,6 +58,7 @@ async function handleInscription(event: React.FormEvent<HTMLFormElement>, isInsc
         quartier: "quartier",
         rue: formValues.rue,
         cp: formValues.codePostal,
+        ville: formValues.ville,
         fullAddress: formValues.adresse
       };
     } else {

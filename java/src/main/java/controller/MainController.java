@@ -155,22 +155,49 @@ public class MainController implements Initializable {
     private List<String> getVillesDistinctFromUsers() {
         try {
             String usersResult = BddNew.request("postgres", "SELECT * FROM users");
-            if (usersResult == null || usersResult.startsWith("erreur:")) return new ArrayList<>();
+            System.out.println("DEBUG - Réponse BDD brute: " + usersResult);
+            
+            if (usersResult == null || usersResult.startsWith("erreur:")) {
+                System.out.println("DEBUG - Pas de données ou erreur: " + usersResult);
+                return new ArrayList<>();
+            }
 
-            ArrayList<String> toutesLesVilles = new ArrayList<>();
+            HashSet<String> villesUniques = new HashSet<>();
             String[] lignes = usersResult.split("\n");
-            for (String ligne : lignes) {
+            System.out.println("DEBUG - Nombre de lignes: " + lignes.length);
+            
+            for (int i = 0; i < lignes.length; i++) {
+                String ligne = lignes[i];
+                System.out.println("DEBUG - Ligne " + i + ": " + ligne);
+                
                 if (ligne.contains("\"ville\":")) {
-                    int debut = ligne.indexOf("\"", ligne.indexOf("\"ville\":") + 9) + 1;
-                    int fin = ligne.indexOf("\"", ligne.indexOf("\"", ligne.indexOf("\"ville\":") + 9) + 1);
-                    if (debut > 0 && fin > debut) {
-                        String ville = ligne.substring(debut, fin);
-                        if (!ville.trim().isEmpty()) toutesLesVilles.add(ville);
+                    System.out.println("DEBUG - Ligne contient 'ville'");
+                    // Recherche plus robuste du champ ville
+                    String pattern = "\"ville\":\"";
+                    int startIndex = ligne.indexOf(pattern);
+                    if (startIndex != -1) {
+                        int valueStart = startIndex + pattern.length();
+                        int valueEnd = ligne.indexOf("\"", valueStart);
+                        if (valueEnd != -1) {
+                            String ville = ligne.substring(valueStart, valueEnd).trim();
+                            System.out.println("DEBUG - Ville extraite: '" + ville + "'");
+                            if (!ville.isEmpty()) {
+                                villesUniques.add(ville);
+                            }
+                        } else {
+                            System.out.println("DEBUG - Fin de guillemet non trouvée");
+                        }
+                    } else {
+                        System.out.println("DEBUG - Pattern ville non trouvé");
                     }
                 }
             }
-            return new ArrayList<>(new HashSet<>(toutesLesVilles));
+            
+            System.out.println("DEBUG - Villes uniques trouvées: " + villesUniques);
+            return new ArrayList<>(villesUniques);
         } catch (Exception e) {
+            System.err.println("Erreur lors de l'extraction des villes: " + e.getMessage());
+            e.printStackTrace();
             return new ArrayList<>();
         }
     }
