@@ -57,8 +57,6 @@ export class User {
   @Column({ nullable: true })
   cp: string;
 
-  @Column({ nullable: true })
-  address: string;
 
   @Column({ nullable: true })
   ville: string;

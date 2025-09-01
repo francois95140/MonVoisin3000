@@ -19,7 +19,6 @@ export const createUserSchema = z.object({
   rue: z.string().max(255, 'La rue ne peut pas dépasser 255 caractères').optional(),
   cp: z.string().regex(/^[0-9]{5}$/, 'Le code postal doit contenir 5 chiffres').optional(),
   ville: z.string().max(100, 'La ville ne peut pas dépasser 100 caractères').optional(),
-  address: z.string().max(255, 'L\'adresse ne peut pas dépasser 255 caractères').optional(),
   location: z.string().optional(),
   timezone: z.string().optional(),
   language: z.string().length(2, 'Le code de langue doit faire 2 caractères').optional(),

@@ -5,6 +5,7 @@ import { UserService } from './user.service';
 import { User } from './entities/user.entity';
 import { EmailModule } from '../email/email.module';
 import { Event } from 'src/event/entities/event.entity';
+import { GeolocationService } from '../common/services/geolocation.service';
 
 @Module({
   imports: [
@@ -12,7 +13,7 @@ import { Event } from 'src/event/entities/event.entity';
     EmailModule,
   ],
   controllers: [UserController],
-  providers: [UserService],
+  providers: [UserService, GeolocationService],
   exports: [UserService], // Export UserService pour l'utiliser dans d'autres modules (ex: AuthModule)
 })
 export class UserModule {}

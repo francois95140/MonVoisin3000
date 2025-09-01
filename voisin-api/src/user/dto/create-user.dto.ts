@@ -23,8 +23,6 @@ export class CreateUserDto implements CreateUserInput {
   @ApiPropertyOptional()
   quartier?:string;
   @ApiPropertyOptional()
-  address:string;
-  @ApiPropertyOptional()
   location?: string ;
   @ApiPropertyOptional()
   timezone?: string ;

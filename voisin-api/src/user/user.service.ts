@@ -10,6 +10,7 @@ import { ILike, Repository, Not, FindOneOptions } from 'typeorm';
 import { User, UserRole } from './entities/user.entity';
 import { Neo4jService } from 'nest-neo4j';
 import { EmailService } from '../email/email.service';
+import { GeolocationService } from '../common/services/geolocation.service';
 
 import {
   CreateUserInput,
@@ -19,18 +20,24 @@ import {
 import * as bcrypt from 'bcrypt';
 import { UserCreatedEvent } from './events/user-created.event';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Logger } from '@nestjs/common';
 
 @Injectable()
 export class UserService {
+  private readonly logger = new Logger(UserService.name);
+
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private eventEmitter: EventEmitter2,
     private readonly neo4jService: Neo4jService,
     private readonly emailService: EmailService,
+    private readonly geolocationService: GeolocationService,
   ) {}
 
   async create(input: CreateUserInput): Promise<User> {
+    console.log('CreateUserInput reçu:', JSON.stringify(input, null, 2));
+    
     // Vérifier si l'utilisateur existe déjà
     const existingUser = await this.userRepository.findOne({
       where: [
@@ -51,10 +58,27 @@ export class UserService {
     // Hasher le mot de passe
     const hashedPassword = await bcrypt.hash(input.password, 10);
 
+    // Calculer le quartier si une adresse est fournie (OBLIGATOIRE pour les permissions)
+    let quartier: string | undefined = undefined;
+    if (input.rue && input.ville) {
+      // Assembler l'adresse à partir des champs séparés
+      const addressToGeocode = `${input.rue}, ${input.cp || ''} ${input.ville}`.trim().replace(/,\s*,/g, ',');
+      console.log('Adresse assemblée pour géocodage:', addressToGeocode);
+      try {
+        const geolocationResult = await this.geolocationService.getNeighborhoodFromAddress(addressToGeocode);
+        quartier = geolocationResult.quartier;
+        console.log('Quartier calculé:', quartier);
+      } catch (error) {
+        this.logger.error(`Impossible de calculer le quartier pour l'utilisateur`, error.message);
+        throw new BadRequestException('Une adresse valide avec coordonnées géographiques est requise');
+      }
+    }
+
     // Créer le nouvel utilisateur
     const creatingUser = this.userRepository.create({
       ...input,
       password: hashedPassword,
+      quartier: quartier,
       isActive: true,
       isVerified: false,
     });
@@ -126,7 +150,7 @@ export class UserService {
   async findById(id: string): Promise<User> {
     const user = await this.userRepository.findOne({
       where: { id },
-      select: ['id', 'pseudo', 'email', 'tag', 'avatar', 'bio', 'isVerified', 'rue', 'cp', 'ville', 'address', 'isActive', 'role', 'lastLogin', 'createdAt'],
+      select: ['id', 'pseudo', 'email', 'tag', 'avatar', 'bio', 'isVerified', 'rue', 'cp', 'ville', 'isActive', 'role', 'lastLogin', 'createdAt'],
     });
 
     if (!user) {
@@ -157,15 +181,32 @@ export class UserService {
       input.password = await bcrypt.hash(input.password, 10);
     }*/
 
+    // Calculer le quartier si l'adresse a été modifiée
+    let updatedInput = { ...input };
+    if (input.rue || input.ville) {
+      // Assembler l'adresse à partir des champs disponibles
+      const addressToGeocode = `${input.rue || user.rue || ''}, ${input.cp || user.cp || ''} ${input.ville || user.ville || ''}`.trim().replace(/,\s*,/g, ',');
+      
+      if (addressToGeocode.trim()) {
+        try {
+          const geolocationResult = await this.geolocationService.getNeighborhoodFromAddress(addressToGeocode);
+          updatedInput.quartier = geolocationResult.quartier;
+        } catch (error) {
+          this.logger.error(`Impossible de recalculer le quartier lors de la mise à jour`, error.message);
+          throw new BadRequestException('Une adresse valide avec coordonnées géographiques est requise');
+        }
+      }
+    }
+
     // Vérifier si le nouvel email/username n'est pas déjà utilisé
-    if (input.email || input.pseudo) {
+    if (updatedInput.email || updatedInput.pseudo) {
       const whereConditions: any[] = [];
       
-      if (input.email) {
-        whereConditions.push({ email: input.email, id: Not(id) });
+      if (updatedInput.email) {
+        whereConditions.push({ email: updatedInput.email, id: Not(id) });
       }
-      if (input.pseudo) {
-        whereConditions.push({ pseudo: input.pseudo, id: Not(id) });
+      if (updatedInput.pseudo) {
+        whereConditions.push({ pseudo: updatedInput.pseudo, id: Not(id) });
       }
 
       console.log('Checking for existing user with conditions:', whereConditions);
@@ -181,7 +222,7 @@ export class UserService {
     }
 
     // Mettre à jour l'utilisateur
-    Object.assign(user, input);
+    Object.assign(user, updatedInput);
 
     return await this.userRepository.save(user);
   }

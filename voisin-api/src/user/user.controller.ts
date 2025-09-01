@@ -8,8 +8,10 @@ import {
   Query,
   UsePipes,
   ParseUUIDPipe,
+  Post,
 } from '@nestjs/common';
 import { UserService } from './user.service';
+import { GeolocationService } from '../common/services/geolocation.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiCreatedResponse } from '@nestjs/swagger';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
@@ -28,7 +30,10 @@ import { GetUser } from '../auth/decorators/user.decorator';
 @ApiTags('users')
 @Controller('users')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly geolocationService: GeolocationService,
+  ) {}
 
   @Get()
   @ApiBearerAuth()
@@ -138,5 +143,27 @@ export class UserController {
   ) {
     await this.userService.changePassword(user.id, changePasswordDto.currentPassword, changePasswordDto.newPassword);
     return { message: 'Mot de passe mis à jour avec succès' };
+  }
+
+  @Post('test-quartier')
+  @ApiOperation({ summary: 'Tester le calcul de quartier pour une adresse' })
+  @ApiResponse({ status: 200, description: 'Quartier calculé avec succès.' })
+  async testQuartier(
+    @Body() body: { address: string },
+  ) {
+    try {
+      const result = await this.geolocationService.getNeighborhoodFromAddress(body.address);
+      return {
+        success: true,
+        data: result,
+        message: 'Quartier calculé avec succès'
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message,
+        message: 'Erreur lors du calcul du quartier'
+      };
+    }
   }
 }
