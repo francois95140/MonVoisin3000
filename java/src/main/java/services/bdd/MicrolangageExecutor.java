@@ -117,14 +117,18 @@ public class MicrolangageExecutor {
                 boolean isWindows = System.getProperty("os.name").toLowerCase().contains("win");
                 
                 if (isWindows) {
+                    // Échapper les guillemets pour Windows cmd
+                    String escapedQuery = query.replace("\"", "\\\"");
                     pb = new ProcessBuilder("cmd", "/c",
                         "cd ..\\microlangage && " +
-                        "venv\\Scripts\\python.exe SQLUnification1.py " + databaseType + " \"" + query + "\"");
+                        "venv\\Scripts\\python.exe SQLUnification1.py " + databaseType + " \"" + escapedQuery + "\"");
                 } else {
+                    // Échapper les quotes pour bash
+                    String escapedQuery = query.replace("'", "'\"'\"'");
                     pb = new ProcessBuilder("bash", "-c",
                         "cd ../microlangage && " +
                         "source venv/bin/activate > /dev/null 2>&1; " +
-                        "python3 SQLUnification1.py " + databaseType + " \"" + query + "\"");
+                        "python3 SQLUnification1.py " + databaseType + " '" + escapedQuery + "'");
                 }
                 System.out.println("🔧 Exécution Python: " + databaseType + " \"" + query + "\"");
             }

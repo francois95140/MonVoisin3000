@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 interface AddressFieldProps {
   id?: string;
@@ -15,6 +15,9 @@ const AddressField: React.FC<AddressFieldProps> = ({
   defaultValue = "",
   userData = {}
 }) => {
+  const [rue, setRue] = useState(userData.rue || '');
+  const [cp, setCp] = useState(userData.codePostal || '');
+  const [ville, setVille] = useState(userData.ville || '');
   const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.value.length > 3) {
       fetch(
@@ -50,13 +53,21 @@ const AddressField: React.FC<AddressFieldProps> = ({
               userData.address = data.features[0].properties.label;
             }
 
-            // Mise à jour des champs cachés
+            // Mise à jour des états et des champs cachés
+            const newRue = data.features[0].properties.name;
+            const newCp = data.features[0].properties.postcode;
+            const newVille = data.features[0].properties.city;
+            
+            setRue(newRue);
+            setCp(newCp);
+            setVille(newVille);
+            
             const rueInput = document.getElementById("rue") as HTMLInputElement;
             const cpInput = document.getElementById("cp") as HTMLInputElement;
             const villeInput = document.getElementById("ville") as HTMLInputElement;
-            if (rueInput) rueInput.value = data.features[0].properties.name;
-            if (cpInput) cpInput.value = data.features[0].properties.postcode;
-            if (villeInput) villeInput.value = data.features[0].properties.city;
+            if (rueInput) rueInput.value = newRue;
+            if (cpInput) cpInput.value = newCp;
+            if (villeInput) villeInput.value = newVille;
           }
         });
     }
@@ -79,9 +90,9 @@ const AddressField: React.FC<AddressFieldProps> = ({
           onChange={handleAddressChange}
           className="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
         />
-        <input type="hidden" name="rue" id="rue" defaultValue={userData.rue || ''} />
-        <input type="hidden" name="cp" id="cp" defaultValue={userData.codePostal || ''} />
-        <input type="hidden" name="ville" id="ville" defaultValue={userData.ville || ''} />
+        <input type="hidden" name="rue" id="rue" value={rue} />
+        <input type="hidden" name="cp" id="cp" value={cp} />
+        <input type="hidden" name="ville" id="ville" value={ville} />
       </div>
       <div className="mb-4">
         <div

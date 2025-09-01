@@ -31,7 +31,6 @@ public class MainController implements Initializable {
     @FXML
     private HBox pluginContainer;
 
-    private boolean bddStatusChecked = false;
 
     private List<Article> articles;
 
@@ -105,8 +104,9 @@ public class MainController implements Initializable {
 
             boolean premierVille = true;
             for (String ville : villes) {
-                System.out.println(ville);
+                System.out.println("DEBUG - Traitement ville: " + ville);
                 articles = newsService.getNews(ville, LIMITE_ARTICLES);
+                System.out.println("DEBUG - Articles trouvés pour " + ville + ": " + (articles != null ? articles.size() : 0));
                 if (articles != null && !articles.isEmpty()) {
                     if (!premierVille) jsonBuilder.append(",");
                     premierVille = false;
@@ -138,19 +138,77 @@ public class MainController implements Initializable {
             }
             jsonBuilder.append("}}");
 
-            String mongoResult = BddNew.request("mongo", "INSERT INTO news_collection VALUES ('" + jsonBuilder.toString().replace("'", "\\'") + "')");
-            if (mongoResult != null && !mongoResult.startsWith("erreur:")) {
-                Alert.showSuccessAlert("Succès", "Articles sauvegardés dans MongoDB");
+            String finalJson = jsonBuilder.toString();
+            System.out.println("DEBUG - JSON final construit (début): " + finalJson.substring(0, Math.min(200, finalJson.length())) + "...");
+            System.out.println("DEBUG - Taille du JSON: " + finalJson.length() + " caractères");
+            
+            if (villes.isEmpty()) {
+                System.out.println("DEBUG - Aucune ville trouvée, création JSON vide");
+                Alert.showWarningAlert("Information", "Aucune ville trouvée dans la base d'utilisateurs");
+                return;
+            }
+            
+            // Validation basique du JSON
+            if (!finalJson.startsWith("{") || !finalJson.endsWith("}")) {
+                System.err.println("DEBUG - JSON malformé: ne commence pas par { ou ne finit pas par }");
+                Alert.showErrorAlert("Erreur", "Données JSON malformées");
+                return;
+            }
+            
+            // Utiliser des guillemets simples pour éviter les conflits avec les guillemets doubles du JSON
+            try {
+                System.out.println("DEBUG - JSON original: " + finalJson.substring(0, Math.min(200, finalJson.length())) + "...");
+                System.out.println("DEBUG - Taille JSON: " + finalJson.length() + " caractères");
+                
+                // Entourer le JSON avec des guillemets simples pour éviter tout problème d'échappement
+                String mongoResult = BddNew.requestWithDebug("mongo", "INSERT INTO news_collection VALUES_JSON ('" + finalJson.replace("'", "\\'") + "')");
+                System.out.println("DEBUG - Résultat MongoDB: " + mongoResult);
+                
+                if (mongoResult != null && !mongoResult.startsWith("erreur:") && !mongoResult.startsWith("Erreur")) {
+                    Alert.showSuccessAlert("Succès", 
+                        "Articles sauvegardés dans MongoDB pour " + villes.size() + " ville(s)\n" +
+                        "Total d'articles: " + articles.size());
+                } else {
+                    System.err.println("DEBUG - Échec sauvegarde MongoDB: " + mongoResult);
+                    
+                    // Messages d'erreur plus spécifiques
+                    String errorMsg = "Échec de la sauvegarde dans MongoDB";
+                    if (mongoResult != null) {
+                        if (mongoResult.contains("JSON")) {
+                            errorMsg += "\nErreur de traitement JSON";
+                        } else if (mongoResult.contains("JSON")) {
+                            errorMsg += "\nErreur de parsing JSON";
+                        } else if (mongoResult.contains("connexion")) {
+                            errorMsg += "\nProblème de connexion à la base de données";
+                        }
+                        errorMsg += "\nDétails: " + mongoResult;
+                    }
+                    
+                    Alert.showErrorAlert("Erreur", errorMsg);
+                }
+            } catch (Exception jsonEx) {
+                System.err.println("DEBUG - Erreur lors du traitement JSON: " + jsonEx.getMessage());
+                Alert.showErrorAlert("Erreur", "Erreur lors du traitement JSON: " + jsonEx.getMessage());
             }
         } catch (Exception e) {
-            Alert.showErrorAlert("erreur", "erreur lors du chargement des articles.");
+            System.err.println("DEBUG - Exception dans chargerArticles: " + e.getMessage());
+            e.printStackTrace();
+            Alert.showErrorAlert("Erreur", "Erreur lors du chargement des articles: " + e.getMessage());
         }
     }
 
     private String escapeJson(String text) {
         if (text == null) return "";
-        return text.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n");
+        // Échappement JSON complet pour insertion directe
+        return text.replace("\\", "\\\\")
+                  .replace("\"", "\\\"")
+                  .replace("\n", "\\n")
+                  .replace("\r", "\\r")
+                  .replace("\t", "\\t")
+                  .replace("\b", "\\b")
+                  .replace("\f", "\\f");
     }
+
 
     private List<String> getVillesDistinctFromUsers() {
         try {
@@ -172,9 +230,22 @@ public class MainController implements Initializable {
                 
                 if (ligne.contains("\"ville\":")) {
                     System.out.println("DEBUG - Ligne contient 'ville'");
-                    // Recherche plus robuste du champ ville
-                    String pattern = "\"ville\":\"";
+                    
+                    // D'abord vérifier si c'est null
+                    if (ligne.contains("\"ville\": null") || ligne.contains("\"ville\":null")) {
+                        System.out.println("DEBUG - Ville est null, ignoré");
+                        continue;
+                    }
+                    
+                    // Recherche plus robuste du champ ville pour les valeurs non-null
+                    String pattern = "\"ville\": \"";
                     int startIndex = ligne.indexOf(pattern);
+                    if (startIndex == -1) {
+                        // Essayer sans espace
+                        pattern = "\"ville\":\"";
+                        startIndex = ligne.indexOf(pattern);
+                    }
+                    
                     if (startIndex != -1) {
                         int valueStart = startIndex + pattern.length();
                         int valueEnd = ligne.indexOf("\"", valueStart);

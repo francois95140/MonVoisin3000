@@ -7,6 +7,8 @@ import psycopg2
 import os
 import dotenv
 import json
+import base64
+import binascii
 # from libs.genereTreeGraphviz2 import printTreeGraph
 
 # Chargement des variables d'environnement
@@ -26,6 +28,8 @@ reserved = {
     'INCERT': 'INSERT',
     'INTO': 'INTO',
     'VALUES': 'VALUES',
+    'VALUES_BASE64': 'VALUES_BASE64',
+    'VALUES_JSON': 'VALUES_JSON',
     'UPDATE': 'UPDATE',
     'SET': 'SET',
     'DELETE': 'DELETE',
@@ -52,7 +56,38 @@ tokens = [
     'STRING',
     'NUMBER',
     'STAR',
+    'COLON',
+    'LBRACKET',
+    'RBRACKET',
+    'LBRACE',
+    'RBRACE',
+    'AMPERSAND',
+    'SPECIAL_CHAR',
+    'DOT',
+    'BACKSLASH',
+    'JSON_STRING',
 ] + list(set(reserved.values()))  # Utiliser set pour éviter les doublons
+
+# IMPORTANT: L'ordre des définitions importe pour la priorité dans ply.lex
+# Les chaînes doivent être définies EN PREMIER pour avoir la priorité
+
+# JSON complexe - PRIORITÉ ABSOLUE (doit être définie avant t_STRING)
+def t_JSON_STRING(t):
+    r"'\{[^']*\}'"  # Commence par '{ et finit par }'
+    t.value = t.value[1:-1]  # Enlever les guillemets
+    return t
+
+# Valeurs sous forme de chaînes - Version simple pour les autres cas
+def t_STRING(t):
+    r'''('[^']*')|("[^"]*")'''
+    t.value = t.value[1:-1]  # Enlever les guillemets (simples ou doubles)
+    return t
+
+# Traitement des mots
+def t_NAME(t):
+    r'[a-zA-Z_][a-zA-Z0-9_]*'
+    t.type = reserved.get(t.value.upper(), 'NAME')
+    return t
 
 # Règles de syntaxe pour les tokens
 t_COMMA = r','
@@ -65,21 +100,22 @@ t_GT = r'>'
 t_LTE = r'<='
 t_GTE = r'>='
 t_STAR = r'\*'
+t_COLON = r':'
+t_LBRACKET = r'\['
+t_RBRACKET = r'\]'
+t_LBRACE = r'\{'
+t_RBRACE = r'\}'
+t_AMPERSAND = r'&'
+t_DOT = r'\.'
+t_BACKSLASH = r'\\'
+
+# Caractères spéciaux - les ignorer silencieusement dans le parsing principal
+def t_SPECIAL_CHAR(t):
+    r'[àáâãäåæçèéêëìíîïðñòóôõöøùúûüýÿ?%/\-«»]'
+    pass  # Ignorer ces caractères
 
 # Ignorer les espaces et tabulations
 t_ignore = ' \t\n'
-
-# Traitement des mots
-def t_NAME(t):
-    r'[a-zA-Z_][a-zA-Z0-9_]*'
-    t.type = reserved.get(t.value.upper(), 'NAME')
-    return t
-
-# Valeurs sous forme de chaînes
-def t_STRING(t):
-    r"'[^']*'"
-    t.value = t.value[1:-1]  # Enlever les guillemets
-    return t
 
 # Valeurs numériques
 def t_NUMBER(t):
@@ -182,6 +218,7 @@ def p_comp_op(p):
 
 def p_value(p):
     """value : STRING
+             | JSON_STRING
              | NUMBER
              | TRUE
              | FALSE
@@ -197,11 +234,24 @@ def p_value(p):
 
 def p_insert_commande(p):
     """insert_commande : INSERT INTO table_name VALUES LPAREN value_list RPAREN
-                       | INSERT INTO table_name LPAREN column_list RPAREN VALUES LPAREN value_list RPAREN"""
-    if len(p) == 8:  # Sans liste de colonnes
-        p[0] = {'type': 'INSERT', 'table': p[3], 'columns': None, 'values': p[6]}
-    else:  # Avec liste de colonnes
-        p[0] = {'type': 'INSERT', 'table': p[3], 'columns': p[5], 'values': p[9]}
+                       | INSERT INTO table_name LPAREN column_list RPAREN VALUES LPAREN value_list RPAREN
+                       | INSERT INTO table_name VALUES_BASE64 LPAREN STRING RPAREN
+                       | INSERT INTO table_name VALUES_JSON LPAREN STRING RPAREN
+                       | INSERT INTO table_name VALUES_JSON LPAREN JSON_STRING RPAREN"""
+    if len(p) == 7 and p[4] in ['VALUES_BASE64', 'VALUES_JSON']:  # VALUES_BASE64 ou VALUES_JSON avec une seule chaîne
+        if p[4] == 'VALUES_BASE64':
+            p[0] = {'type': 'INSERT', 'table': p[3], 'columns': None, 'values': None, 'base64_data': p[6], 'json_data': None}
+        elif p[4] == 'VALUES_JSON':
+            p[0] = {'type': 'INSERT', 'table': p[3], 'columns': None, 'values': None, 'base64_data': None, 'json_data': p[6]}
+    elif len(p) == 8 and p[4] in ['VALUES_BASE64', 'VALUES_JSON']:  # Gestion quand il y a des parenthèses autour du JSON/Base64
+        if p[4] == 'VALUES_BASE64':
+            p[0] = {'type': 'INSERT', 'table': p[3], 'columns': None, 'values': None, 'base64_data': p[6], 'json_data': None}
+        elif p[4] == 'VALUES_JSON':
+            p[0] = {'type': 'INSERT', 'table': p[3], 'columns': None, 'values': None, 'base64_data': None, 'json_data': p[6]}
+    elif len(p) == 8 and p[4] == 'VALUES':  # Sans liste de colonnes (VALUES classique)
+        p[0] = {'type': 'INSERT', 'table': p[3], 'columns': None, 'values': p[6], 'base64_data': None, 'json_data': None}
+    else:  # Avec liste de colonnes (VALUES classique)
+        p[0] = {'type': 'INSERT', 'table': p[3], 'columns': p[5], 'values': p[9], 'base64_data': None, 'json_data': None}
 
 def p_value_list(p):
     """value_list : value
@@ -491,16 +541,87 @@ def execute_mongodb(stmt, debug=False):
         elif stmt['type'] == 'INSERT':
             collection = db[stmt['table']]
             
-            if stmt['columns']:
-                document = dict(zip(stmt['columns'], stmt['values']))
+            # Vérifier si c'est des données Base64
+            if stmt.get('base64_data'):
+                try:
+                    # Décoder les données Base64
+                    decoded_bytes = base64.b64decode(stmt['base64_data'])
+                    decoded_json = decoded_bytes.decode('utf-8')
+                    
+                    # Parser le JSON décodé
+                    document = json.loads(decoded_json)
+                    
+                    if debug:
+                        print(f"Données Base64 décodées: {decoded_json[:200]}...")
+                        print(f"Document parsé type: {type(document)}")
+                    
+                    # Gérer les tableaux JSON pour Base64 aussi
+                    if isinstance(document, list):
+                        if debug:
+                            print(f"Base64 contient un tableau de {len(document)} éléments")
+                        
+                        # Insérer tous les documents du tableau
+                        result = collection.insert_many(document)
+                        return f"Documents insérés: {len(result.inserted_ids)} documents avec les IDs: {result.inserted_ids}"
+                    
+                except binascii.Error as e:
+                    return f"Erreur de décodage Base64: {e}"
+                except json.JSONDecodeError as e:
+                    return f"Erreur de parsing JSON après décodage Base64: {e}"
+                except UnicodeDecodeError as e:
+                    return f"Erreur d'encodage UTF-8 après décodage Base64: {e}"
+            elif stmt.get('json_data'):
+                try:
+                    # Nettoyer les échappements invalides avant de parser le JSON
+                    json_data = stmt['json_data']
+                    if debug:
+                        print(f"JSON brut reçu: {json_data[:200]}...")
+                    
+                    # Nettoyer les échappements Java qui ne sont pas valides en JSON
+                    json_data = json_data.replace("\\'", "'")  # L'échappement \' n'est pas valide en JSON
+                    json_data = json_data.replace("\\\\", "\\")  # Double échappement des backslashes
+                    
+                    if debug:
+                        print(f"JSON nettoyé: {json_data[:200]}...")
+                    
+                    # Parser le JSON direct
+                    parsed_json = json.loads(json_data)
+                    
+                    if debug:
+                        print(f"JSON direct reçu: {stmt['json_data'][:200]}...")
+                        print(f"Document parsé type: {type(parsed_json)}")
+                    
+                    # Gérer les tableaux JSON - insérer chaque élément comme document séparé
+                    if isinstance(parsed_json, list):
+                        if debug:
+                            print(f"JSON est un tableau de {len(parsed_json)} éléments")
+                        
+                        # Insérer tous les documents du tableau
+                        result = collection.insert_many(parsed_json)
+                        return f"Documents insérés: {len(result.inserted_ids)} documents avec les IDs: {result.inserted_ids}"
+                    else:
+                        # Un seul document
+                        document = parsed_json
+                    
+                except json.JSONDecodeError as e:
+                    return f"Erreur de parsing JSON: {e}"
             else:
-                # Sans colonnes spécifiées, on suppose que les valeurs forment un document
-                document = dict()
-                for i, value in enumerate(stmt['values']):
-                    document[f'field{i}'] = value
+                # Mode classique avec colonnes et valeurs
+                if stmt['columns']:
+                    document = dict(zip(stmt['columns'], stmt['values']))
+                else:
+                    # Sans colonnes spécifiées, on suppose que les valeurs forment un document
+                    document = dict()
+                    for i, value in enumerate(stmt['values']):
+                        document[f'field{i}'] = value
             
-            result = collection.insert_one(document)
-            return f"Document inséré avec l'ID: {result.inserted_id}"
+            # Cette section ne s'exécute que si on n'est pas dans le cas des tableaux JSON/Base64
+            if isinstance(document, dict):
+                result = collection.insert_one(document)
+                return f"Document inséré avec l'ID: {result.inserted_id}"
+            else:
+                # Gérer le cas où document n'est ni dict ni list (ne devrait pas arriver)
+                return f"Erreur: Type de document non supporté: {type(document)}"
             
         elif stmt['type'] == 'UPDATE':
             collection = db[stmt['table']]
@@ -668,22 +789,81 @@ def execute_neo4j(stmt, debug=False):
 # Construire le parser avec gestion des conflits
 parser = yacc.yacc(debug=True)
 
+# Préprocesseur pour gérer les gros blocs JSON
+json_placeholders = {}
+json_counter = 0
+
+def preprocess_json_blocks(sql_command):
+    """Remplace les gros blocs JSON par des placeholders simples"""
+    global json_placeholders, json_counter
+    json_placeholders = {}
+    json_counter = 0
+    
+    # Chercher manuellement VALUES_JSON ('...') et extraire tout entre les quotes
+    import re
+    
+    result = sql_command
+    values_json_pos = result.find("VALUES_JSON")
+    
+    if values_json_pos != -1:
+        # Trouver le début du JSON (après la première quote)
+        start_quote = result.find("'", values_json_pos)
+        if start_quote != -1:
+            # Trouver la fin du JSON (dernière quote avant la parenthèse fermante)
+            # Chercher depuis la fin
+            end_paren = result.rfind(")")
+            if end_paren != -1:
+                # Chercher la dernière quote avant la parenthèse
+                end_quote = result.rfind("'", start_quote + 1, end_paren)
+                if end_quote != -1 and end_quote > start_quote:
+                    # Extraire le contenu JSON
+                    json_content = result[start_quote + 1:end_quote]
+                    placeholder = f"JSON_PLACEHOLDER_{json_counter}"
+                    json_placeholders[placeholder] = json_content
+                    json_counter += 1
+                    
+                    # Remplacer dans la commande
+                    result = (result[:start_quote + 1] + 
+                             placeholder + 
+                             result[end_quote:])
+    
+    return result
+
+def restore_json_blocks(parsed_result):
+    """Restaure les blocs JSON dans le résultat parsé"""
+    if isinstance(parsed_result, dict):
+        for key, value in parsed_result.items():
+            if key == 'json_data' and value in json_placeholders:
+                parsed_result[key] = json_placeholders[value]
+            elif isinstance(value, (dict, list)):
+                restore_json_blocks(value)
+    elif isinstance(parsed_result, list):
+        for item in parsed_result:
+            restore_json_blocks(item)
+
 # Fonction principale d'exécution avec correction orthographique
 def execute(db_type, sql_command, debug=False):
-    # Analyse lexicale et syntaxique
+    # Préprocessing des blocs JSON
     try:
+        processed_command = preprocess_json_blocks(sql_command)
+        if debug and processed_command != sql_command:
+            print(f"Commande préprocessée: {processed_command[:200]}...")
+        
         # Correction des erreurs d'orthographe courantes
-        sql_command_corrected = sql_command.lower()
+        sql_command_corrected = processed_command.lower()
         if "incert" in sql_command_corrected:
             if debug:
                 print("Correction de 'incert' en 'insert'")
-            sql_command = sql_command.lower().replace("incert", "insert")
+            processed_command = processed_command.lower().replace("incert", "insert")
         
-        lexer.input(sql_command)
-        result = parser.parse(sql_command, lexer=lexer)
+        lexer.input(processed_command)
+        result = parser.parse(processed_command, lexer=lexer)
         
         if not result:
             return "Erreur d'analyse: impossible de parser la commande"
+        
+        # Restaurer les blocs JSON
+        restore_json_blocks(result)
         
         # Exécution de la commande
         return execute_sql_statement(result, db_type, debug)
