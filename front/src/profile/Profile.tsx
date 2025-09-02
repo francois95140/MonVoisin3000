@@ -21,7 +21,9 @@ const ProfilePage: React.FC<ProfilePageProps> = () => {
   const [formData, setFormData] = useState({
     pseudo: '',
     email: '',
-    address: '',
+    rue: '',
+    cp: '',
+    ville: '',
     bio: '',
     tag:'',
     avatar: '',
@@ -68,7 +70,9 @@ const ProfilePage: React.FC<ProfilePageProps> = () => {
         setFormData({
           pseudo: userDataResponse.pseudo || '',
           email: userDataResponse.email || '',
-          address: userDataResponse.address || '',
+          rue: userDataResponse.rue || '',
+          cp: userDataResponse.cp || '',
+          ville: userDataResponse.ville || '',
           bio: userDataResponse.bio || '',
           tag: userDataResponse.tag || '',
           avatar: userDataResponse.avatar || '',
@@ -293,7 +297,12 @@ const ProfilePage: React.FC<ProfilePageProps> = () => {
                 </div>
                 <div>
                   <span className="text-sm">Adresse :</span>
-                  <p className="font-medium text-white">{formData.address}</p>
+                  <p className="font-medium text-white">
+                    {formData.rue && formData.ville 
+                      ? `${formData.rue}, ${formData.cp || ''} ${formData.ville}`.replace(/,\s*,/g, ',').trim()
+                      : 'Non renseignée'
+                    }
+                  </p>
                 </div>
               </div>
               
@@ -308,15 +317,13 @@ const ProfilePage: React.FC<ProfilePageProps> = () => {
                   userData: {
                     pseudo: formData.pseudo,
                     email: formData.email,
-                    address: formData.address,
                     bio: formData.bio,
                     tag: formData.tag,
                     avatar: formData.avatar,
-                    // Extraction des composants d'adresse si disponibles  
-                    rue: userData?.rue || formData.address?.split(',')[0] || '',
-                    ville: userData?.ville || formData.address?.split(',').pop()?.trim() || '',
-                    codePostal: userData?.cp || (formData.address?.match(/\d{5}/)?.[0]) || '',
-                    cp: userData?.cp || (formData.address?.match(/\d{5}/)?.[0]) || ''
+                    rue: formData.rue,
+                    cp: formData.cp,
+                    ville: formData.ville,
+                    codePostal: formData.cp
                   }
                 }}
                 className="w-full"

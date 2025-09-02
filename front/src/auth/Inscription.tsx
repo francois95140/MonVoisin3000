@@ -77,9 +77,8 @@ async function handleInscription(event: React.FormEvent<HTMLFormElement>, isInsc
       if (hasChanged(formValues.pseudo, initialUserData.pseudo)) bodyData.pseudo = formValues.pseudo;
       if (hasChanged(formValues.bio, initialUserData.bio)) bodyData.bio = formValues.bio;
       if (hasChanged(formValues.rue, initialUserData.rue)) bodyData.rue = formValues.rue;
-      if (hasChanged(formValues.codePostal, initialUserData.codePostal)) bodyData.cp = formValues.codePostal;
+      if (hasChanged(formValues.codePostal, initialUserData.cp || initialUserData.codePostal)) bodyData.cp = formValues.codePostal;
       if (hasChanged(formValues.ville, initialUserData.ville)) bodyData.ville = formValues.ville;
-      if (hasChanged(formValues.adresse, initialUserData.address)) bodyData.address = formValues.adresse;
       
       // Vérification de l'avatar modifié
       if (avatarBase64 && avatarBase64.trim() !== '') {
@@ -170,10 +169,10 @@ async function handleInscription(event: React.FormEvent<HTMLFormElement>, isInsc
 interface UserData {
   pseudo?: string;
   email?: string;
-  address?: string;
   bio?: string;
   tag?: string;
   rue?: string;
+  cp?: string;
   codePostal?: string;
   ville?: string;
   avatar?: string;
@@ -232,7 +231,13 @@ function Inscription({ isInscription = true, userData = {} }: { isInscription?: 
               defaultValue={userData.email || ''}
             />
             <AddressField
-              defaultValue={userData.address || ''}
+              defaultValue={
+                isInscription 
+                  ? ""
+                  : userData.rue && userData.ville 
+                    ? `${userData.rue}, ${userData.cp || userData.codePostal || ''} ${userData.ville}`.replace(/,\s*,/g, ',').trim()
+                    : ""
+              }
               userData={userData}
             />
             <TextArea

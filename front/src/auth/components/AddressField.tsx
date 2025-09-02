@@ -16,7 +16,7 @@ const AddressField: React.FC<AddressFieldProps> = ({
   userData = {}
 }) => {
   const [rue, setRue] = useState(userData.rue || '');
-  const [cp, setCp] = useState(userData.codePostal || '');
+  const [cp, setCp] = useState(userData.cp || userData.codePostal || '');
   const [ville, setVille] = useState(userData.ville || '');
   const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.value.length > 3) {
