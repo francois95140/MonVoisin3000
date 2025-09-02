@@ -31,7 +31,6 @@ const Friends: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'friends' | 'pending' | 'received'>('friends');
 
-  // Fonction utilitaire pour obtenir l'ID utilisateur
   const getUserId = (user: Friend): string => {
     return user.id || user.userPgId || '';
   };
@@ -51,7 +50,6 @@ const Friends: React.FC = () => {
         return;
       }
 
-      // Récupérer les amis
       const friendsResponse = await fetch(`${apiUrl}/api/friends`, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -59,7 +57,6 @@ const Friends: React.FC = () => {
         }
       });
 
-      // Récupérer les demandes envoyées
       const pendingResponse = await fetch(`${apiUrl}/api/friends/requests/outgoing`, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -67,7 +64,6 @@ const Friends: React.FC = () => {
         }
       });
 
-      // Récupérer les demandes reçues
       const receivedResponse = await fetch(`${apiUrl}/api/friends/requests/incoming`, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -77,17 +73,22 @@ const Friends: React.FC = () => {
 
       if (friendsResponse.ok) {
         const friendsData = await friendsResponse.json();
-        setFriends(friendsData.map((friend: any) => ({ ...friend, status: 'friends' as const })));
+        const friendsList = friendsData.data || friendsData;
+        if (Array.isArray(friendsList)) {
+          setFriends(friendsList.map((friend: any) => ({ ...friend, status: 'friends' as const })));
+        }
       }
 
       if (pendingResponse.ok) {
         const pendingData = await pendingResponse.json();
-        setPendingRequests(pendingData.map((friend: any) => ({ ...friend, status: 'pending' as const })));
+        const pendingList = Array.isArray(pendingData) ? pendingData : [];
+        setPendingRequests(pendingList.map((friend: any) => ({ ...friend, status: 'pending' as const })));
       }
 
       if (receivedResponse.ok) {
         const receivedData = await receivedResponse.json();
-        setReceivedRequests(receivedData.map((friend: any) => ({ ...friend, status: 'received' as const })));
+        const receivedList = Array.isArray(receivedData) ? receivedData : [];
+        setReceivedRequests(receivedList.map((friend: any) => ({ ...friend, status: 'received' as const })));
       }
     } catch (error) {
       console.error('Erreur lors de la récupération des amis:', error);
@@ -113,7 +114,7 @@ const Friends: React.FC = () => {
 
       if (response.ok) {
         toast.success('Demande d\'ami acceptée');
-        fetchFriendsData(); // Refresh data
+        fetchFriendsData();
       } else {
         throw new Error('Erreur lors de l\'acceptation');
       }
@@ -139,7 +140,7 @@ const Friends: React.FC = () => {
 
       if (response.ok) {
         toast.success('Demande d\'ami refusée');
-        fetchFriendsData(); // Refresh data
+        fetchFriendsData();
       } else {
         throw new Error('Erreur lors du refus');
       }
@@ -149,14 +150,49 @@ const Friends: React.FC = () => {
     }
   };
 
-  const handleCancelRequest = async (friendId: string) => {
+  const handleRemoveFriend = async (friendId: string) => {
     try {
-      console.log('🔥 Annulation demande ami - ID:', friendId);
       const apiUrl = import.meta.env.VITE_API_URL;
       const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
       
-      console.log('🔥 API URL:', apiUrl);
-      console.log('🔥 Payload:', { to: friendId });
+      if (!confirm('Êtes-vous sûr de vouloir supprimer cet ami ?')) {
+        return;
+      }
+      
+      const response = await fetch(`${apiUrl}/api/friends/remove`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ friendId: friendId })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success) {
+          toast.success('Ami supprimé avec succès');
+          fetchFriendsData();
+        } else {
+          toast.error(result.message || 'Erreur lors de la suppression');
+        }
+      } else {
+        throw new Error('Erreur lors de la suppression');
+      }
+    } catch (error) {
+      console.error('Erreur:', error);
+      toast.error('Erreur lors de la suppression de l\'ami');
+    }
+  };
+
+  const handleCancelRequest = async (friendId: string) => {
+    try {
+      console.log('annulation demande ami - id:', friendId);
+      const apiUrl = import.meta.env.VITE_API_URL;
+      const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+      
+      console.log('api url:', apiUrl);
+      console.log('payload:', { to: friendId });
       
       const response = await fetch(`${apiUrl}/api/friends/cancel`, {
         method: 'POST',
@@ -167,34 +203,21 @@ const Friends: React.FC = () => {
         body: JSON.stringify({ to: friendId })
       });
 
-      console.log('🔥 Response status:', response.status);
+      console.log('response status:', response.status);
       
       if (response.ok) {
         const result = await response.json();
-        console.log('🔥 Success result:', result);
+        console.log('success result:', result);
         toast.success('Demande d\'ami annulée');
-        fetchFriendsData(); // Refresh data
+        fetchFriendsData();
       } else {
         const errorData = await response.json();
-        console.error('🔥 Error response:', errorData);
+        console.error('error response:', errorData);
         throw new Error(`Erreur ${response.status}: ${errorData.message || 'Erreur lors de l\'annulation'}`);
       }
     } catch (error) {
-      console.error('🔥 Erreur complète:', error);
+      console.error('erreur complète:', error);
       toast.error('Erreur lors de l\'annulation de la demande');
-    }
-  };
-
-  const handleRemoveFriend = async (friendId: string) => {
-    if (!confirm('Êtes-vous sûr de vouloir retirer cet ami ?')) return;
-
-    try {
-      // TODO: Implémenter l'endpoint remove friend dans le backend
-      toast.info('Fonctionnalité de suppression d\'ami à implémenter');
-      console.log('Remove friend:', friendId);
-    } catch (error) {
-      console.error('Erreur:', error);
-      toast.error('Erreur lors de la suppression de l\'ami');
     }
   };
 
@@ -359,7 +382,7 @@ const Friends: React.FC = () => {
                       <Button
                         variant="secondary"
                         size="sm"
-                        onClick={() => {/* TODO: Open chat */}}
+                        onClick={() => {}}
                         className="flex items-center space-x-1"
                       >
                         <IonIcon name="chatbubble" className="w-4 h-4" />

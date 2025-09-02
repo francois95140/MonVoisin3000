@@ -63,7 +63,6 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
       if (response.ok) {
         setFriendshipStatus('sent');
         toast.success(`Demande d'ami envoyée à ${user.pseudo}`);
-        onAddFriend(user.id);
       } else {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Erreur lors de l\'envoi de la demande d\'ami');
@@ -342,7 +341,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
             
             {friendshipStatus === 'friends' && (
               <Button
-                onClick={() => {/* TODO: View full profile */}}
+                onClick={() => {}}
                 variant="secondary"
                 className="flex-1"
               >

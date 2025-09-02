@@ -10,7 +10,6 @@ import UserSearchModal from './UserSearchModal';
 import UserProfileModal from './UserProfileModal';
 
 const NewConversations: React.FC = () => {
-  // Navigation indicator management
   document.getElementById("indicator")?.classList.remove("filter", "opacity-0");
   setTimeout(() => {
     const indicator = document.getElementById("indicator");
@@ -18,7 +17,6 @@ const NewConversations: React.FC = () => {
       const list = indicator.parentNode.children;
       Array.from(list).forEach((el) => el.classList.remove("active"));
       
-      // Find and activate the correct nav item based on current path
       const currentPath = window.location.pathname;
       if (currentPath.startsWith("/convs")) {
         const convsItem = Array.from(list).find(el => 
@@ -40,7 +38,6 @@ const NewConversations: React.FC = () => {
   const { conversations, loading, error, refetch } = useNewConversations(currentUserId);
   const { connect, isConnected, createOrGetEventConversation } = useWebSocket();
 
-  // Récupérer l'ID de l'utilisateur connecté
   useEffect(() => {
     const getUserId = async () => {
       const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
@@ -60,10 +57,8 @@ const NewConversations: React.FC = () => {
           setCurrentUserId(userData.id);
         } else if (response.status === 401) {
           console.error('Token invalide, redirection vers connexion');
-          // Nettoyer le token invalide
           localStorage.removeItem('authToken');
           sessionStorage.removeItem('authToken');
-          // Rediriger vers la page de connexion
           window.location.href = '/connexion';
         }
       } catch (error) {
@@ -74,28 +69,24 @@ const NewConversations: React.FC = () => {
     getUserId();
   }, []);
 
-  // WebSocket connecté globalement via main.tsx, plus besoin de le faire ici
   useEffect(() => {
     if (currentUserId && isConnected) {
-      console.log('✅ WebSocket déjà connecté globalement pour utilisateur:', currentUserId);
+      console.log('websocket déjà connecté globalement pour utilisateur:', currentUserId);
     } else if (currentUserId && !isConnected) {
-      console.log('⏳ En attente de la connexion WebSocket globale...');
+      console.log('en attente de la connexion websocket globale...');
     }
   }, [currentUserId, isConnected]);
 
-  // Effet pour créer automatiquement la conversation d'événement si on arrive avec ces paramètres
   useEffect(() => {
     const handleEventConversation = async () => {
-      // Vérifier si on a les paramètres d'événement dans l'état de navigation
       const state = location.state as any;
       if (state?.openEventChat && state?.eventId && state?.eventTitle && currentUserId && isConnected) {
-        console.log('🎯 Création automatique de conversation événement:', state.eventId, state.eventTitle);
+        console.log('création automatique de conversation événement:', state.eventId, state.eventTitle);
         
         try {
           const conversationData = await createOrGetEventConversation(state.eventId, state.eventTitle);
-          console.log('✅ Conversation événement créée:', conversationData);
+          console.log('conversation événement créée:', conversationData);
           
-          // Créer la conversation pour l'affichage
           const eventConversation: Conversation = {
             id: conversationData._id,
             name: `💬 ${state.eventTitle}`,
@@ -110,14 +101,12 @@ const NewConversations: React.FC = () => {
             participantIds: conversationData.participant_ids
           };
           
-          // Ouvrir directement cette conversation
           setSelectedConversation(eventConversation);
           
-          // Nettoyer l'état de navigation pour éviter de recréer la conversation
           window.history.replaceState(null, '', location.pathname);
           
         } catch (error) {
-          console.error('❌ Erreur lors de la création de conversation événement:', error);
+          console.error('erreur lors de la création de conversation événement:', error);
         }
       }
     };
@@ -125,10 +114,8 @@ const NewConversations: React.FC = () => {
     handleEventConversation();
   }, [location.state, currentUserId, isConnected, createOrGetEventConversation]);
 
-  // Déclarations des fonctions avant leur utilisation
   const handleBackToList = () => {
     setSelectedConversation(null);
-    // Rafraîchir les conversations pour mettre à jour les compteurs
     refetch();
   };
 
@@ -137,7 +124,6 @@ const NewConversations: React.FC = () => {
     setSelectedConversation(conversation);
   };
 
-  // Si une conversation est sélectionnée et on a l'ID utilisateur, afficher le chat
   if (selectedConversation && currentUserId) {
     return (
       <NewChat
@@ -149,7 +135,6 @@ const NewConversations: React.FC = () => {
     );
   }
 
-  // Filtrer les conversations selon le terme de recherche
   const filteredConversations = conversations.filter(conv =>
     conv.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     conv.lastMessage.toLowerCase().includes(searchTerm.toLowerCase())
@@ -166,14 +151,11 @@ const NewConversations: React.FC = () => {
   };
 
   const handleSendMessage = (userId: string) => {
-    // Créer ou trouver une conversation avec cet utilisateur
     const existingConversation = conversations.find(conv => conv.userId === userId);
     
     if (existingConversation) {
-      // Si la conversation existe déjà, l'ouvrir
       setSelectedConversation(existingConversation);
     } else {
-      // Créer une nouvelle conversation
       const newConversation: Conversation = {
         id: userId,
         name: selectedUser?.pseudo || 'Utilisateur',
@@ -217,15 +199,13 @@ const NewConversations: React.FC = () => {
       });
 
       if (response.ok) {
-        console.log('Demande d\'ami envoyée avec succès à:', userId);
-        // Optionnel: mettre à jour l'interface ou afficher un message de succès
+        console.log('demande d\'ami envoyée avec succès à:', userId);
       } else {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Erreur lors de l\'envoi de la demande d\'ami');
       }
     } catch (error) {
       console.error('Erreur lors de l\'envoi de la demande d\'ami:', error);
-      // L'erreur est déjà gérée dans UserProfileModal
     }
   };
 

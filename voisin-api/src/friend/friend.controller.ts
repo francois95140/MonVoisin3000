@@ -92,4 +92,13 @@ export class FriendController {
       status: status
     };
   }
+
+  // ✅ Supprimer un ami
+  @Post('remove')
+  async removeFriend(
+    @GetUser() user: User,
+    @Body('friendId') friendId: string
+  ) {
+    return this.friendService.removeFriend(user.id, friendId);
+  }
 }

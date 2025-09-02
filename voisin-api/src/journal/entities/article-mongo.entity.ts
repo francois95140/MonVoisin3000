@@ -17,7 +17,7 @@ export class ArticleItem {
   source: string;
 
   @Prop({ required: true })
-  datePublication: Date;
+  datePublication: string;
 
   @Prop()
   imageUrl?: string;
@@ -32,7 +32,7 @@ export class ArticleItem {
 export const ArticleItemSchema = SchemaFactory.createForClass(ArticleItem);
 
 // Schéma principal pour les nouvelles organisées par ville
-@Schema({ collection: 'news' })
+@Schema({ collection: 'news_collection' })
 export class NewsCollection extends Document {
   @Prop({
     type: Map,

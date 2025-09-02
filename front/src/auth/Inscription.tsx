@@ -76,9 +76,17 @@ async function handleInscription(event: React.FormEvent<HTMLFormElement>, isInsc
       if (hasChanged(formValues.email, initialUserData.email)) bodyData.email = formValues.email;
       if (hasChanged(formValues.pseudo, initialUserData.pseudo)) bodyData.pseudo = formValues.pseudo;
       if (hasChanged(formValues.bio, initialUserData.bio)) bodyData.bio = formValues.bio;
-      if (hasChanged(formValues.rue, initialUserData.rue)) bodyData.rue = formValues.rue;
-      if (hasChanged(formValues.codePostal, initialUserData.cp || initialUserData.codePostal)) bodyData.cp = formValues.codePostal;
-      if (hasChanged(formValues.ville, initialUserData.ville)) bodyData.ville = formValues.ville;
+      
+      // Vérification spéciale pour l'adresse (si au moins un des champs a changé)
+      const addressChanged = hasChanged(formValues.rue, initialUserData.rue) || 
+                           hasChanged(formValues.codePostal, initialUserData.cp || initialUserData.codePostal) ||
+                           hasChanged(formValues.ville, initialUserData.ville);
+      
+      if (addressChanged) {
+        bodyData.rue = formValues.rue;
+        bodyData.cp = formValues.codePostal;
+        bodyData.ville = formValues.ville;
+      }
       
       // Vérification de l'avatar modifié
       if (avatarBase64 && avatarBase64.trim() !== '') {

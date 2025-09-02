@@ -85,15 +85,18 @@ export class FriendService {
     return { message: 'Friend request cancelled!' };
   }
 
-  // 📌 Liste des amis d’un utilisateur
+  // 📌 Liste des amis d'un utilisateur
   async getFriends(userId: string) {
     const query = `
-      MATCH (u:User {id: $userId})-[:FRIEND]-(friend)
+      MATCH (u:User {userPgId: $userId})-[:FRIEND]-(friend)
       RETURN friend
     `;
     const result = await this.neo4jService.read(query, { userId });
 
-    return result.records.map((record) => record.get('friend').properties);
+    return {
+      success: true,
+      data: result.records.map((record) => record.get('friend').properties)
+    };
   }
 
   // 📌 Vérifier le statut d'amitié entre deux utilisateurs
@@ -172,5 +175,28 @@ export class FriendService {
       mutualFriends: record.get('mutualFriends').toNumber(),
       score: record.get('friendScore').toNumber()
     }));
+  }
+
+  // 📌 Supprimer un ami
+  async removeFriend(userId: string, friendId: string) {
+    const query = `
+      MATCH (a:User {userPgId: $userId})-[r1:FRIEND]-(b:User {userPgId: $friendId})
+      DELETE r1
+      RETURN a, b
+    `;
+
+    const result = await this.neo4jService.write(query, { userId, friendId });
+
+    if (result.records.length === 0) {
+      return { 
+        success: false, 
+        message: "Cette amitié n'existe pas ou a déjà été supprimée" 
+      };
+    }
+
+    return { 
+      success: true, 
+      message: 'Ami supprimé avec succès' 
+    };
   }
 }
