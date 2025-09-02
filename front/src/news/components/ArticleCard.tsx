@@ -23,13 +23,15 @@ interface Article {
 
 interface ArticleCardProps {
   article: Article;
-  onShare: (title: string) => void;
+  onShare: () => void;
+  onReadMore: () => void;
   onArticleClick: (title: string) => void;
 }
 
 const ArticleCard: React.FC<ArticleCardProps> = ({ 
   article, 
-  onShare, 
+  onShare,
+  onReadMore, 
   onArticleClick 
 }) => {
   return (
@@ -56,9 +58,8 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
       />
       
       <ArticleActions 
-        onShare={() => {
-          onShare(article.title);
-        }}
+        onShare={onShare}
+        onReadMore={onReadMore}
       />
     </article>
   );

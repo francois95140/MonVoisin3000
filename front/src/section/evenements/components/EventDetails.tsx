@@ -32,6 +32,7 @@ interface EventDetailsProps {
     onParticipate?: (eventId: string) => void;
     onUnregister?: (eventId: string) => void;
     onEdit?: (event: Event) => void;
+    onDelete?: (eventId: string) => void;
     onOpenEventChat?: (eventId: string, eventTitle: string) => void;
     isRegistered?: boolean;
     isOwner?: boolean;
@@ -43,6 +44,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({
     onParticipate,
     onUnregister,
     onEdit,
+    onDelete,
     onOpenEventChat,
     isRegistered = false,
     isOwner = false
@@ -278,11 +280,11 @@ const EventDetails: React.FC<EventDetailsProps> = ({
                         <div className="flex space-x-4">
                             {isOwner ? (
                                 <button 
-                                    onClick={() => onEdit?.(event)}
-                                    className="flex-1 btn-secondary px-6 py-3 rounded-xl text-white font-semibold"
+                                    onClick={() => onDelete?.(event.id!)}
+                                    className="flex-1 bg-red-600 hover:bg-red-700 px-6 py-3 rounded-xl text-white font-semibold flex items-center justify-center"
                                 >
-                                    <ion-icon name="create-outline" className="mr-2"></ion-icon>
-                                    Modifier l'événement
+                                    <ion-icon name="trash-outline" className="mr-2"></ion-icon>
+                                    Supprimer l'événement
                                 </button>
                             ) : (
                                 <>

@@ -468,13 +468,29 @@ const ProfilePage: React.FC<ProfilePageProps> = () => {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <NavLink 
+            <NavLink 
                 to="/friends" 
                 className="flex items-center space-x-3 p-4 bg-white/10 hover:bg-white/20 rounded-xl transition-all duration-200 border border-white/20"
               >
                 <IonIcon name="people-circle" className="w-5 h-5 text-white" />
                 <span className="text-white font-medium">Mes amis</span>
               </NavLink>
+
+              <a 
+                href="https://hainu.fr/projets/morpion/index.html" 
+                className="flex items-center space-x-3 p-4 bg-white/10 hover:bg-white/20 rounded-xl transition-all duration-200 border border-white/20"
+              >
+                <IonIcon name="game-controller-outline" className="w-5 h-5 text-white" />
+                <span className="text-white font-medium">Morpion</span>
+              </a>
+
+              <a 
+                href="https://hainu.fr/projets/cadavre_exquis/index.html" 
+                className="flex items-center space-x-3 p-4 bg-white/10 hover:bg-white/20 rounded-xl transition-all duration-200 border border-white/20"
+              >
+                <IonIcon name="game-controller-outline" className="w-5 h-5 text-white" />
+                <span className="text-white font-medium">Cadavre exquis</span>
+              </a>
 
               <NavLink 
                 to="/blocked-users" 

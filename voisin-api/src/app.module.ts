@@ -52,7 +52,8 @@ import { EventModule } from './event/event.module';
     ServiceModule,
     EmailModule,
     MessageModule,
-    EventModule
+    EventModule,
+    JournalMongoModule
   ],
   controllers: [],
   providers: [AuthService,NotificationsService],

@@ -532,59 +532,6 @@ const Trock: React.FC = () => {
                     <div className="flex items-center justify-between mb-3">
                       <span className="text-white/60 text-xs">{getTimeAgo(service.createdAt)}</span>
                     </div>
-                    {!isMyService(service.id) && (
-                      <button 
-                        className="btn-primary px-6 py-2 rounded-xl text-white font-semibold text-sm"
-                        onClick={async (e) => {
-                          e.stopPropagation();
-                          const actionText = service.type === ServiceType.HELP ? 'Aidée' : 
-                                           service.type === ServiceType.EXCHANGE ? 'Échangée' : 'Récupérée';
-                          
-                          try {
-                            const authToken = sessionStorage.getItem('authToken') || localStorage.getItem('authToken');
-                            
-                            if (!authToken) {
-                              console.error('Token d\'authentification manquant');
-                              return;
-                            }
-
-                            // Récupérer l'ID du provider (utilisateur connecté)
-                            // Vous devrez adapter cette partie selon votre système d'authentification
-                            const userInfo = JSON.parse(sessionStorage.getItem('userInfo') || localStorage.getItem('userInfo') || '{}');
-                            const providerId = userInfo.id;
-
-                            if (!providerId) {
-                              console.error('ID du provider manquant');
-                              return;
-                            }
-
-                            const response = await fetch(`${apiUrl}/api/services/${service.id}/assign/${providerId}`, {
-                              method: 'PATCH',
-                              headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${authToken}`
-                              }
-                            });
-
-                            if (!response.ok) {
-                              throw new Error(`Erreur ${response.status}: ${response.statusText}`);
-                            }
-
-                            const result = await response.json();
-                            console.log(`${actionText} - ${service.title}:`, result);
-                            
-                            // Optionnel: rafraîchir la liste des services
-                            fetchServices(activeServiceTab, 1, true);
-                            
-                          } catch (error) {
-                            console.error('Erreur lors de l\'assignation du service:', error);
-                          }
-                        }}
-                      >
-                        {service.type === ServiceType.HELP ? 'Aidée' : 
-                         service.type === ServiceType.EXCHANGE ? 'Échangée' : 'Récupérée'}
-                      </button>
-                    )}
                   </div>
                 </div>
               </div>

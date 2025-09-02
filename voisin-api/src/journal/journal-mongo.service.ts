@@ -20,6 +20,8 @@ export class JournalMongoService {
       return [];
     }
 
-    return newsDoc.news.get(ville) || [];
+    // Essayer d'abord avec la ville telle quelle, puis en minuscules
+    const villeNormalized = ville.toLowerCase();
+    return newsDoc.news.get(ville) || newsDoc.news.get(villeNormalized) || [];
   }
 }

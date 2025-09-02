@@ -1,4 +1,5 @@
 import { GoogleMap, Marker, useLoadScript } from '@react-google-maps/api';
+import { useState, useEffect } from 'react';
 const googleMapKey = import.meta.env.VITE_MAP_KEY;
 
 const containerStyle = {
@@ -6,20 +7,49 @@ const containerStyle = {
   height: '550px'
 };
 
-const center = {
+const defaultCenter = {
   lat: 48.8566, 
   lng: 2.3522   
 };
 
 const Cart = () => {
+  const [center, setCenter] = useState(defaultCenter);
+  const [loading, setLoading] = useState(true);
+  
   const { isLoaded } = useLoadScript({
-    googleMapsApiKey:  googleMapKey
+    googleMapsApiKey: googleMapKey
   });
 
-  if (!isLoaded) return <div>Chargement de la carte...</div>;
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setCenter({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          });
+          setLoading(false);
+        },
+        (error) => {
+          console.error('erreur géolocalisation:', error);
+          setLoading(false);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 300000
+        }
+      );
+    } else {
+      console.log('géolocalisation non supportée');
+      setLoading(false);
+    }
+  }, []);
+
+  if (!isLoaded || loading) return <div>Chargement de la carte...</div>;
 
   return (
-    <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={13}>
+    <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={15}>
       <Marker position={center} />
     </GoogleMap>
   );

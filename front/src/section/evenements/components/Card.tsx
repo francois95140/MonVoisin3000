@@ -10,7 +10,7 @@ interface CardProps {
     icon: string;
     animationDelay?: number;
     buttonText?: string;
-    buttonType?: 'primary' | 'secondary';
+    buttonType?: 'primary' | 'secondary' | 'danger';
     onClick?: () => void;
     onCardClick?: () => void;
 }
@@ -66,13 +66,18 @@ const Card: React.FC<CardProps> = ({
                     </div>
                 </div>
                 <button 
-                    className={`${buttonType === 'primary' ? 'btn-primary' : 'btn-secondary'} px-6 py-2 rounded-xl text-white font-semibold text-sm`}
+                    className={`${
+                        buttonType === 'primary' ? 'btn-primary' : 
+                        buttonType === 'danger' ? 'bg-red-600 hover:bg-red-700' : 
+                        'btn-secondary'
+                    } px-6 py-2 rounded-xl text-white font-semibold text-sm flex items-center space-x-2`}
                     onClick={(e) => {
                         e.stopPropagation(); // Empêche la propagation vers le clic de la carte
                         onClick?.();
                     }}
                 >
-                    {buttonText}
+                    {buttonType === 'danger' && <ion-icon name="trash-outline" className="text-sm"></ion-icon>}
+                    <span>{buttonText}</span>
                 </button>
             </div>
         </div>

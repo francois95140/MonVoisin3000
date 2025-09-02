@@ -97,7 +97,34 @@ export default function Evenements() {
                 }
                 
                 const data = await response.json();
-                setEvents(data);
+                
+                // Filtrer les événements pour exclure ceux créés par l'utilisateur actuel
+                const userStr = localStorage.getItem('user') || sessionStorage.getItem('user');
+                let currentUserId = null;
+                if (userStr) {
+                    try {
+                        const user = JSON.parse(userStr);
+                        currentUserId = user.id;
+                    } catch (e) {
+                        console.error('Erreur parsing user:', e);
+                    }
+                }
+                
+                const filteredEvents = currentUserId 
+                    ? data.filter((event: Event & { createdBy?: { id: string } | string }) => {
+                        // Si createdBy est un objet avec un id
+                        if (event.createdBy && typeof event.createdBy === 'object' && 'id' in event.createdBy) {
+                            return event.createdBy.id !== currentUserId;
+                        }
+                        // Si createdBy est directement l'id
+                        if (typeof event.createdBy === 'string') {
+                            return event.createdBy !== currentUserId;
+                        }
+                        return true; // Garder l'événement si pas de créateur défini
+                    })
+                    : data;
+                
+                setEvents(filteredEvents);
                 
                 // Récupérer aussi les événements auxquels l'utilisateur est inscrit
                 await fetchRegisteredEvents();
@@ -226,6 +253,48 @@ export default function Evenements() {
         }
     };
 
+    const handleDeleteEvent = async (eventId: string) => {
+        if (!confirm('Êtes-vous sûr de vouloir supprimer cet événement ?')) {
+            return;
+        }
+
+        try {
+            const token = sessionStorage.getItem('authToken') || localStorage.getItem('authToken');
+            if (!token) {
+                setError('Vous devez être connecté pour supprimer un événement.');
+                return;
+            }
+
+            const response = await fetch(`${apiUrl}/api/events/${eventId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.status === 401) {
+                localStorage.removeItem('authToken');
+                sessionStorage.removeItem('authToken');
+                setError('Session expirée. Veuillez vous reconnecter.');
+                return;
+            }
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                setError(errorData.message || 'Erreur lors de la suppression');
+                return;
+            }
+
+            alert('Événement supprimé avec succès');
+            fetchMyEvents();
+            
+        } catch (err) {
+            console.error('Erreur lors de la suppression:', err);
+            setError(err instanceof Error ? err.message : 'Erreur lors de la suppression de l\'événement');
+        }
+    };
+
     const handleParticipate = async (eventId: string) => {
         try {
             const token = sessionStorage.getItem('authToken') || localStorage.getItem('authToken');
@@ -348,7 +417,34 @@ export default function Evenements() {
                     
                     if (response.ok) {
                         const data = await response.json();
-                        setEvents(data);
+                        
+                        // Filtrer les événements pour exclure ceux créés par l'utilisateur actuel
+                        const userStr = localStorage.getItem('user') || sessionStorage.getItem('user');
+                        let currentUserId = null;
+                        if (userStr) {
+                            try {
+                                const user = JSON.parse(userStr);
+                                currentUserId = user.id;
+                            } catch (e) {
+                                console.error('Erreur parsing user:', e);
+                            }
+                        }
+                        
+                        const filteredEvents = currentUserId 
+                            ? data.filter((event: Event & { createdBy?: { id: string } | string }) => {
+                                // Si createdBy est un objet avec un id
+                                if (event.createdBy && typeof event.createdBy === 'object' && 'id' in event.createdBy) {
+                                    return event.createdBy.id !== currentUserId;
+                                }
+                                // Si createdBy est directement l'id
+                                if (typeof event.createdBy === 'string') {
+                                    return event.createdBy !== currentUserId;
+                                }
+                                return true; // Garder l'événement si pas de créateur défini
+                            })
+                            : data;
+                        
+                        setEvents(filteredEvents);
                     }
                 } catch (err) {
                     console.error('Erreur lors du rechargement:', err);
@@ -414,6 +510,7 @@ export default function Evenements() {
                 onParticipate={handleParticipate}
                 onUnregister={handleUnregister}
                 onEdit={handleEditEvent}
+                onDelete={handleDeleteEvent}
                 onOpenEventChat={handleOpenEventChat}
                 isRegistered={isRegistered}
                 isOwner={isOwner}
@@ -545,7 +642,7 @@ export default function Evenements() {
                                         icon={event.imageUrl || "calendar"}
                                         buttonText={
                                             currentView === 'my' 
-                                                ? "Modifier"
+                                                ? "Supprimer"
                                                 : currentView === 'participating'
                                                 ? "Ne plus participer"
                                                 : isRegistered 
@@ -554,7 +651,7 @@ export default function Evenements() {
                                         }
                                         buttonType={
                                             currentView === 'my' 
-                                                ? "secondary"
+                                                ? "danger"
                                                 : currentView === 'participating'
                                                 ? "secondary"
                                                 : isRegistered 
@@ -564,7 +661,7 @@ export default function Evenements() {
                                         animationDelay={index}
                                         onClick={
                                             currentView === 'my' 
-                                                ? () => handleEditEvent(event)
+                                                ? () => event.id && handleDeleteEvent(event.id)
                                                 : currentView === 'participating'
                                                 ? () => event.id && handleUnregister(event.id)
                                                 : isRegistered 
