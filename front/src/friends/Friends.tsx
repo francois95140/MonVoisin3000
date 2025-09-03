@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { IonIcon, GlassCard, Button } from '../components/shared';
 import { toast } from 'react-toastify';
+import FriendSuggestionModal from './FriendSuggestionModal';
 
 interface Friend {
   id?: string;
@@ -30,6 +31,7 @@ const Friends: React.FC = () => {
   const [receivedRequests, setReceivedRequests] = useState<Friend[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'friends' | 'pending' | 'received'>('friends');
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const getUserId = (user: Friend): string => {
     return user.id || user.userPgId || '';
@@ -299,11 +301,13 @@ const Friends: React.FC = () => {
               </Button>
             </NavLink>
             
-            <NavLink to="/convs">
-              <Button variant="primary" className="transform hover:scale-105 p-3">
-                <IonIcon name="person-add" className="w-5 h-5" />
-              </Button>
-            </NavLink>
+            <Button 
+              variant="primary" 
+              className="transform hover:scale-105 p-3"
+              onClick={() => setIsModalOpen(true)}
+            >
+              <IonIcon name="person-add" className="w-5 h-5" />
+            </Button>
           </div>
 
           {/* Tabs */}
@@ -442,6 +446,12 @@ const Friends: React.FC = () => {
 
         </div>
       </div>
+
+      <FriendSuggestionModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onFriendAdded={() => fetchFriendsData()}
+      />
     </>
   );
 };

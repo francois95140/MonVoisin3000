@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Neo4jService } from 'nest-neo4j';
+import * as neo4j from 'neo4j-driver';
 
 @Injectable()
 export class FriendService {
@@ -66,6 +67,7 @@ export class FriendService {
     const query = `
       MATCH (:User {userPgId: $from})-[r:FRIEND_REQUEST]->(:User {userPgId: $to})
       DELETE r
+      RETURN count(r) as deleted
     `;
 
     await this.neo4jService.write(query, { from, to });
@@ -78,6 +80,7 @@ export class FriendService {
     const query = `
       MATCH (:User {userPgId: $from})-[r:FRIEND_REQUEST]->(:User {userPgId: $to})
       DELETE r
+      RETURN count(r) as deleted
     `;
 
     await this.neo4jService.write(query, { from, to });
@@ -134,33 +137,37 @@ export class FriendService {
   // 📌 Suggestions d'amis basées sur un algorithme
   async getFriendSuggestions(userId: string, limit: number = 10) {
     const query = `
-      MATCH (user:User {userPgId: $userId})
-      
-      // Trouver les amis d'amis (niveau 2)
-      OPTIONAL MATCH (user)-[:FRIEND]->(friend)-[:FRIEND]->(suggestion)
-      WHERE suggestion <> user
-        AND NOT (user)-[:FRIEND]-(suggestion)
-        AND NOT (user)-[:FRIEND_REQUEST]-(suggestion)
-        AND NOT (suggestion)-[:FRIEND_REQUEST]-(user)
-      
-      WITH user, suggestion, COUNT(friend) as mutualFriends
-      WHERE suggestion IS NOT NULL
-      
-      // Calculer le score de suggestion
-      WITH suggestion, mutualFriends,
-           mutualFriends * 2 as friendScore
-      
-      // Ajouter des utilisateurs aléatoires si pas assez de suggestions
-      UNION
-      
-      MATCH (user:User {userPgId: $userId})
-      MATCH (randomUser:User)
-      WHERE randomUser <> user
-        AND NOT (user)-[:FRIEND]-(randomUser)
-        AND NOT (user)-[:FRIEND_REQUEST]-(randomUser)
-        AND NOT (randomUser)-[:FRIEND_REQUEST]-(user)
-      
-      WITH randomUser as suggestion, 0 as mutualFriends, 1 as friendScore
+      CALL {
+        MATCH (user:User {userPgId: $userId})
+        
+        // Trouver les amis d'amis (niveau 2)
+        OPTIONAL MATCH (user)-[:FRIEND]->(friend)-[:FRIEND]->(suggestion)
+        WHERE suggestion <> user
+          AND NOT (user)-[:FRIEND]-(suggestion)
+          AND NOT (user)-[:FRIEND_REQUEST]-(suggestion)
+          AND NOT (suggestion)-[:FRIEND_REQUEST]-(user)
+        
+        WITH user, suggestion, COUNT(friend) as mutualFriends
+        WHERE suggestion IS NOT NULL
+        
+        // Calculer le score de suggestion
+        WITH suggestion, mutualFriends,
+             mutualFriends * 2 as friendScore
+        
+        RETURN suggestion, mutualFriends, friendScore
+        
+        UNION
+        
+        // Ajouter des utilisateurs aléatoires si pas assez de suggestions
+        MATCH (user:User {userPgId: $userId})
+        MATCH (randomUser:User)
+        WHERE randomUser <> user
+          AND NOT (user)-[:FRIEND]-(randomUser)
+          AND NOT (user)-[:FRIEND_REQUEST]-(randomUser)
+          AND NOT (randomUser)-[:FRIEND_REQUEST]-(user)
+        
+        RETURN randomUser as suggestion, 0 as mutualFriends, 1 as friendScore
+      }
       
       // Retourner les suggestions triées par score
       RETURN DISTINCT suggestion, mutualFriends, friendScore
@@ -168,7 +175,10 @@ export class FriendService {
       LIMIT $limit
     `;
 
-    const result = await this.neo4jService.read(query, { userId, limit });
+    const result = await this.neo4jService.read(query, { 
+      userId, 
+      limit: neo4j.int(limit) 
+    });
 
     return result.records.map((record) => ({
       user: record.get('suggestion').properties,
