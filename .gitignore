@@ -49,7 +49,7 @@ build/
 out/
 
 # Frontend specific
-.env
+#.env
 .env.local
 .env.development.local
 .env.test.local
